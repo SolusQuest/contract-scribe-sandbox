@@ -35,7 +35,13 @@ public static class Operations
     /// Performs no operation.
     /// </summary>
     public static void Method08() { }
+    /// <summary>
+    /// Performs no operation.
+    /// </summary>
     public static void Method09() { }
+    /// <summary>
+    /// Performs no operation.
+    /// </summary>
     public static void Method10() { }
     public static void Method11() { }
 }
