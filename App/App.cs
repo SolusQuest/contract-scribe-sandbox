@@ -15,6 +15,9 @@ public static class Operations
     /// Public static method that takes no parameters, returns no value, and has an empty body.
     /// </summary>
     public static void Method03() { }
+    /// <summary>
+    /// Public static method that takes no parameters, returns no value, and has an empty body.
+    /// </summary>
     public static void Method04() { }
     public static void Method05() { }
     /// <summary>
