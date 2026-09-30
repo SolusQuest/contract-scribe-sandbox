@@ -1,0 +1,46 @@
+name: M6 issue 204 readback probe
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Compare absent and newly created Git object reads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, json, os, time, urllib.request, urllib.error
+          base = 'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
+          def oid(kind, data):
+              return hashlib.sha1(kind.encode()+b' '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          def call(method, path, value=None, fresh=False):
+              headers = {'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json',
+                         'X-GitHub-Api-Version':'2022-11-28', 'User-Agent':'ContractScribe-issue204-probe'}
+              if fresh: headers['Cache-Control']='no-cache'
+              request=urllib.request.Request(base+path, data=None if value is None else json.dumps(value).encode(), headers=headers, method=method)
+              try: response=urllib.request.urlopen(request,timeout=15)
+              except urllib.error.HTTPError as error: response=error
+              with response:
+                  doc=json.load(response)
+                  print(json.dumps({'method':method,'path':path,'fresh':fresh,'status':response.status,'sha':doc.get('sha'),
+                        'headers':{k:response.headers.get(k) for k in ('Date','Cache-Control','Age','ETag')}},sort_keys=True))
+                  return response.status, doc
+          content=('Synthetic issue 204 readback probe '+os.environ['GITHUB_RUN_ID']+'\n').encode()
+          blob=oid('blob',content)
+          tree=oid('tree',b'100644 synthetic.txt\0'+bytes.fromhex(blob))
+          assert call('GET','/git/blobs/'+blob)[0] == 404
+          assert call('GET','/git/trees/'+tree)[0] == 404
+          status, result=call('POST','/git/blobs',{'content':base64.b64encode(content).decode(),'encoding':'base64'})
+          assert status == 201 and result['sha'] == blob
+          for fresh in (False,True): call('GET','/git/blobs/'+blob,fresh=fresh)
+          status, result=call('POST','/git/trees',{'tree':[{'path':'synthetic.txt','mode':'100644','type':'blob','sha':blob}]})
+          assert status == 201 and result['sha'] == tree
+          for fresh in (False,True): call('GET','/git/trees/'+tree,fresh=fresh)
+          time.sleep(5)
+          for fresh in (False,True): call('GET','/git/trees/'+tree,fresh=fresh)
+          PY
