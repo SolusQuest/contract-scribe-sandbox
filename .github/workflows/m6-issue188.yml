@@ -60,7 +60,6 @@ concurrency:
 
 env:
   CS_HELPER: ${{ github.workspace }}/.github/contract-scribe/handoff.py
-  CS_STATE_DIR: ${{ runner.temp }}/contract-scribe-state
   CS_CAMPAIGN_LINEAGE: ${{ vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE }}
   # The checked-out target revision, input surface, policy file and optional
   # consumer configuration layer are ordinary file edits for the caller.
@@ -83,6 +82,8 @@ env:
 jobs:
   start:
     name: Manual campaign start
+    env:
+      CS_STATE_DIR: ${{ runner.temp }}/contract-scribe-state
     if: >-
       github.event_name == 'workflow_dispatch' &&
       vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE != '' &&
@@ -215,6 +216,8 @@ jobs:
 
   resume:
     name: Scheduled campaign resume
+    env:
+      CS_STATE_DIR: ${{ runner.temp }}/contract-scribe-state
     if: >-
       github.event_name == 'schedule' &&
       vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE != '' &&
