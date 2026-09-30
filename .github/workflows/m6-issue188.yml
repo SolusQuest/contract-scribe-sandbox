@@ -1,0 +1,360 @@
+# Caller-owned ContractScribe campaign example (issue #186 / M6-A3).
+#
+# Copy this file to .github/workflows/contract-scribe-campaign.yml and copy
+# handoff.py to .github/contract-scribe/handoff.py, then supply the caller
+# authority surface below. See docs/10_workflow/action-usage.md.
+#
+# Authority surface:
+#   vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE  plain lineage identifier, e.g.
+#                                       "campaign.docs". Presence arms the
+#                                       workflow; also feeds per-campaign
+#                                       concurrency.
+#   vars.CONTRACTSCRIBE_CAMPAIGN          JSON caller claims consumed by
+#                                       handoff.py request:
+#                                       {"snapshot":"...","operationId":"...",
+#                                        "generationId":"...",
+#                                        "targetRef":"refs/heads/main",
+#                                        "repositoryOwner":"...",
+#                                        "repositoryName":"...",
+#                                        "policyCeilings":{
+#                                          "maximumDocumentationBlocks":N,
+#                                          "maximumDistinctChangedFiles":N,
+#                                          "maximumCumulativePatchBytes":N}}
+#   vars.CONTRACTSCRIBE_ACTIVATION        JSON activation written by the
+#                                       caller between hops; each hop requires
+#                                       a NEW activation naming the producer
+#                                       run/attempt and the post-upload
+#                                       artifact id+digest printed by the
+#                                       previous run's "Render activation"
+#                                       step. Empty/absent skips the resume
+#                                       job cleanly.
+#   secrets.CONTRACTSCRIBE_PROVIDER_API_KEY provider credential.
+#   secrets.CONTRACTSCRIBE_ACQUISITION_TOKEN optional release-asset channel.
+#
+# The job GITHUB_TOKEN carries actions:read plus contents:write and
+# pull-requests:write. The helper uses it read-only for run/artifact
+# authentication, and the Action receives it as the product publication
+# credential — only the per-job token authenticates as the pinned
+# github-actions[bot] publisher, so no stored secret can substitute.
+#
+# Sealed-slot contract: a successful run uploads `contract-scribe-handoff`
+# sealed for this workflow's run_number+1 on the `schedule` event. The
+# consumer run must present a matching caller activation; the schedule firing
+# before you install the freshly printed activation burns that sealed slot
+# (intended consequence of the frozen missed-slot rule — disable the schedule
+# while advancing if the next cron could fire first).
+
+name: M6 issue 188 qualification
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Bounded issue #188 observation; disable after successor and inactive follow-up.
+    - cron: '7,22,37,52 * * * *'
+
+permissions: {}
+
+concurrency:
+  group: contract-scribe-${{ vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE || 'unconfigured' }}
+  cancel-in-progress: false
+
+env:
+  CS_HELPER: ${{ github.workspace }}/.github/contract-scribe/handoff.py
+  CS_STATE_DIR: ${{ runner.temp }}/contract-scribe-state
+  CS_CAMPAIGN_LINEAGE: ${{ vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE }}
+  # The checked-out target revision, input surface, policy file and optional
+  # consumer configuration layer are ordinary file edits for the caller.
+  # CS_CONFIGURATION may stay empty to use the payload defaults; to supply a
+  # layer, copy examples/github-actions/campaign-layer.example.json to a path
+  # of your choice and point this variable at it:
+  CS_INPUT: Synthetic.csproj
+  CS_POLICY: .github/contract-scribe/policy.json
+  CS_CONFIGURATION: .github/contract-scribe/layer.json
+  CS_RUN_CONTEXT: >-
+    {"runId":${{ toJSON(github.run_id) }},"runNumber":${{ toJSON(github.run_number) }},
+    "runAttempt":${{ toJSON(github.run_attempt) }},"event":${{ toJSON(github.event_name) }},
+    "ref":${{ toJSON(github.ref) }},"sha":${{ toJSON(github.sha) }},
+    "repository":${{ toJSON(github.repository) }},
+    "repositoryId":${{ toJSON(github.repository_id) }},
+    "workflowRef":${{ toJSON(github.workflow_ref) }}}
+  CS_CAMPAIGN: ${{ vars.CONTRACTSCRIBE_CAMPAIGN }}
+  CS_ACTIVATION: ${{ vars.CONTRACTSCRIBE_ACTIVATION }}
+
+jobs:
+  start:
+    name: Manual campaign start
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE != '' &&
+      vars.CONTRACTSCRIBE_CAMPAIGN != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out trusted revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Assert exact workflow head
+        run: test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+
+      - name: Producer admission gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 "$CS_HELPER" gate
+
+      - name: Prepare private state directory
+        run: |
+          set -euo pipefail
+          mkdir -p "$CS_STATE_DIR"
+          chmod 0700 "$CS_STATE_DIR"
+
+      - name: Install the target SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          global-json-file: global.json
+
+      - name: Prepare synthetic target and loopback provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet build Synthetic.csproj -c Debug --nologo -nodeReuse:false
+          python3 - <<'PY'
+          import os, subprocess, sys
+          sys.path.insert(0, '.github/contract-scribe')
+          from provider import wait_ready
+          process = subprocess.Popen([sys.executable, '.github/contract-scribe/provider.py'],
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          wait_ready(process)
+          with open(os.environ['GITHUB_ENV'], 'a') as out:
+              out.write(f'M6_PROVIDER_PID={process.pid}\n')
+          PY
+
+      - name: Build invocation request
+        id: request
+        run: >-
+          python3 "$CS_HELPER" request
+          --base-oid "$(git rev-parse HEAD)"
+          --state "$CS_STATE_DIR/checkpoint.json"
+          --out "$RUNNER_TEMP/cs-request.json"
+
+      - name: ContractScribe github-proposal start
+        id: invoke
+        uses: SolusQuest/contract-scribe@b92a60f44fbd55b9adca11d4ad250293a5a46f9b
+        with:
+          operation: github-proposal-start
+          repository-root: ${{ github.workspace }}
+          input: ${{ env.CS_INPUT }}
+          policy: ${{ env.CS_POLICY }}
+          request: ${{ steps.request.outputs.request-json }}
+          configuration: ${{ env.CS_CONFIGURATION }}
+          provider-api-key: ${{ secrets.CONTRACTSCRIBE_PROVIDER_API_KEY }}
+          github-token: ${{ github.token }}
+          acquisition-token: ${{ secrets.CONTRACTSCRIBE_ACQUISITION_TOKEN }}
+
+      - name: Emit sealed handoff
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 "$CS_HELPER" emit
+          --checkpoint "$CS_STATE_DIR/checkpoint.json"
+          --handoff-dir "$RUNNER_TEMP/cs-handoff"
+
+      - name: Upload handoff artifact
+        id: handoff_upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: contract-scribe-handoff
+          path: ${{ runner.temp }}/cs-handoff/
+          if-no-files-found: error
+          retention-days: 7
+          overwrite: false
+
+      - name: Render next activation
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 "$CS_HELPER" activation
+          --handoff-dir "$RUNNER_TEMP/cs-handoff"
+          --artifact-id "${{ steps.handoff_upload.outputs.artifact-id }}"
+          --artifact-digest "${{ steps.handoff_upload.outputs.artifact-digest }}"
+
+      - name: Record bounded qualification observations
+        if: always() && steps.invoke.outcome != 'skipped'
+        shell: bash
+        env:
+          OBS_PAYLOAD_VERSION: ${{ steps.invoke.outputs.payload-version }}
+          OBS_PAYLOAD_SHA256: ${{ steps.invoke.outputs.payload-sha256 }}
+          OBS_OUTCOME: ${{ steps.invoke.outputs.outcome }}
+          OBS_ACTION_STATUS: ${{ steps.invoke.outputs.action-status }}
+          OBS_CHECKPOINT_REVISION: ${{ steps.invoke.outputs.checkpoint-revision }}
+          OBS_PR_URL: ${{ steps.invoke.outputs.pull-request-url }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          facts = {key: os.environ.get(key, '') for key in (
+              'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_EVENT_NAME',
+              'GITHUB_SHA', 'RUNNER_OS', 'OBS_PAYLOAD_VERSION', 'OBS_PAYLOAD_SHA256',
+              'OBS_OUTCOME', 'OBS_ACTION_STATUS', 'OBS_CHECKPOINT_REVISION', 'OBS_PR_URL')}
+          line = json.dumps(facts, sort_keys=True)
+          print('M6_OBSERVATION=' + line)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('\n```json\n' + line + '\n```\n')
+          PY
+
+      - name: Stop loopback provider
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${M6_PROVIDER_PID:-}" ]; then kill "$M6_PROVIDER_PID" 2>/dev/null || true; fi
+
+  resume:
+    name: Scheduled campaign resume
+    if: >-
+      github.event_name == 'schedule' &&
+      vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE != '' &&
+      vars.CONTRACTSCRIBE_CAMPAIGN != '' &&
+      vars.CONTRACTSCRIBE_ACTIVATION != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out trusted revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Assert exact workflow head
+        run: test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+
+      - name: Authenticate activation
+        id: select
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 "$CS_HELPER" select --workdir "$RUNNER_TEMP/cs-select"
+
+      - name: Download sealed producer handoff
+        id: download
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317
+        with:
+          artifact-ids: ${{ steps.select.outputs.artifact-id }}
+          run-id: ${{ steps.select.outputs.producer-run-id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/cs-download
+          skip-decompress: true
+          digest-mismatch: error
+
+      - name: Verify handoff and restore checkpoint
+        run: |
+          set -euo pipefail
+          ZIP="$(find "$RUNNER_TEMP/cs-download" -name '*.zip' | head -1)"
+          [ -n "$ZIP" ] && [ -f "$ZIP" ]
+          python3 "$CS_HELPER" verify               --archive "$ZIP"               --selection "$RUNNER_TEMP/cs-select/selection.json"               --state-dir "$CS_STATE_DIR"
+
+      - name: Install the target SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          global-json-file: global.json
+
+      - name: Prepare synthetic target and loopback provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet build Synthetic.csproj -c Debug --nologo -nodeReuse:false
+          python3 - <<'PY'
+          import os, subprocess, sys
+          sys.path.insert(0, '.github/contract-scribe')
+          from provider import wait_ready
+          process = subprocess.Popen([sys.executable, '.github/contract-scribe/provider.py'],
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          wait_ready(process)
+          with open(os.environ['GITHUB_ENV'], 'a') as out:
+              out.write(f'M6_PROVIDER_PID={process.pid}\n')
+          PY
+
+      - name: Build invocation request
+        id: request
+        run: >-
+          python3 "$CS_HELPER" request
+          --base-oid "$(git rev-parse HEAD)"
+          --state "$CS_STATE_DIR/checkpoint.json"
+          --out "$RUNNER_TEMP/cs-request.json"
+
+      - name: ContractScribe github-proposal resume
+        id: invoke
+        uses: SolusQuest/contract-scribe@b92a60f44fbd55b9adca11d4ad250293a5a46f9b
+        with:
+          operation: github-proposal-resume
+          repository-root: ${{ github.workspace }}
+          input: ${{ env.CS_INPUT }}
+          policy: ${{ env.CS_POLICY }}
+          request: ${{ steps.request.outputs.request-json }}
+          configuration: ${{ env.CS_CONFIGURATION }}
+          provider-api-key: ${{ secrets.CONTRACTSCRIBE_PROVIDER_API_KEY }}
+          github-token: ${{ github.token }}
+          acquisition-token: ${{ secrets.CONTRACTSCRIBE_ACQUISITION_TOKEN }}
+
+      - name: Emit successor handoff
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 "$CS_HELPER" emit
+          --checkpoint "$CS_STATE_DIR/checkpoint.json"
+          --handoff-dir "$RUNNER_TEMP/cs-handoff"
+
+      - name: Upload successor artifact
+        id: handoff_upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: contract-scribe-handoff
+          path: ${{ runner.temp }}/cs-handoff/
+          if-no-files-found: error
+          retention-days: 7
+          overwrite: false
+
+      - name: Render next activation
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 "$CS_HELPER" activation
+          --handoff-dir "$RUNNER_TEMP/cs-handoff"
+          --artifact-id "${{ steps.handoff_upload.outputs.artifact-id }}"
+          --artifact-digest "${{ steps.handoff_upload.outputs.artifact-digest }}"
+
+      - name: Record bounded qualification observations
+        if: always() && steps.invoke.outcome != 'skipped'
+        shell: bash
+        env:
+          OBS_PAYLOAD_VERSION: ${{ steps.invoke.outputs.payload-version }}
+          OBS_PAYLOAD_SHA256: ${{ steps.invoke.outputs.payload-sha256 }}
+          OBS_OUTCOME: ${{ steps.invoke.outputs.outcome }}
+          OBS_ACTION_STATUS: ${{ steps.invoke.outputs.action-status }}
+          OBS_CHECKPOINT_REVISION: ${{ steps.invoke.outputs.checkpoint-revision }}
+          OBS_PR_URL: ${{ steps.invoke.outputs.pull-request-url }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          facts = {key: os.environ.get(key, '') for key in (
+              'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_EVENT_NAME',
+              'GITHUB_SHA', 'RUNNER_OS', 'OBS_PAYLOAD_VERSION', 'OBS_PAYLOAD_SHA256',
+              'OBS_OUTCOME', 'OBS_ACTION_STATUS', 'OBS_CHECKPOINT_REVISION', 'OBS_PR_URL')}
+          line = json.dumps(facts, sort_keys=True)
+          print('M6_OBSERVATION=' + line)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('\n```json\n' + line + '\n```\n')
+          PY
+
+      - name: Stop loopback provider
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${M6_PROVIDER_PID:-}" ]; then kill "$M6_PROVIDER_PID" 2>/dev/null || true; fi
