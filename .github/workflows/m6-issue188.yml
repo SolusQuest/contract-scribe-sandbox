@@ -49,7 +49,7 @@ name: M6 issue 188 qualification
 on:
   workflow_dispatch: {}
   schedule:
-    # Bounded issue #188 observation; disable after successor and inactive follow-up.
+    # Bounded #204/#188 observation; workflow remains disabled until preflight.
     - cron: '7,22,37,52 * * * *'
 
 permissions: {}
@@ -147,7 +147,7 @@ jobs:
 
       - name: ContractScribe github-proposal start
         id: invoke
-        uses: SolusQuest/contract-scribe@b92a60f44fbd55b9adca11d4ad250293a5a46f9b
+        uses: SolusQuest/contract-scribe@1bf35bc93ed99eb587cb4a96dcfaf69aebb631f7
         with:
           operation: github-proposal-start
           repository-root: ${{ github.workspace }}
@@ -296,7 +296,7 @@ jobs:
 
       - name: ContractScribe github-proposal resume
         id: invoke
-        uses: SolusQuest/contract-scribe@b92a60f44fbd55b9adca11d4ad250293a5a46f9b
+        uses: SolusQuest/contract-scribe@1bf35bc93ed99eb587cb4a96dcfaf69aebb631f7
         with:
           operation: github-proposal-resume
           repository-root: ${{ github.workspace }}
