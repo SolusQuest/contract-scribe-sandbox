@@ -82,8 +82,6 @@ env:
 jobs:
   start:
     name: Manual campaign start
-    env:
-      CS_STATE_DIR: ${{ runner.temp }}/contract-scribe-state
     if: >-
       github.event_name == 'workflow_dispatch' &&
       vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE != '' &&
@@ -103,6 +101,9 @@ jobs:
 
       - name: Assert exact workflow head
         run: test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+
+      - name: Bind runner state directory
+        run: printf 'CS_STATE_DIR=%s/contract-scribe-state\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Producer admission gate
         env:
@@ -216,8 +217,6 @@ jobs:
 
   resume:
     name: Scheduled campaign resume
-    env:
-      CS_STATE_DIR: ${{ runner.temp }}/contract-scribe-state
     if: >-
       github.event_name == 'schedule' &&
       vars.CONTRACTSCRIBE_CAMPAIGN_LINEAGE != '' &&
@@ -238,6 +237,9 @@ jobs:
 
       - name: Assert exact workflow head
         run: test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+
+      - name: Bind runner state directory
+        run: printf 'CS_STATE_DIR=%s/contract-scribe-state\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Authenticate activation
         id: select
