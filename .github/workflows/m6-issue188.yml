@@ -147,7 +147,7 @@ jobs:
 
       - name: ContractScribe github-proposal start
         id: invoke
-        uses: SolusQuest/contract-scribe@33619e3d047bd8b9dd68ad4093fd6d6d7159fec6
+        uses: SolusQuest/contract-scribe@76a379be51c0c7c8e1d2f457f614c403aff4c2ee
         with:
           operation: github-proposal-start
           repository-root: ${{ github.workspace }}
@@ -296,7 +296,7 @@ jobs:
 
       - name: ContractScribe github-proposal resume
         id: invoke
-        uses: SolusQuest/contract-scribe@33619e3d047bd8b9dd68ad4093fd6d6d7159fec6
+        uses: SolusQuest/contract-scribe@76a379be51c0c7c8e1d2f457f614c403aff4c2ee
         with:
           operation: github-proposal-resume
           repository-root: ${{ github.workspace }}
