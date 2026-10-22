@@ -26,14 +26,14 @@ jobs:
       - name: Exact reviewed source and target quality
         env:
           GH_TOKEN: ${{ github.token }}
-          A5_PRODUCT_SHA: 96af8d990146be8e6fd2612effa7601d468c883e
+          A5_PRODUCT_SHA: 0c68f00fcb679f33f7351cfe888a0e6dacdebab2
           A5_TARGET_SHA: 0ea0b71381ad78b8fe1f371441fe546171671ce1
           A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
         run: node control/.m7-a5/verify-source.mjs
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: SolusQuest/contract-scribe
-          ref: 96af8d990146be8e6fd2612effa7601d468c883e
+          ref: 0c68f00fcb679f33f7351cfe888a0e6dacdebab2
           path: product
           persist-credentials: false
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -47,7 +47,7 @@ jobs:
       - name: Acquire exact reviewed current CI payload
         env:
           GH_TOKEN: ${{ github.token }}
-          A5_PRODUCT_SHA: 96af8d990146be8e6fd2612effa7601d468c883e
+          A5_PRODUCT_SHA: 0c68f00fcb679f33f7351cfe888a0e6dacdebab2
           A5_PRODUCT_ROOT: ${{ github.workspace }}/product
         run: python3 control/.m7-a5/acquire-payload.py
       - name: Restore and build synthetic project without credentials
@@ -60,7 +60,7 @@ jobs:
         env:
           A5_CLI: ${{ env.A5_ACQUIRED_CLI }}
           A5_TARGET_ROOT: ${{ github.workspace }}/target
-          A5_PRODUCT_SHA: 96af8d990146be8e6fd2612effa7601d468c883e
+          A5_PRODUCT_SHA: 0c68f00fcb679f33f7351cfe888a0e6dacdebab2
           A5_TARGET_SHA: 0ea0b71381ad78b8fe1f371441fe546171671ce1
         run: python3 control/.m7-a5/audit-preflight.py diagnostic
       - name: Seal bounded closed diagnostic batch

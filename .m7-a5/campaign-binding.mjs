@@ -5,7 +5,9 @@ import {execFileSync,spawnSync} from 'node:child_process';
 export const targetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1';
 export const originalCoord='refs/heads/contract-scribe/coordination/fddfab7d34241bee29f478f81dc8fcc71d3a93195e8eab23d6f8289e23ab634f';
 export const originalHead='d7cdfef50f9a8987e88f35d43fee15699ce9a95a';
-export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.02',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-b'}};
+export const priorDiagnosticCoord='refs/heads/contract-scribe/coordination/a9edaa6b9020d5d9674f90c4c7cb704de987cd605e97648cea302dc4d3e34831';
+export const priorDiagnosticHead='40f8d521e38ad5ae9253287207f28399fbc31db0';
+export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.03',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-c'}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -17,7 +19,7 @@ export function coordination(target,lineage){
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
  const actual=fs.readFileSync(file),reviewed=fs.readFileSync(new URL('./campaign.json',import.meta.url));
- if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||process.env.A5_TARGET_SHA!==targetSha)fail();
+ if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||process.env.A5_TARGET_SHA!==targetSha)fail();
  return expected;
 }
 const readApi=path=>JSON.parse(execFileSync('gh',['api',path],{encoding:'utf8',maxBuffer:4*1024*1024}));
@@ -28,11 +30,13 @@ const absentApi=path=>{
 export function verifyFresh(file,read=readApi,absent=absentApi){
  verifyBinding(file);
  const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
- if(read(base+'heads/m7-a5-observation-20261022-b').object.sha!==targetSha
+ if(read(base+'heads/m7-a5-observation-20261022-c').object.sha!==targetSha
+  ||read(base+'heads/m7-a5-observation-20261022-b').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022').object.sha!==targetSha
   ||read(base+originalCoord.slice(5)).object.sha!==originalHead
+  ||read(base+priorDiagnosticCoord.slice(5)).object.sha!==priorDiagnosticHead
   ||!absent(base+diagnosticCoord.slice(5))
-  ||!absent(base+'tags/m7-a5-budget-20261022-slot-02'))fail();
+  ||!absent(base+'tags/m7-a5-budget-20261022-slot-03'))fail();
 }
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2]);}catch{console.error('Separate diagnostic binding/collision gate failed before slot claim.');process.exitCode=1;}
