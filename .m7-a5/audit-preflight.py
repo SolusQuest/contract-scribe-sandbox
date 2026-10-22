@@ -23,8 +23,14 @@ def completed(envelope,exit_code,canonical,sha):
         actual[key]+=1
     require(actual==counts)
 
+def campaign_binding():
+    return json.loads(Path(__file__).with_name("campaign.json").read_text())
+
 def verify_receipt(path,cli,sha,target):
     r=json.loads(Path(path).read_text())
+    binding=campaign_binding()
+    require(r['campaignLineage']==binding['campaignLineage'] and r['targetRef']==binding['github']['targetRef'])
+    require(r['campaignSha256']==hashlib.sha256(Path(__file__).with_name('campaign.json').read_bytes()).hexdigest())
     require(r['realAuditCompleted'] is True and r['case']=='project-workspace' and r['sourceRevision']==sha and r['targetSha']==target)
     require(r['cliSha256']==hashlib.sha256(Path(cli).read_bytes()).hexdigest())
     require(r['envelope']['terminalLayer']=='audit' and r['envelope']['counts']['skipped']==0)
@@ -62,7 +68,8 @@ def main():
         finally:solution.unlink()
     original=cases[0]
     if original['realAuditCompleted']:
-        receipt={**original,'sourceRevision':sha,'targetSha':target,'cliSha256':hashlib.sha256(cli.read_bytes()).hexdigest()}
+        binding=campaign_binding()
+        receipt={**original,'campaignLineage':binding['campaignLineage'],'targetRef':binding['github']['targetRef'],'campaignSha256':hashlib.sha256(Path(__file__).with_name('campaign.json').read_bytes()).hexdigest(),'sourceRevision':sha,'targetSha':target,'cliSha256':hashlib.sha256(cli.read_bytes()).hexdigest()}
         (temp/'a5-audit-preflight.json').write_text(json.dumps(receipt,separators=(',',':'))+'\n')
     require(not subprocess.check_output(['git','-C',str(root),'status','--porcelain','--untracked-files=no'],text=True).strip())
     batch={'mode':sys.argv[1],'sourceRevision':sha,'targetSha':target,'providerCalls':0,'publicationActions':0,'cases':cases,'originalProjectAuditCompleted':original['realAuditCompleted']}

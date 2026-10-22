@@ -14,7 +14,7 @@ on:
       slot:
         required: true
         type: choice
-        options: ['02','03','04','05','06','07','08','09','11','12','13','z01','z02','z03']
+        options: ['02']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
