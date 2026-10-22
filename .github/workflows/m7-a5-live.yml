@@ -68,7 +68,7 @@ jobs:
           test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
           test -z "${GH_TOKEN:-}"
           dotnet restore target/App/App.csproj --configfile control/.m7-a5/synthetic-nuget.config
-          dotnet build target/App/App.csproj -c Release --no-restore
+          dotnet build target/App/App.csproj -c Debug --no-restore
           umask 077
           cp control/.m7-a5/campaign.json "$RUNNER_TEMP/campaign.json"
           node control/.m7-a5/select-profile.mjs copy "$SLOT" "$RUNNER_TEMP/consumer.json"

@@ -54,7 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           dotnet restore target/App/App.csproj --configfile control/.m7-a5/synthetic-nuget.config
-          dotnet build target/App/App.csproj -c Release --no-restore
+          dotnet build target/App/App.csproj -c Debug --no-restore
       - name: Original project then cwd then solution comparison
         id: audit
         env:
