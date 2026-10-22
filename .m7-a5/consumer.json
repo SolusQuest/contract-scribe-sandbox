@@ -1,0 +1,47 @@
+{
+  "consumerConfigurationVersion": 1,
+  "provider": {
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "model": "deepseek-flash",
+    "requestProfile": {
+      "thinkingMode": "enabled",
+      "reasoningEffort": "high",
+      "toolChoice": "auto",
+      "continuationPolicy": "required-for-tool-calls",
+      "outputTokenField": "max_tokens"
+    }
+  },
+  "budgets": {
+    "campaign": {
+      "maximumProviderRequests": 104,
+      "maximumAttemptsPerTarget": 2,
+      "maximumInputTokens": 6815744,
+      "maximumUncachedInputTokens": 6815744,
+      "maximumOutputTokens": 425984,
+      "maximumCostMicrounits": 18000000,
+      "maximumElapsedMilliseconds": 7200000,
+      "maximumCandidatesPerBlock": 30
+    },
+    "invocation": {
+      "maximumTargets": 5,
+      "maximumProviderRequests": 8,
+      "maximumCachedInputTokens": 262144,
+      "maximumUncachedInputTokens": 262144,
+      "maximumOutputTokens": 32768,
+      "maximumRequestOutputTokens": 4096,
+      "maximumRequestElapsedMilliseconds": 90000,
+      "maximumConnectMilliseconds": 10000,
+      "maximumElapsedMilliseconds": 600000,
+      "maximumToolCalls": 64,
+      "maximumToolCallsPerResponse": 8
+    }
+  },
+  "costPolicy": {
+    "currencyId": "currency.cny",
+    "ratePolicyId": "deepseek-flash-2026-10-22-peak",
+    "cachedInputMicrounitsPerMillion": 40000,
+    "uncachedInputMicrounitsPerMillion": 2000000,
+    "outputMicrounitsPerMillion": 8000000,
+    "reasoningMicrounitsPerMillion": 0
+  }
+}

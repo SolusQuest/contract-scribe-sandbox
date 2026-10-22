@@ -1,0 +1,105 @@
+name: M7 A5 bounded observation
+run-name: M7 A5 slot ${{ inputs.slot }}
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        required: true
+        default: 0ea0b71381ad78b8fe1f371441fe546171671ce1
+      approved_workflow_sha:
+        required: true
+      product_sha:
+        required: true
+        default: 96af8d990146be8e6fd2612effa7601d468c883e
+      slot:
+        required: true
+        type: choice
+        options: ['01','02','03','04','05','06','07','08','09','10','11','12','13','z01','z02','z03']
+permissions: {}
+concurrency:
+  group: m7-a5-observation-20261022
+  cancel-in-progress: false
+jobs:
+  observe:
+    # Local installation candidate only; remote installation/dispatch needs approval.
+    if: github.repository_id == '1361354906' && github.event_name == 'workflow_dispatch' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      packages: read
+      actions: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: control
+          persist-credentials: false
+      - name: Verify exact reviewed source and terminal quality before build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          A5_PRODUCT_SHA: ${{ inputs.product_sha }}
+          A5_TARGET_SHA: ${{ inputs.target_sha }}
+          A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
+        run: node control/.m7-a5/verify-source.mjs
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: SolusQuest/contract-scribe
+          ref: ${{ inputs.product_sha }}
+          path: product
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ inputs.target_sha }}
+          path: target
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          global-json-file: product/global.json
+      - name: Restore and build before provider injection
+        run: |
+          set -euo pipefail
+          test "$(git -C product rev-parse HEAD)" = "$A5_PRODUCT_SHA"
+          dotnet restore product/ContractScribe.slnx
+          dotnet build product/ContractScribe.slnx -c Release --no-restore
+          dotnet restore target/App/App.csproj
+          dotnet build target/App/App.csproj -c Release --no-restore
+          umask 077
+          cp control/.m7-a5/campaign.json "$RUNNER_TEMP/campaign.json"
+          cp control/.m7-a5/consumer.json "$RUNNER_TEMP/consumer.json"
+          if [ "$SLOT" = 01 ]; then cp control/.m7-a5/consumer-first-stop.json "$RUNNER_TEMP/consumer.json"; fi
+          if [[ "$SLOT" == z* ]]; then cp control/.m7-a5/consumer-zero.json "$RUNNER_TEMP/consumer.json"; fi
+        env:
+          SLOT: ${{ inputs.slot }}
+          A5_PRODUCT_SHA: ${{ inputs.product_sha }}
+          NuGetPackageSourceCredentials_solusagent: Username=${{ github.actor }};Password=${{ github.token }};ValidAuthenticationTypes=Basic
+      - name: Single bounded production invocation
+        id: live
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ !startsWith(inputs.slot, 'z') && secrets.M7_A5_DEEPSEEK_KEY || '' }}
+          A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
+          A5_TARGET_SHA: ${{ inputs.target_sha }}
+          A5_SLOT: ${{ inputs.slot }}
+          A5_TARGET_ROOT: ${{ github.workspace }}/target
+          A5_CLI: ${{ github.workspace }}/product/src/ContractScribe.Cli/bin/Release/net10.0/ContractScribe.Cli.dll
+          A5_CAMPAIGN: ${{ runner.temp }}/campaign.json
+          A5_CONSUMER: ${{ runner.temp }}/consumer.json
+        run: bash control/.m7-a5/budget-and-launch.sh
+      - name: Seal bounded result
+        if: always() && steps.live.outcome == 'success'
+        env:
+          A5_RECIPIENT_PUBLIC_KEY: ${{ github.workspace }}/control/.m7-a5/recipient-public.pem
+        run: bash control/.m7-a5/private-result-collection.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always() && steps.live.outcome == 'success'
+        with:
+          name: m7-a5-sealed-slot-${{ inputs.slot }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/a5-private.jwe
+          if-no-files-found: error
+          retention-days: 1
+      - name: Preserve actual CLI failure
+        if: always() && steps.live.outcome == 'success'
+        run: test "$(cat "$RUNNER_TEMP/a5-exit-code.txt")" = 0

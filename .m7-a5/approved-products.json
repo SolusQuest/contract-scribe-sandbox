@@ -1,0 +1,11 @@
+{
+  "repository": "SolusQuest/contract-scribe",
+  "sources": [
+    {
+      "sha": "96af8d990146be8e6fd2612effa7601d468c883e",
+      "kind": "merged-baseline",
+      "ciWorkflowId": 311270030,
+      "codeqlWorkflowId": 343249902
+    }
+  ]
+}
