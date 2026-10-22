@@ -12,10 +12,11 @@ test "$(gh api repos/SolusQuest/contract-scribe-sandbox --jq .id)" = 1361354906
 if [[ "$A5_SLOT" != z* ]]; then : "${CONTRACTSCRIBE_PROVIDER_API_KEY:?}"; else test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"; fi
 test "$GITHUB_WORKFLOW_SHA" = "$A5_APPROVED_WORKFLOW_SHA"
 [[ "$A5_TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]
-[[ "$A5_SLOT" =~ ^(0[2-9]|1[0-3]|z0[1-3])$ ]]
+[[ "$A5_SLOT" =~ ^(0[2-9]|1[1-3]|z0[1-3])$ ]]
 test "$(git -C "$A5_TARGET_ROOT" rev-parse HEAD)" = "$A5_TARGET_SHA"
 test "$(gh api repos/SolusQuest/contract-scribe-sandbox/git/ref/heads/m7-a5-observation-20261022 --jq .object.sha)" = "$A5_TARGET_SHA"
 node "$(dirname "$0")/select-profile.mjs" verify "$A5_SLOT" "$A5_CONSUMER"
+if [[ "$A5_SLOT" != z* ]]; then python3 "$(dirname "$0")/audit-preflight.py" verify-receipt; fi
 # Atomic single-use slot claim. Any denied/ambiguous POST stops; no retry,
 # overwrite or deletion. A consumed slot stays consumed after failure.
 gh api --method POST repos/SolusQuest/contract-scribe-sandbox/git/refs -f "ref=refs/tags/m7-a5-budget-20261022-slot-$A5_SLOT" -f "sha=$GITHUB_SHA" >/dev/null
