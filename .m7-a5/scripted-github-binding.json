@@ -1,17 +1,17 @@
 {
-  "purpose": "m7-a5-scripted-github-20261024-01",
+  "purpose": "m7-a5-scripted-github-20261025-02",
   "repository": "SolusQuest/contract-scribe-sandbox",
   "repositoryId": 1361354906,
   "sourceRepository": "SolusQuest/contract-scribe",
   "sourceRepositoryId": 1297409952,
-  "source": "1d6178441158737517e561e0b1996a6ddafbf62c",
+  "source": "ed083fab0748a2ae7c6c662c7fa2c806119144d6",
   "sourceBase": "96af8d990146be8e6fd2612effa7601d468c883e",
   "sourcePr": 261,
-  "targetRef": "refs/heads/m7-a5-scripted-20261024-k",
+  "targetRef": "refs/heads/m7-a5-scripted-20261025-l",
   "targetSha": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
-  "campaignLineage": "campaign.m7.a5.scripted.20261024.01",
-  "coordinationRef": "refs/heads/contract-scribe/coordination/6641dc0ba4145005af95f387a9a2de6cf09ab3a9f3087f042b1d831f24ed6f64",
-  "claimRef": "refs/tags/m7-a5-scripted-20261024-01",
+  "campaignLineage": "campaign.m7.a5.scripted.20261025.02",
+  "coordinationRef": "refs/heads/contract-scribe/coordination/5a528410f50b7322be2b2224a457ac0b5b6c71e9aa6f2530183ca11f346a8c9d",
+  "claimRef": "refs/tags/m7-a5-scripted-20261025-02",
   "maximumWorkflowAttempts": 1,
   "maximumOuterInvocations": 1,
   "maximumSyntheticRequests": 8,
@@ -21,15 +21,15 @@
   "ModelMilliseconds": 600000,
   "requiredBotActor": 41898282,
   "payload": {
-    "artifactId": 12555049302,
-    "producerRunId": 40081387762,
+    "artifactId": 12565167302,
+    "producerRunId": 40107741180,
     "producerAttempt": 1,
     "artifactName": "d2-payload-attempt-1",
-    "zipSha256": "f8643a556611fba24266d98fc050ccfae897142a107b178bedbe8f0fba3a2729",
-    "archiveSha256": "6491dbba347cbfedc2ea7476623aed69c465d23915c99969ba26b5db566e8663",
-    "archiveName": "contract-scribe-0.1.0-dev+1d6178441158737517e561e0b1996a6ddafbf62c-linux-x64.tar.gz"
+    "zipSha256": "c6bb876ad5753d1e70cc7b6c1f53d4a6328fc9a1a9df2fdadfa91c4993e1bad8",
+    "archiveSha256": "4d41c3e8f286d32cf66f58203b5a22f1999e953620f82c15ecde800205b86440",
+    "archiveName": "contract-scribe-0.1.0-dev+ed083fab0748a2ae7c6c662c7fa2c806119144d6-linux-x64.tar.gz"
   },
-  "sourceAllowlistSha256": "6fd6117ce6ed6080d2deb04c55195edce33ec38437b323ad68fcf660cf9757a2",
+  "sourceAllowlistSha256": "df03c630b3aed72ca71d9ab0dcab81254c8e68b317d146e89dc0f2327f4228d3",
   "oldControlFiles": [
     {
       "path": ".github/contract-scribe/handoff.py",
@@ -99,7 +99,7 @@
     {
       "path": ".m7-a5/approved-products.json",
       "mode": "100644",
-      "sha256": "6fd6117ce6ed6080d2deb04c55195edce33ec38437b323ad68fcf660cf9757a2"
+      "sha256": "df03c630b3aed72ca71d9ab0dcab81254c8e68b317d146e89dc0f2327f4228d3"
     },
     {
       "path": ".m7-a5/audit-preflight.py",
@@ -247,6 +247,12 @@
       "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
       "coordinationRef": "refs/heads/contract-scribe/coordination/fa7e283a3ba0eb3ef11449bb48c6cb3f1e381d61c5baff48b474be33feb13e26",
       "coordinationHead": "87a6dc28138c4108093936378126d7df442456cf"
+    },
+    "K": {
+      "targetRef": "refs/heads/m7-a5-scripted-20261024-k",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/6641dc0ba4145005af95f387a9a2de6cf09ab3a9f3087f042b1d831f24ed6f64",
+      "coordinationHead": "89ddf4cebd881797817bb26f05d946910f93d99a"
     }
   },
   "oldPrsSha256": "a018c1f9aeccdc999eb828b50eb6ea5943850d78931938db39eebbac02f5555e",
@@ -263,7 +269,7 @@
     "refs/tags/m7-a5-budget-20261022-slot-11": "649b301a983b00fa81f9aaf20af4fd25fcfac8a9",
     "refs/tags/m7-a5-budget-20261022-slot-12": "653fb2c9f477b2d6bd3e92d82b8849ac6625752b"
   },
-  "sourceFeedbackSha256": "4d2e22cb91dbb214e2188a5ce46ee17c4ce7a5a5498d8b6201d71a502db30ff1",
+  "sourceFeedbackSha256": "8eb6cc4b4c1349d572fd9f1750e00b33d393be73aa9400282957c9428632b401",
   "consumer": {
     "consumerConfigurationVersion": 1,
     "provider": {
@@ -310,5 +316,8 @@
       "outputMicrounitsPerMillion": 8000000,
       "reasoningMicrounitsPerMillion": 0
     }
+  },
+  "oldZeroPurposeClaims": {
+    "refs/tags/m7-a5-scripted-20261024-01": "ea280dccf6ec60a7c541e2c12dcf1830058040fc"
   }
 }

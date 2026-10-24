@@ -42,13 +42,19 @@ function writePrivate(file,value){fs.writeFileSync(file,JSON.stringify(value)+'\
 export function validateBinding(b=binding){
  requireThat(b.repository==='SolusQuest/contract-scribe-sandbox'&&b.repositoryId===1361354906
   &&b.sourceRepository==='SolusQuest/contract-scribe'&&b.sourceRepositoryId===1297409952
-  &&b.source==='1d6178441158737517e561e0b1996a6ddafbf62c'&&b.sourcePr===261
-  &&b.purpose==='m7-a5-scripted-github-20261024-01'
-  &&b.targetRef==='refs/heads/m7-a5-scripted-20261024-k'
-  &&b.campaignLineage==='campaign.m7.a5.scripted.20261024.01'
-  &&b.claimRef==='refs/tags/m7-a5-scripted-20261024-01'
+  &&b.source==='ed083fab0748a2ae7c6c662c7fa2c806119144d6'&&b.sourcePr===261
+  &&b.purpose==='m7-a5-scripted-github-20261025-02'
+  &&b.targetRef==='refs/heads/m7-a5-scripted-20261025-l'
+  &&b.campaignLineage==='campaign.m7.a5.scripted.20261025.02'
+  &&b.claimRef==='refs/tags/m7-a5-scripted-20261025-02'
   &&coordination(b)===b.coordinationRef&&b.maximumWorkflowAttempts===1&&b.maximumOuterInvocations===1
   &&b.maximumExternalModelRequests===0&&b.maximumSyntheticRequests===8&&b.firstResponseHoldMilliseconds===61000
+  &&b.targetSha==='0ea0b71381ad78b8fe1f371441fe546171671ce1'
+  &&b.frozen.K?.targetRef==='refs/heads/m7-a5-scripted-20261024-k'
+  &&b.frozen.K?.coordinationRef==='refs/heads/contract-scribe/coordination/6641dc0ba4145005af95f387a9a2de6cf09ab3a9f3087f042b1d831f24ed6f64'
+  &&b.frozen.K?.coordinationHead==='89ddf4cebd881797817bb26f05d946910f93d99a'
+  &&Object.keys(b.oldZeroPurposeClaims??{}).length===1
+  &&b.oldZeroPurposeClaims['refs/tags/m7-a5-scripted-20261024-01']==='ea280dccf6ec60a7c541e2c12dcf1830058040fc'
   &&b.requiredBotActor===41898282&&b.HostMilliseconds===300000&&b.ModelMilliseconds===600000
   &&b.consumer.provider.endpoint===null&&b.consumer.provider.model==='fixed-synthetic-noop'
   &&b.consumer.budgets.invocation.maximumTargets===5&&b.consumer.budgets.invocation.maximumProviderRequests===8
@@ -94,6 +100,7 @@ function pages(route,key){
 function refHead(ref,expected){const value=api(`repos/${binding.repository}/git/ref/${ref.slice(5)}`);requireThat(value.ref===ref&&value.object?.type==='commit'&&value.object.sha===expected);}
 function freeze(){
  for(const value of Object.values(binding.frozen)){refHead(value.targetRef,value.targetHead);refHead(value.coordinationRef,value.coordinationHead);}
+ for(const [ref,head] of Object.entries(binding.oldZeroPurposeClaims))refHead(ref,head);
  const tags=pages(`repos/${binding.repository}/git/matching-refs/tags/m7-a5-budget-`);
  requireThat(sha256(canonical(Object.fromEntries(tags.map(t=>[t.ref,t.object.sha]))))===sha256(canonical(binding.oldBudgetTags)));
  const prs=pages(`repos/${binding.repository}/pulls?state=all`).map(p=>({number:p.number,state:p.state,title:p.title,body:p.body,draft:p.draft,merged_at:p.merged_at,headSha:p.head.sha,baseSha:p.base.sha,baseRef:p.base.ref,userId:p.user.id})).sort((a,b)=>a.number-b.number);
@@ -131,7 +138,7 @@ export function preflight(){
   requireThat(r?.status==='completed'&&r.conclusion==='success'&&r.repository.full_name===b.sourceRepository);
  }
  const checks=pages(`repos/${b.sourceRepository}/commits/${b.source}/check-runs`,'check_runs');
- requireThat(checks.length===22&&checks.every(c=>c.status==='completed'&&(c.conclusion==='success'||(c.name==='integration_unfiltered_evidence'&&c.conclusion==='skipped')))&&checks.filter(c=>c.conclusion==='success').length===21);
+ requireThat(checks.length===22&&checks.every(c=>c.head_sha===b.source&&c.status==='completed'&&(c.conclusion==='success'||(c.name==='integration_unfiltered_evidence'&&c.conclusion==='skipped')))&&checks.filter(c=>c.conclusion==='success').length===21);
  const artifact=api(`repos/${b.sourceRepository}/actions/artifacts/${b.payload.artifactId}`);
  requireThat(!artifact.expired&&artifact.name===b.payload.artifactName&&artifact.digest==='sha256:'+b.payload.zipSha256&&artifact.workflow_run.id===b.payload.producerRunId&&artifact.workflow_run.head_sha===b.source);
  feedback();const before=inventory(own);freeze();refHead(b.targetRef,b.targetSha);absent(b.coordinationRef);absent(b.claimRef);
