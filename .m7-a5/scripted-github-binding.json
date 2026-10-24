@@ -1,0 +1,314 @@
+{
+  "purpose": "m7-a5-scripted-github-20261024-01",
+  "repository": "SolusQuest/contract-scribe-sandbox",
+  "repositoryId": 1361354906,
+  "sourceRepository": "SolusQuest/contract-scribe",
+  "sourceRepositoryId": 1297409952,
+  "source": "1d6178441158737517e561e0b1996a6ddafbf62c",
+  "sourceBase": "96af8d990146be8e6fd2612effa7601d468c883e",
+  "sourcePr": 261,
+  "targetRef": "refs/heads/m7-a5-scripted-20261024-k",
+  "targetSha": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+  "campaignLineage": "campaign.m7.a5.scripted.20261024.01",
+  "coordinationRef": "refs/heads/contract-scribe/coordination/6641dc0ba4145005af95f387a9a2de6cf09ab3a9f3087f042b1d831f24ed6f64",
+  "claimRef": "refs/tags/m7-a5-scripted-20261024-01",
+  "maximumWorkflowAttempts": 1,
+  "maximumOuterInvocations": 1,
+  "maximumSyntheticRequests": 8,
+  "maximumExternalModelRequests": 0,
+  "firstResponseHoldMilliseconds": 61000,
+  "HostMilliseconds": 300000,
+  "ModelMilliseconds": 600000,
+  "requiredBotActor": 41898282,
+  "payload": {
+    "artifactId": 12555049302,
+    "producerRunId": 40081387762,
+    "producerAttempt": 1,
+    "artifactName": "d2-payload-attempt-1",
+    "zipSha256": "f8643a556611fba24266d98fc050ccfae897142a107b178bedbe8f0fba3a2729",
+    "archiveSha256": "6491dbba347cbfedc2ea7476623aed69c465d23915c99969ba26b5db566e8663",
+    "archiveName": "contract-scribe-0.1.0-dev+1d6178441158737517e561e0b1996a6ddafbf62c-linux-x64.tar.gz"
+  },
+  "sourceAllowlistSha256": "6fd6117ce6ed6080d2deb04c55195edce33ec38437b323ad68fcf660cf9757a2",
+  "oldControlFiles": [
+    {
+      "path": ".github/contract-scribe/handoff.py",
+      "mode": "100644",
+      "sha256": "b9e568265950dd44381118d25be1c43d833c42f6f84267b5f4fe938e28c8134c"
+    },
+    {
+      "path": ".github/contract-scribe/layer.json",
+      "mode": "100644",
+      "sha256": "51b7a423eb55a3e0fc98eda2d665db9f03f66dd7bb226cddb7c43c0d582f3ac5"
+    },
+    {
+      "path": ".github/contract-scribe/policy.json",
+      "mode": "100644",
+      "sha256": "7c1f231a0d43c4b60697dad9cd9058c349aa700f910eaba3fc4704f981ca5344"
+    },
+    {
+      "path": ".github/contract-scribe/provider.py",
+      "mode": "100644",
+      "sha256": "0deae8e7a1beaa777d8c30ba8e1912821ed88420b28e5eb7bbefd80f77d76e6e"
+    },
+    {
+      "path": ".github/workflows/m5-github-proposal-proof.yml",
+      "mode": "100644",
+      "sha256": "f40d57b384468a23348734fdea59320d1ffdf09f61c4dee8f37c2e056cbbb046"
+    },
+    {
+      "path": ".github/workflows/m6-issue188.yml",
+      "mode": "100644",
+      "sha256": "865e5a4a0e69bb4783e2f977a0e2ec7d69456b438f55ef678f97adbc8ee953ae"
+    },
+    {
+      "path": ".github/workflows/m6-readback-probe.yml",
+      "mode": "100644",
+      "sha256": "b49fd0ae2c05c6552663442fedb6228b85bc812d5544582fba50492f9be78a23"
+    },
+    {
+      "path": ".github/workflows/m6-schedule-diagnostic.yml",
+      "mode": "100644",
+      "sha256": "25d46f94f10f82d1066a74fcc60578e4cdb63b39517426a4eefc655cd711e952"
+    },
+    {
+      "path": ".github/workflows/m7-a5-audit-diagnostic.yml",
+      "mode": "100644",
+      "sha256": "89496c3e29bce7109046032c45fe01765275b12fefe36bfaf688530d936f545f"
+    },
+    {
+      "path": ".github/workflows/m7-a5-live.yml",
+      "mode": "100644",
+      "sha256": "ef88e2e79e8b480b459c79794155b0851a5146ff267b345a35d3546b7bfce7d1"
+    },
+    {
+      "path": ".github/workflows/pr-observer.yml",
+      "mode": "100644",
+      "sha256": "6dd062f5b64b7ebfe701b1d168e7d59e29610c7aafd39474023a67859a110c8b"
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "sha256": "6c5082c7e6de3e350189c67a1aacf757485ecc26e0a3cf96683528565f3e5f12"
+    },
+    {
+      "path": ".m7-a5/acquire-payload.py",
+      "mode": "100644",
+      "sha256": "83ef4a49b9e173dd5840e8d5763e1d4f2cbff8f9ba7b04e6f76e8d9eb4d7bfba"
+    },
+    {
+      "path": ".m7-a5/approved-products.json",
+      "mode": "100644",
+      "sha256": "6fd6117ce6ed6080d2deb04c55195edce33ec38437b323ad68fcf660cf9757a2"
+    },
+    {
+      "path": ".m7-a5/audit-preflight.py",
+      "mode": "100644",
+      "sha256": "04f43a7f35a1ea8f73e99cccefef703e98cc7d7ab7084e3689a66066d4fc1d20"
+    },
+    {
+      "path": ".m7-a5/budget-and-launch.sh",
+      "mode": "100644",
+      "sha256": "88761c1f1b1160cb5e610dc94c03114e185ce35c540e419a3407a8b9806461dc"
+    },
+    {
+      "path": ".m7-a5/campaign-binding.mjs",
+      "mode": "100644",
+      "sha256": "d5504e8ec4b336e4277bf5a657cdeea3aa18aeb3c57eec6c63e2d0baf78d7377"
+    },
+    {
+      "path": ".m7-a5/campaign.json",
+      "mode": "100644",
+      "sha256": "7c0df268dfe1234729f9b0d6c6709f3cea9ae1c8128b364f1d664729d0530bb6"
+    },
+    {
+      "path": ".m7-a5/consumer-first-stop.json",
+      "mode": "100644",
+      "sha256": "facf914e88e7f0141430b01e85a35a85e47aefc30ecbd7beb990681742218424"
+    },
+    {
+      "path": ".m7-a5/consumer-zero.json",
+      "mode": "100644",
+      "sha256": "c5822ccc3d534cc72e163cd621b5ac7ab7707ea10273f5fd17bd8d0fba1926d2"
+    },
+    {
+      "path": ".m7-a5/consumer.json",
+      "mode": "100644",
+      "sha256": "a837ee0ee1d8392472fd1f142128a3c8dbdc3025052d8f56eb73c52d81148bd3"
+    },
+    {
+      "path": ".m7-a5/private-envelope.mjs",
+      "mode": "100644",
+      "sha256": "e821fa155f66272ab131ebff96ed71b94e77c37732081cde865b5e83850d0b62"
+    },
+    {
+      "path": ".m7-a5/private-result-collection.sh",
+      "mode": "100644",
+      "sha256": "511c4e8d9df4f27d40ecdbe5440fd887a9bb2636a6cffb615f8358bba226619f"
+    },
+    {
+      "path": ".m7-a5/recipient-public.pem",
+      "mode": "100644",
+      "sha256": "e4bf26c2b089d5c5ae7e32be7183b791620fe6e91f45d3dd3e23c71b630df386"
+    },
+    {
+      "path": ".m7-a5/select-profile.mjs",
+      "mode": "100644",
+      "sha256": "24d03aedc866fb738ac379fc2eb6e689bccc8de0e1ab7fc6f2fdbd3906aa4d2f"
+    },
+    {
+      "path": ".m7-a5/synthetic-nuget.config",
+      "mode": "100644",
+      "sha256": "ef18aae73f086bb5fc3e982ce9b14cd85951b0c85871c7f3459dfa7041d5158b"
+    },
+    {
+      "path": ".m7-a5/verify-source.mjs",
+      "mode": "100644",
+      "sha256": "1bf3c92bbed49eadfa9a32a21114b62436d6fc448f6eb81f1e5500082d8a8c02"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "sha256": "d218458591863201dbf6192215cdf7dcd3a033032c08f90aa67febca1a044b7a"
+    },
+    {
+      "path": "Synthetic.cs",
+      "mode": "100644",
+      "sha256": "e0e7bbcaff0ca4cc05f56b292de79ec9bdaa8e72b35ef266c8f1b9e427c49767"
+    },
+    {
+      "path": "Synthetic.csproj",
+      "mode": "100644",
+      "sha256": "ebf3934339918dc51a95342d5483d748d7485c693a168fb9353855d68dfe27ac"
+    },
+    {
+      "path": "global.json",
+      "mode": "100644",
+      "sha256": "99ba181da37e4a52e141a99260651ca43b1e3cfb3c1f02c8a145d70ed1aa8b29"
+    }
+  ],
+  "frozen": {
+    "A": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/fddfab7d34241bee29f478f81dc8fcc71d3a93195e8eab23d6f8289e23ab634f",
+      "coordinationHead": "d7cdfef50f9a8987e88f35d43fee15699ce9a95a"
+    },
+    "B": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-b",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/a9edaa6b9020d5d9674f90c4c7cb704de987cd605e97648cea302dc4d3e34831",
+      "coordinationHead": "40f8d521e38ad5ae9253287207f28399fbc31db0"
+    },
+    "C": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-c",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/db01792b98a22a24b4b8f3d0d06476982ccbaf50d257e1dc5471870e17832d80",
+      "coordinationHead": "6520b7a30b3fc8ea5d94358ff575569816cb8d99"
+    },
+    "D": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-d",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/fd3d4c10b222c39080f7432dbf7ed50166f45dee57319d7f530d4a71dafed7e1",
+      "coordinationHead": "07c9d1f5e7781788f031b206c458e6069d67ce50"
+    },
+    "E": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-e",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/906217db462a0a86d097be342bfc31c5ab552d0c61b1c03c8bfff2382ba75ba6",
+      "coordinationHead": "3c990524adaab65aabb623f6347e65946444fe2d"
+    },
+    "F": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-f",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/20eba573a78b4186a4b4ae665f35cef94fed4d748ca317763b643c1660dd123b",
+      "coordinationHead": "b02e2b27394d8f54dd709bd1198230fb04c1f388"
+    },
+    "G": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-g",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/064f43048a9b4935dd49c0b7a427b8aef7788905f4f1976609850cea342a02d4",
+      "coordinationHead": "3bfd92657b113d60a191ec47f3c6c77eb80b49a7"
+    },
+    "H": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-h",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/25f03f01d05712a79e54de6921ebc2b0218a4fc554bd15d8fb75be4aca09135a",
+      "coordinationHead": "d7c09d992cca537911653b860f7f2bfa2cd3eca7"
+    },
+    "I": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-i",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607",
+      "coordinationHead": "b33398cdbe1932f3db887e5ac94941b21beefaf5"
+    },
+    "J": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-j",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/fa7e283a3ba0eb3ef11449bb48c6cb3f1e381d61c5baff48b474be33feb13e26",
+      "coordinationHead": "87a6dc28138c4108093936378126d7df442456cf"
+    }
+  },
+  "oldPrsSha256": "a018c1f9aeccdc999eb828b50eb6ea5943850d78931938db39eebbac02f5555e",
+  "oldBudgetTags": {
+    "refs/tags/m7-a5-budget-20261022-slot-02": "74c8fb1f93403495a72d62419b43d9b99d23281f",
+    "refs/tags/m7-a5-budget-20261022-slot-03": "065f42d8c3d4ed0cef01ade2e48b51c0f3931819",
+    "refs/tags/m7-a5-budget-20261022-slot-04": "69cbe35bbf18e552bcf6018ca83cd362e7f5bf59",
+    "refs/tags/m7-a5-budget-20261022-slot-05": "1e4aafaa7e6c27010014b56f8f510fefe68c2ed6",
+    "refs/tags/m7-a5-budget-20261022-slot-06": "7ed9667d2e93c5f74b011c39454dd335b2ffd4c4",
+    "refs/tags/m7-a5-budget-20261022-slot-07": "7a64d099d94cfd920757c44b40cc82d6b9acda13",
+    "refs/tags/m7-a5-budget-20261022-slot-08": "ee0fab5906e0b7dfc774306ebe2b783e14dfbd61",
+    "refs/tags/m7-a5-budget-20261022-slot-09": "2abce847f421807a11e2b1144dae26da0774e2a2",
+    "refs/tags/m7-a5-budget-20261022-slot-10": "b72c7449e46d14f0dbbcce84c9656467237fdfef",
+    "refs/tags/m7-a5-budget-20261022-slot-11": "649b301a983b00fa81f9aaf20af4fd25fcfac8a9",
+    "refs/tags/m7-a5-budget-20261022-slot-12": "653fb2c9f477b2d6bd3e92d82b8849ac6625752b"
+  },
+  "sourceFeedbackSha256": "4d2e22cb91dbb214e2188a5ce46ee17c4ce7a5a5498d8b6201d71a502db30ff1",
+  "consumer": {
+    "consumerConfigurationVersion": 1,
+    "provider": {
+      "endpoint": null,
+      "model": "fixed-synthetic-noop",
+      "requestProfile": {
+        "thinkingMode": "enabled",
+        "reasoningEffort": "high",
+        "toolChoice": "auto",
+        "continuationPolicy": "required-for-tool-calls",
+        "outputTokenField": "max_tokens"
+      }
+    },
+    "budgets": {
+      "campaign": {
+        "maximumProviderRequests": 104,
+        "maximumAttemptsPerTarget": 2,
+        "maximumInputTokens": 6815744,
+        "maximumUncachedInputTokens": 6815744,
+        "maximumOutputTokens": 425984,
+        "maximumCostMicrounits": 18000000,
+        "maximumElapsedMilliseconds": 7200000,
+        "maximumCandidatesPerBlock": 30
+      },
+      "invocation": {
+        "maximumTargets": 5,
+        "maximumProviderRequests": 8,
+        "maximumCachedInputTokens": 262144,
+        "maximumUncachedInputTokens": 262144,
+        "maximumOutputTokens": 32768,
+        "maximumRequestOutputTokens": 4096,
+        "maximumRequestElapsedMilliseconds": 90000,
+        "maximumConnectMilliseconds": 10000,
+        "maximumElapsedMilliseconds": 600000,
+        "maximumToolCalls": 64,
+        "maximumToolCallsPerResponse": 8
+      }
+    },
+    "costPolicy": {
+      "currencyId": "currency.cny",
+      "ratePolicyId": "deepseek-flash-2026-10-22-peak",
+      "cachedInputMicrounitsPerMillion": 40000,
+      "uncachedInputMicrounitsPerMillion": 2000000,
+      "outputMicrounitsPerMillion": 8000000,
+      "reasoningMicrounitsPerMillion": 0
+    }
+  }
+}

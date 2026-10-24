@@ -1,0 +1,89 @@
+name: M7 A5 scripted model real GitHub
+run-name: M7 A5 scripted GitHub 20261024-01
+on:
+  workflow_dispatch:
+    inputs:
+      approved_workflow_sha:
+        required: true
+        type: string
+permissions: {}
+concurrency:
+  group: m7-a5-observation-20261022
+  cancel-in-progress: false
+jobs:
+  observe:
+    if: github.repository_id == '1361354906' && github.event_name == 'workflow_dispatch' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    env:
+      A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
+      A5_PRODUCT_SHA: 1d6178441158737517e561e0b1996a6ddafbf62c
+      A5_TARGET_SHA: 0ea0b71381ad78b8fe1f371441fe546171671ce1
+      A5_TARGET_ROOT: ${{ github.workspace }}/target
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: control
+          persist-credentials: false
+      - name: Verify exact source and frozen old campaigns before build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node control/.m7-a5/scripted-github-gate.mjs preflight
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: SolusQuest/contract-scribe
+          ref: 1d6178441158737517e561e0b1996a6ddafbf62c
+          path: product
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 0ea0b71381ad78b8fe1f371441fe546171671ce1
+          path: target
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          global-json-file: product/global.json
+      - name: Acquire exact current CI payload before execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+          A5_PRODUCT_ROOT: ${{ github.workspace }}/product
+        run: python3 control/.m7-a5/acquire-payload.py
+      - name: Original synthetic Debug prebuild without credentials
+        run: |
+          set -euo pipefail
+          test -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
+          test -z "${DOTNET_STARTUP_HOOKS:-}${CONTRACTSCRIBE_TEST_GITHUB_ENDPOINT:-}"
+          dotnet restore target/App/App.csproj --configfile control/.m7-a5/synthetic-nuget.config
+          dotnet build target/App/App.csproj -c Debug --no-restore
+      - name: Complete original real Audit before publication token or claim
+        id: audit
+        env:
+          A5_CLI: ${{ env.A5_ACQUIRED_CLI }}
+        run: bash control/.m7-a5/scripted-github-launch.sh audit
+      - name: One fixed scripted provider and one production invocation
+        id: live
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          A5_CLI: ${{ env.A5_ACQUIRED_CLI }}
+        run: bash control/.m7-a5/scripted-github-launch.sh launch
+      - name: Seal original four closed files
+        if: always() && (steps.live.outcome == 'success' || steps.audit.outcome == 'failure')
+        env:
+          A5_RECIPIENT_PUBLIC_KEY: ${{ github.workspace }}/control/.m7-a5/recipient-public.pem
+        run: bash control/.m7-a5/private-result-collection.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always() && (steps.live.outcome == 'success' || steps.audit.outcome == 'failure')
+        with:
+          name: m7-a5-sealed-scripted-20261024-01-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/a5-private.jwe
+          if-no-files-found: error
+          retention-days: 1
+      - name: Preserve actual CLI failure
+        if: always() && (steps.live.outcome == 'success' || steps.audit.outcome == 'failure')
+        run: test "$(cat "$RUNNER_TEMP/a5-exit-code.txt")" = 0
