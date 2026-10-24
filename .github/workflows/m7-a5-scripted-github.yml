@@ -1,5 +1,5 @@
 name: M7 A5 scripted model real GitHub
-run-name: M7 A5 scripted GitHub 20261025-02
+run-name: M7 A5 scripted GitHub 20261025-03
 on:
   workflow_dispatch:
     inputs:
@@ -80,7 +80,7 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always() && (steps.live.outcome == 'success' || steps.audit.outcome == 'failure')
         with:
-          name: m7-a5-sealed-scripted-20261025-02-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          name: m7-a5-sealed-scripted-20261025-03-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: ${{ runner.temp }}/a5-private.jwe
           if-no-files-found: error
           retention-days: 1

@@ -1,5 +1,5 @@
 {
-  "purpose": "m7-a5-scripted-github-20261025-02",
+  "purpose": "m7-a5-scripted-github-20261025-03",
   "repository": "SolusQuest/contract-scribe-sandbox",
   "repositoryId": 1361354906,
   "sourceRepository": "SolusQuest/contract-scribe",
@@ -7,11 +7,11 @@
   "source": "ed083fab0748a2ae7c6c662c7fa2c806119144d6",
   "sourceBase": "96af8d990146be8e6fd2612effa7601d468c883e",
   "sourcePr": 261,
-  "targetRef": "refs/heads/m7-a5-scripted-20261025-l",
+  "targetRef": "refs/heads/m7-a5-scripted-20261025-m",
   "targetSha": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
-  "campaignLineage": "campaign.m7.a5.scripted.20261025.02",
-  "coordinationRef": "refs/heads/contract-scribe/coordination/5a528410f50b7322be2b2224a457ac0b5b6c71e9aa6f2530183ca11f346a8c9d",
-  "claimRef": "refs/tags/m7-a5-scripted-20261025-02",
+  "campaignLineage": "campaign.m7.a5.scripted.20261025.03",
+  "coordinationRef": "refs/heads/contract-scribe/coordination/0e244828a63771b57e5d7f6813c3ca1e1f68948bf1d62ac5f21b64919fc8f1f0",
+  "claimRef": "refs/tags/m7-a5-scripted-20261025-03",
   "maximumWorkflowAttempts": 1,
   "maximumOuterInvocations": 1,
   "maximumSyntheticRequests": 8,
@@ -94,7 +94,7 @@
     {
       "path": ".m7-a5/acquire-payload.py",
       "mode": "100644",
-      "sha256": "83ef4a49b9e173dd5840e8d5763e1d4f2cbff8f9ba7b04e6f76e8d9eb4d7bfba"
+      "sha256": "dfdc4b76d903c37fb6c6213a27c683b8a6b91c4771b91a493ef2b40f86a70d3b"
     },
     {
       "path": ".m7-a5/approved-products.json",
@@ -253,6 +253,12 @@
       "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
       "coordinationRef": "refs/heads/contract-scribe/coordination/6641dc0ba4145005af95f387a9a2de6cf09ab3a9f3087f042b1d831f24ed6f64",
       "coordinationHead": "89ddf4cebd881797817bb26f05d946910f93d99a"
+    },
+    "L": {
+      "targetRef": "refs/heads/m7-a5-scripted-20261025-l",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/5a528410f50b7322be2b2224a457ac0b5b6c71e9aa6f2530183ca11f346a8c9d",
+      "coordinationHead": null
     }
   },
   "oldPrsSha256": "a018c1f9aeccdc999eb828b50eb6ea5943850d78931938db39eebbac02f5555e",
@@ -318,6 +324,7 @@
     }
   },
   "oldZeroPurposeClaims": {
-    "refs/tags/m7-a5-scripted-20261024-01": "ea280dccf6ec60a7c541e2c12dcf1830058040fc"
+    "refs/tags/m7-a5-scripted-20261024-01": "ea280dccf6ec60a7c541e2c12dcf1830058040fc",
+    "refs/tags/m7-a5-scripted-20261025-02": null
   }
 }
