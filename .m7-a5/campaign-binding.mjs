@@ -19,7 +19,9 @@ export const priorDiagnosticGCoord='refs/heads/contract-scribe/coordination/064f
 export const priorDiagnosticGHead='3bfd92657b113d60a191ec47f3c6c77eb80b49a7';
 export const priorDiagnosticHCoord='refs/heads/contract-scribe/coordination/25f03f01d05712a79e54de6921ebc2b0218a4fc554bd15d8fb75be4aca09135a';
 export const priorDiagnosticHHead='d7c09d992cca537911653b860f7f2bfa2cd3eca7';
-export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.09',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-i'}};
+export const priorDiagnosticICoord='refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607';
+export const priorDiagnosticIHead='b33398cdbe1932f3db887e5ac94941b21beefaf5';
+export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.12',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-j'}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -31,7 +33,7 @@ export function coordination(target,lineage){
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
  const actual=fs.readFileSync(file),reviewed=fs.readFileSync(new URL('./campaign.json',import.meta.url));
- if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||process.env.A5_TARGET_SHA!==targetSha)fail();
+ if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||diagnosticCoord===priorDiagnosticICoord||process.env.A5_TARGET_SHA!==targetSha)fail();
  return expected;
 }
 const readApi=path=>JSON.parse(execFileSync('gh',['api',path],{encoding:'utf8',maxBuffer:4*1024*1024}));
@@ -42,7 +44,8 @@ const absentApi=path=>{
 export function verifyFresh(file,read=readApi,absent=absentApi){
  verifyBinding(file);
  const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
- if(read(base+'heads/m7-a5-observation-20261022-i').object.sha!==targetSha
+ if(read(base+'heads/m7-a5-observation-20261022-j').object.sha!==targetSha
+  ||read(base+'heads/m7-a5-observation-20261022-i').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-h').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-g').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-f').object.sha!==targetSha
@@ -59,8 +62,9 @@ export function verifyFresh(file,read=readApi,absent=absentApi){
   ||read(base+priorDiagnosticFCoord.slice(5)).object.sha!==priorDiagnosticFHead
   ||read(base+priorDiagnosticGCoord.slice(5)).object.sha!==priorDiagnosticGHead
   ||read(base+priorDiagnosticHCoord.slice(5)).object.sha!==priorDiagnosticHHead
+  ||read(base+priorDiagnosticICoord.slice(5)).object.sha!==priorDiagnosticIHead
   ||!absent(base+diagnosticCoord.slice(5))
-  ||!absent(base+'tags/m7-a5-budget-20261022-slot-09'))fail();
+  ||!absent(base+'tags/m7-a5-budget-20261022-slot-12'))fail();
 }
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2]);}catch{console.error('Separate diagnostic binding/collision gate failed before slot claim.');process.exitCode=1;}
