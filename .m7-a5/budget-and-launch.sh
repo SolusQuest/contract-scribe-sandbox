@@ -12,9 +12,9 @@ test "$(gh api repos/SolusQuest/contract-scribe-sandbox --jq .id)" = 1361354906
 if [[ "$A5_SLOT" != z* ]]; then : "${CONTRACTSCRIBE_PROVIDER_API_KEY:?}"; else test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"; fi
 test "$GITHUB_WORKFLOW_SHA" = "$A5_APPROVED_WORKFLOW_SHA"
 [[ "$A5_TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]
-test "$A5_SLOT" = 08
+test "$A5_SLOT" = 09
 test "$(git -C "$A5_TARGET_ROOT" rev-parse HEAD)" = "$A5_TARGET_SHA"
-test "$(gh api repos/SolusQuest/contract-scribe-sandbox/git/ref/heads/m7-a5-observation-20261022-h --jq .object.sha)" = "$A5_TARGET_SHA"
+test "$(gh api repos/SolusQuest/contract-scribe-sandbox/git/ref/heads/m7-a5-observation-20261022-i --jq .object.sha)" = "$A5_TARGET_SHA"
 node "$(dirname "$0")/campaign-binding.mjs" "$A5_CAMPAIGN"
 node "$(dirname "$0")/select-profile.mjs" verify "$A5_SLOT" "$A5_CONSUMER"
 if [[ "$A5_SLOT" != z* ]]; then python3 "$(dirname "$0")/audit-preflight.py" verify-receipt; fi
