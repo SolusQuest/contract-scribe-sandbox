@@ -3,6 +3,9 @@ namespace M7Observation;
 public static class Operations
 {
     public static void Method00() { }
+    /// <summary>
+    /// Performs a synthetic bounded operation that takes no parameters, returns no value, and has an empty body.
+    /// </summary>
     public static void Method01() { }
     public static void Method02() { }
     public static void Method03() { }
