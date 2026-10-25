@@ -2,19 +2,19 @@
   "repository": "SolusQuest/contract-scribe",
   "sources": [
     {
-      "sha": "16adc7383de837e38cd11fe45a7cef80c4890df6",
+      "sha": "43d7d9b41a373c32d2e7292d32736b15094fdc48",
       "kind": "reviewed-pr-fix",
       "pullRequest": 261,
       "ciWorkflowId": 311270030,
       "codeqlWorkflowId": 343249902,
       "payload": {
-        "artifactId": 12594275615,
-        "producerRunId": 40179681860,
+        "artifactId": 12600313345,
+        "producerRunId": 40197333585,
         "producerAttempt": 1,
         "artifactName": "d2-payload-attempt-1",
-        "zipSha256": "5e90c8751191ac8f6e92bbaa372a04d243e33801e9e9a76cbb038e76576e653f",
-        "archiveSha256": "182eebfcd17dc5e6b631e4d212a83afe31c6c3986dd9fe09f745de828d7d356b",
-        "archiveName": "contract-scribe-0.1.0-dev+16adc7383de837e38cd11fe45a7cef80c4890df6-linux-x64.tar.gz"
+        "zipSha256": "8a660c7817a52b584424839ea0fe038596d2a024648d7713eb853997634b740c",
+        "archiveSha256": "4c0f04fcef63dc03e8df9c253903a31a7b918a757a05a05c8bbc52d12d63d3d7",
+        "archiveName": "contract-scribe-0.1.0-dev+43d7d9b41a373c32d2e7292d32736b15094fdc48-linux-x64.tar.gz"
       }
     }
   ]

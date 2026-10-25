@@ -22,7 +22,7 @@ export const priorDiagnosticHCoord='refs/heads/contract-scribe/coordination/25f0
 export const priorDiagnosticHHead='d7c09d992cca537911653b860f7f2bfa2cd3eca7';
 export const priorDiagnosticICoord='refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607';
 export const priorDiagnosticIHead='b33398cdbe1932f3db887e5ac94941b21beefaf5';
-export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.14',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-p'}};
+export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.15',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-q'}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -33,7 +33,7 @@ export function coordination(target,lineage){
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
- verifyProfile('14',new URL('./consumer.json',import.meta.url));
+ verifyProfile('15',new URL('./consumer.json',import.meta.url));
  const actual=fs.readFileSync(file),reviewed=fs.readFileSync(new URL('./campaign.json',import.meta.url));
  if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||diagnosticCoord===priorDiagnosticICoord||Object.values(extendedFrozen).some(v=>v.coordinationRef===diagnosticCoord)||process.env.A5_TARGET_SHA!==targetSha)fail();
  return expected;
@@ -41,6 +41,12 @@ export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
 
 // Exact existing immutable inventory, including successful zero04 N; no old state is reused.
 export const extendedFrozen={
+  "P": {
+    "targetRef": "refs/heads/m7-a5-observation-20261022-p",
+    "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+    "coordinationRef": "refs/heads/contract-scribe/coordination/c2ccefbb15c361aabded2464c3ec1ffcf4070dff07fb7973522bc1bb8425ca4f",
+    "coordinationHead": "e4e84a115f0ff20fce8a29a0ed6bb9850b8be2d2"
+},
   "J": {
     "targetRef": "refs/heads/m7-a5-observation-20261022-j",
     "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
@@ -85,6 +91,7 @@ export const oldZeroClaims={
   "refs/tags/m7-a5-scripted-20261025-04": "2e0de0938956a233c349bb62299de99b41893da3"
 };
 export const oldBudgetTags={
+  "refs/tags/m7-a5-budget-20261022-slot-14": "af9e8c3aab612188bb456c0569767e7e819f38e3",
   "refs/tags/m7-a5-budget-20261022-slot-02": "74c8fb1f93403495a72d62419b43d9b99d23281f",
   "refs/tags/m7-a5-budget-20261022-slot-03": "065f42d8c3d4ed0cef01ade2e48b51c0f3931819",
   "refs/tags/m7-a5-budget-20261022-slot-04": "69cbe35bbf18e552bcf6018ca83cd362e7f5bf59",
@@ -99,7 +106,7 @@ export const oldBudgetTags={
   "refs/tags/m7-a5-budget-20261022-slot-13": "6a498abb71e5912bd0710971aa75388ef278de63"
 };
 export const oldPrsSha256='674e57efaa2cc1663852751721301684017d5b32c98a2f07d2ededac5357ee42';
-export const sourceFeedbackSha256='2bd46f8260498c93e38e6f9e37c4a1ad2fc9dcefbd09ebc2450a0cf2684b1263';
+export const sourceFeedbackSha256='4e815fb1cc7e13adbbf85bd0c517139499cf367813a1b0c71bde252c4200fedb';
 
 export function canonical(value){
  if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
@@ -118,7 +125,7 @@ const absentApi=path=>{
 export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=null){
  verifyBinding(file);
  const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
- if(read(base+'heads/m7-a5-observation-20261022-p').object.sha!==targetSha
+ if(read(base+'heads/m7-a5-observation-20261022-q').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-i').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-h').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-g').object.sha!==targetSha
@@ -149,7 +156,7 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
   if(head===null){if(!absent(base+ref.slice(5)))fail();}
   else {const value=read(base+ref.slice(5));if(value.ref!==ref||value.object?.type!=='commit'||value.object.sha!==head)fail();}
  }
- const claimRef='refs/tags/m7-a5-budget-20261022-slot-14';
+ const claimRef='refs/tags/m7-a5-budget-20261022-slot-15';
  const wantedTags={...oldBudgetTags};
  if(claimedControl===null){if(!absent(base+claimRef.slice(5)))fail();}
  else {

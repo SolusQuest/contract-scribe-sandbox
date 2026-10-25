@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Exact paid14 caller: claim without provider secret, then one bound launch.
+# Exact paid15 caller: claim without provider secret, then one bound launch.
 set -euo pipefail
 umask 077
 paid_mode="${1:-}"
@@ -17,9 +17,9 @@ test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
 test "$(git -C "$paid_dir/.." rev-parse HEAD)" = "$GITHUB_WORKFLOW_SHA"
 test -z "$(git -C "$paid_dir/.." status --porcelain)"
 test "$(gh api repos/SolusQuest/contract-scribe-sandbox --jq .id)" = 1361354906
-test "$A5_PRODUCT_SHA" = 16adc7383de837e38cd11fe45a7cef80c4890df6
+test "$A5_PRODUCT_SHA" = 43d7d9b41a373c32d2e7292d32736b15094fdc48
 test "$A5_TARGET_SHA" = 0ea0b71381ad78b8fe1f371441fe546171671ce1
-test "$A5_SLOT" = 14
+test "$A5_SLOT" = 15
 test "$(git -C "$A5_TARGET_ROOT" rev-parse HEAD)" = "$A5_TARGET_SHA"
 test -z "$(git -C "$A5_TARGET_ROOT" status --porcelain --untracked-files=no)"
 node "$paid_dir/select-profile.mjs" verify "$A5_SLOT" "$A5_CONSUMER"
@@ -36,7 +36,7 @@ if [[ "$paid_mode" = claim ]]; then
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 const e=process.env,h=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='14'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
+if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='15'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
 const value={runId:e.GITHUB_RUN_ID,attempt:e.GITHUB_RUN_ATTEMPT,slot:e.A5_SLOT,control:e.GITHUB_SHA,source:e.A5_PRODUCT_SHA,target:e.A5_TARGET_SHA,campaignSha256:h(e.A5_CAMPAIGN),consumerSha256:h(e.A5_CONSUMER),auditReceiptSha256:h(e.RUNNER_TEMP+'/a5-audit-preflight.json')};
 fs.writeFileSync(process.argv[2],JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});fs.chmodSync(process.argv[2],0o400);
 JS
