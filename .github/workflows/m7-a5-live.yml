@@ -10,11 +10,11 @@ on:
         required: true
       product_sha:
         required: true
-        default: e0e32b3ad1cfc900c680705d90d44b14a7cd06fd
+        default: ca391cba63c7a19801876751a5b4621bdbdc5ff8
       slot:
         required: true
         type: choice
-        options: ['16']
+        options: ['17']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -55,7 +55,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
         with:
-          global-json-file: product/global.json
+          dotnet-version: '10.0.403'
       - name: Acquire reviewed exact current-CI payload before provider injection
         env:
           GH_TOKEN: ${{ github.token }}
