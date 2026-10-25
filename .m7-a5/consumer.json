@@ -13,20 +13,20 @@
   },
   "budgets": {
     "campaign": {
-      "maximumProviderRequests": 104,
+      "maximumProviderRequests": 8,
       "maximumAttemptsPerTarget": 2,
-      "maximumInputTokens": 6815744,
-      "maximumUncachedInputTokens": 6815744,
-      "maximumOutputTokens": 425984,
-      "maximumCostMicrounits": 18000000,
+      "maximumInputTokens": 349244,
+      "maximumUncachedInputTokens": 174622,
+      "maximumOutputTokens": 32768,
+      "maximumCostMicrounits": 960640,
       "maximumElapsedMilliseconds": 7200000,
       "maximumCandidatesPerBlock": 30
     },
     "invocation": {
       "maximumTargets": 5,
       "maximumProviderRequests": 8,
-      "maximumCachedInputTokens": 262144,
-      "maximumUncachedInputTokens": 262144,
+      "maximumCachedInputTokens": 174622,
+      "maximumUncachedInputTokens": 174622,
       "maximumOutputTokens": 32768,
       "maximumRequestOutputTokens": 4096,
       "maximumRequestElapsedMilliseconds": 90000,

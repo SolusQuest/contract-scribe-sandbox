@@ -10,11 +10,11 @@ on:
         required: true
       product_sha:
         required: true
-        default: 823698c1fe90352cd06da13f8de1e60ccf30e38e
+        default: 16adc7383de837e38cd11fe45a7cef80c4890df6
       slot:
         required: true
         type: choice
-        options: ['13']
+        options: ['14']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
