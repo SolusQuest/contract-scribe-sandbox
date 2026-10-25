@@ -10,11 +10,11 @@ on:
         required: true
       product_sha:
         required: true
-        default: 1d6178441158737517e561e0b1996a6ddafbf62c
+        default: 823698c1fe90352cd06da13f8de1e60ccf30e38e
       slot:
         required: true
         type: choice
-        options: ['12']
+        options: ['13']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -65,8 +65,7 @@ jobs:
       - name: Restore synthetic target without credentials and select bounded profile
         run: |
           set -euo pipefail
-          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
-          test -z "${GH_TOKEN:-}"
+          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}"
           dotnet restore target/App/App.csproj --configfile control/.m7-a5/synthetic-nuget.config
           dotnet build target/App/App.csproj -c Debug --no-restore
           umask 077
@@ -83,12 +82,10 @@ jobs:
           A5_PRODUCT_SHA: ${{ inputs.product_sha }}
           A5_TARGET_SHA: ${{ inputs.target_sha }}
         run: python3 control/.m7-a5/audit-preflight.py preflight
-      - name: Single bounded production invocation
-        id: live
+      - name: Atomic original unused slot claim after complete real Audit
+        id: budget
         env:
           GH_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ !startsWith(inputs.slot, 'z') && secrets.M7_A5_DEEPSEEK_KEY || '' }}
           A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
           A5_TARGET_SHA: ${{ inputs.target_sha }}
           A5_SLOT: ${{ inputs.slot }}
@@ -97,7 +94,23 @@ jobs:
           A5_CLI: ${{ env.A5_ACQUIRED_CLI }}
           A5_CAMPAIGN: ${{ runner.temp }}/campaign.json
           A5_CONSUMER: ${{ runner.temp }}/consumer.json
-        run: bash control/.m7-a5/budget-and-launch.sh
+        run: bash control/.m7-a5/budget-and-launch.sh claim
+      - name: Single bounded production invocation
+        if: steps.budget.outcome == 'success'
+        id: live
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
+          A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
+          A5_TARGET_SHA: ${{ inputs.target_sha }}
+          A5_SLOT: ${{ inputs.slot }}
+          A5_PRODUCT_SHA: ${{ inputs.product_sha }}
+          A5_TARGET_ROOT: ${{ github.workspace }}/target
+          A5_CLI: ${{ env.A5_ACQUIRED_CLI }}
+          A5_CAMPAIGN: ${{ runner.temp }}/campaign.json
+          A5_CONSUMER: ${{ runner.temp }}/consumer.json
+        run: bash control/.m7-a5/budget-and-launch.sh launch
       - name: Seal bounded result
         if: always() && (steps.live.outcome == 'success' || steps.audit.outcome == 'failure')
         env:

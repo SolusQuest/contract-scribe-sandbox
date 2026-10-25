@@ -21,7 +21,7 @@ export const priorDiagnosticHCoord='refs/heads/contract-scribe/coordination/25f0
 export const priorDiagnosticHHead='d7c09d992cca537911653b860f7f2bfa2cd3eca7';
 export const priorDiagnosticICoord='refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607';
 export const priorDiagnosticIHead='b33398cdbe1932f3db887e5ac94941b21beefaf5';
-export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.12',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-j'}};
+export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.13',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-o'}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -33,18 +33,83 @@ export function coordination(target,lineage){
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
  const actual=fs.readFileSync(file),reviewed=fs.readFileSync(new URL('./campaign.json',import.meta.url));
- if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||diagnosticCoord===priorDiagnosticICoord||process.env.A5_TARGET_SHA!==targetSha)fail();
+ if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||diagnosticCoord===priorDiagnosticICoord||Object.values(extendedFrozen).some(v=>v.coordinationRef===diagnosticCoord)||process.env.A5_TARGET_SHA!==targetSha)fail();
  return expected;
 }
+
+// Exact existing immutable inventory, including successful zero04 N; no old state is reused.
+export const extendedFrozen={
+  "J": {
+    "targetRef": "refs/heads/m7-a5-observation-20261022-j",
+    "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+    "coordinationRef": "refs/heads/contract-scribe/coordination/fa7e283a3ba0eb3ef11449bb48c6cb3f1e381d61c5baff48b474be33feb13e26",
+    "coordinationHead": "87a6dc28138c4108093936378126d7df442456cf"
+  },
+  "K": {
+    "targetRef": "refs/heads/m7-a5-scripted-20261024-k",
+    "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+    "coordinationRef": "refs/heads/contract-scribe/coordination/6641dc0ba4145005af95f387a9a2de6cf09ab3a9f3087f042b1d831f24ed6f64",
+    "coordinationHead": "89ddf4cebd881797817bb26f05d946910f93d99a"
+  },
+  "L": {
+    "targetRef": "refs/heads/m7-a5-scripted-20261025-l",
+    "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+    "coordinationRef": "refs/heads/contract-scribe/coordination/5a528410f50b7322be2b2224a457ac0b5b6c71e9aa6f2530183ca11f346a8c9d",
+    "coordinationHead": null
+  },
+  "M": {
+    "targetRef": "refs/heads/m7-a5-scripted-20261025-m",
+    "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+    "coordinationRef": "refs/heads/contract-scribe/coordination/0e244828a63771b57e5d7f6813c3ca1e1f68948bf1d62ac5f21b64919fc8f1f0",
+    "coordinationHead": "5b82107b4fa0e5795c625f98d4a74050bec31143"
+  },
+  "N": {
+    "targetRef": "refs/heads/m7-a5-scripted-20261025-n",
+    "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+    "coordinationRef": "refs/heads/contract-scribe/coordination/a27ac127b769390401de604602836bf7171a7fea0f06349462e60dbf6bf03048",
+    "coordinationHead": "90f61c1997fcaac18319ad332a28da574f42d301"
+  }
+};
+export const oldZeroClaims={
+  "refs/tags/m7-a5-scripted-20261024-01": "ea280dccf6ec60a7c541e2c12dcf1830058040fc",
+  "refs/tags/m7-a5-scripted-20261025-02": null,
+  "refs/tags/m7-a5-scripted-20261025-03": "d269eaacd4aeac63af438b8ef02fa61cfe5e3640",
+  "refs/tags/m7-a5-scripted-20261025-04": "2e0de0938956a233c349bb62299de99b41893da3"
+};
+export const oldBudgetTags={
+  "refs/tags/m7-a5-budget-20261022-slot-02": "74c8fb1f93403495a72d62419b43d9b99d23281f",
+  "refs/tags/m7-a5-budget-20261022-slot-03": "065f42d8c3d4ed0cef01ade2e48b51c0f3931819",
+  "refs/tags/m7-a5-budget-20261022-slot-04": "69cbe35bbf18e552bcf6018ca83cd362e7f5bf59",
+  "refs/tags/m7-a5-budget-20261022-slot-05": "1e4aafaa7e6c27010014b56f8f510fefe68c2ed6",
+  "refs/tags/m7-a5-budget-20261022-slot-06": "7ed9667d2e93c5f74b011c39454dd335b2ffd4c4",
+  "refs/tags/m7-a5-budget-20261022-slot-07": "7a64d099d94cfd920757c44b40cc82d6b9acda13",
+  "refs/tags/m7-a5-budget-20261022-slot-08": "ee0fab5906e0b7dfc774306ebe2b783e14dfbd61",
+  "refs/tags/m7-a5-budget-20261022-slot-09": "2abce847f421807a11e2b1144dae26da0774e2a2",
+  "refs/tags/m7-a5-budget-20261022-slot-10": "b72c7449e46d14f0dbbcce84c9656467237fdfef",
+  "refs/tags/m7-a5-budget-20261022-slot-11": "649b301a983b00fa81f9aaf20af4fd25fcfac8a9",
+  "refs/tags/m7-a5-budget-20261022-slot-12": "653fb2c9f477b2d6bd3e92d82b8849ac6625752b"
+};
+export const oldPrsSha256='674e57efaa2cc1663852751721301684017d5b32c98a2f07d2ededac5357ee42';
+export const sourceFeedbackSha256='a2906932e7527a6f66689e416ccaa62e75cb45e97dc29c4cda37ac293743cbeb';
+
+export function canonical(value){
+ if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
+ if(value!==null&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonical(value[k])).join(',')+'}';
+ return JSON.stringify(value);
+}
+export const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 const readApi=path=>JSON.parse(execFileSync('gh',['api',path],{encoding:'utf8',maxBuffer:4*1024*1024}));
 const absentApi=path=>{
  const r=spawnSync('gh',['api','--include',path],{encoding:'utf8',maxBuffer:65536});
- return r.status===1&&/(^|\n)HTTP\/[\d.]+ 404(?: |\r?$)/m.test(r.stdout||'');
+ if(r.error||r.status!==1)return false;
+ const text=(r.stdout||'').replaceAll('\r\n','\n'),i=text.indexOf('\n\n');
+ if(i<0||!/^HTTP\/[\d.]+ 404(?: |$)/.test(text.slice(0,i)))return false;
+ try{const body=JSON.parse(text.slice(i+2));return body.status==='404'&&body.message==='Not Found';}catch{return false;}
 };
-export function verifyFresh(file,read=readApi,absent=absentApi){
+export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=null){
  verifyBinding(file);
  const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
- if(read(base+'heads/m7-a5-observation-20261022-j').object.sha!==targetSha
+ if(read(base+'heads/m7-a5-observation-20261022-o').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-i').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-h').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-g').object.sha!==targetSha
@@ -63,9 +128,33 @@ export function verifyFresh(file,read=readApi,absent=absentApi){
   ||read(base+priorDiagnosticGCoord.slice(5)).object.sha!==priorDiagnosticGHead
   ||read(base+priorDiagnosticHCoord.slice(5)).object.sha!==priorDiagnosticHHead
   ||read(base+priorDiagnosticICoord.slice(5)).object.sha!==priorDiagnosticIHead
-  ||!absent(base+diagnosticCoord.slice(5))
-  ||!absent(base+'tags/m7-a5-budget-20261022-slot-12'))fail();
+  ||!absent(base+diagnosticCoord.slice(5)))fail();
+
+ for(const frozen of Object.values(extendedFrozen)){
+  const target=read(base+frozen.targetRef.slice(5));
+  if(target.ref!==frozen.targetRef||target.object?.type!=='commit'||target.object.sha!==frozen.targetHead)fail();
+  if(frozen.coordinationHead===null){if(!absent(base+frozen.coordinationRef.slice(5)))fail();}
+  else {const coord=read(base+frozen.coordinationRef.slice(5));if(coord.ref!==frozen.coordinationRef||coord.object?.type!=='commit'||coord.object.sha!==frozen.coordinationHead)fail();}
+ }
+ for(const [ref,head] of Object.entries(oldZeroClaims)){
+  if(head===null){if(!absent(base+ref.slice(5)))fail();}
+  else {const value=read(base+ref.slice(5));if(value.ref!==ref||value.object?.type!=='commit'||value.object.sha!==head)fail();}
+ }
+ const claimRef='refs/tags/m7-a5-budget-20261022-slot-13';
+ const wantedTags={...oldBudgetTags};
+ if(claimedControl===null){if(!absent(base+claimRef.slice(5)))fail();}
+ else {
+  if(!/^[a-f0-9]{40}$/.test(claimedControl)||claimedControl!==process.env.GITHUB_SHA||claimedControl!==process.env.GITHUB_WORKFLOW_SHA||claimedControl!==process.env.A5_APPROVED_WORKFLOW_SHA)fail();
+  const claimed=read(base+claimRef.slice(5));if(claimed.ref!==claimRef||claimed.object?.type!=='commit'||claimed.object.sha!==claimedControl)fail();
+  wantedTags[claimRef]=claimedControl;
+ }
+ const tags=read('repos/SolusQuest/contract-scribe-sandbox/git/matching-refs/tags/m7-a5-budget-20261022-slot-?per_page=100');
+ if(!Array.isArray(tags)||tags.length!==Object.keys(wantedTags).length||tags.some(v=>v.object?.type!=='commit')||canonical(Object.fromEntries(tags.map(v=>[v.ref,v.object.sha])))!==canonical(wantedTags))fail();
+ const prs=read('repos/SolusQuest/contract-scribe-sandbox/pulls?state=all&per_page=100');
+ if(!Array.isArray(prs)||prs.length!==6)fail();
+ const selected=prs.map(v=>({number:v.number,state:v.state,title:v.title,body:v.body,draft:v.draft,merged_at:v.merged_at,headSha:v.head.sha,baseSha:v.base.sha,baseRef:v.base.ref,userId:v.user.id})).sort((a,b)=>a.number-b.number);
+ if(sha256(canonical(selected))!==oldPrsSha256)fail();
 }
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
- try{verifyFresh(process.argv[2]);}catch{console.error('Separate diagnostic binding/collision gate failed before slot claim.');process.exitCode=1;}
+ try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}catch{console.error('Separate diagnostic binding/collision gate failed before provider dispatch.');process.exitCode=1;}
 }
