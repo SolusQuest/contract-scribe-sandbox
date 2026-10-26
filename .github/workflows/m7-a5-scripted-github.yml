@@ -1,5 +1,5 @@
 name: M7 A5 scripted model real GitHub
-run-name: M7 A5 scripted GitHub 20261025-04
+run-name: M7 A5 scripted GitHub 20261026-05
 on:
   workflow_dispatch:
     inputs:
@@ -21,7 +21,7 @@ jobs:
       actions: read
     env:
       A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
-      A5_PRODUCT_SHA: 823698c1fe90352cd06da13f8de1e60ccf30e38e
+      A5_PRODUCT_SHA: 7d33ffe8788dc905f01ec138ae92442a3aa3ef33
       A5_TARGET_SHA: 0ea0b71381ad78b8fe1f371441fe546171671ce1
       A5_TARGET_ROOT: ${{ github.workspace }}/target
     steps:
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: SolusQuest/contract-scribe
-          ref: 823698c1fe90352cd06da13f8de1e60ccf30e38e
+          ref: 7d33ffe8788dc905f01ec138ae92442a3aa3ef33
           path: product
           persist-credentials: false
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -47,7 +47,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
         with:
-          global-json-file: product/global.json
+          dotnet-version: '10.0.403'
       - name: Acquire exact current CI payload before execution
         env:
           GH_TOKEN: ${{ github.token }}
@@ -80,7 +80,7 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always() && (steps.live.outcome == 'success' || steps.audit.outcome == 'failure')
         with:
-          name: m7-a5-sealed-scripted-20261025-04-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          name: m7-a5-sealed-scripted-20261026-05-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: ${{ runner.temp }}/a5-private.jwe
           if-no-files-found: error
           retention-days: 1

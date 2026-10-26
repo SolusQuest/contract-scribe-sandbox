@@ -42,11 +42,11 @@ function writePrivate(file,value){fs.writeFileSync(file,JSON.stringify(value)+'\
 export function validateBinding(b=binding){
  requireThat(b.repository==='SolusQuest/contract-scribe-sandbox'&&b.repositoryId===1361354906
   &&b.sourceRepository==='SolusQuest/contract-scribe'&&b.sourceRepositoryId===1297409952
-  &&b.source==='823698c1fe90352cd06da13f8de1e60ccf30e38e'&&b.sourcePr===261
-  &&b.purpose==='m7-a5-scripted-github-20261025-04'
-  &&b.targetRef==='refs/heads/m7-a5-scripted-20261025-n'
-  &&b.campaignLineage==='campaign.m7.a5.scripted.20261025.04'
-  &&b.claimRef==='refs/tags/m7-a5-scripted-20261025-04'
+  &&b.source==='7d33ffe8788dc905f01ec138ae92442a3aa3ef33'&&b.sourcePr===266
+  &&b.purpose==='m7-a5-scripted-github-20261026-05'
+  &&b.targetRef==='refs/heads/m7-a5-scripted-20261026-u'
+  &&b.campaignLineage==='campaign.m7.a5.scripted.20261026.05'
+  &&b.claimRef==='refs/tags/m7-a5-scripted-20261026-05'
   &&coordination(b)===b.coordinationRef&&b.maximumWorkflowAttempts===1&&b.maximumOuterInvocations===1
   &&b.maximumExternalModelRequests===0&&b.maximumSyntheticRequests===8&&b.firstResponseHoldMilliseconds===61000
   &&b.targetSha==='0ea0b71381ad78b8fe1f371441fe546171671ce1'
@@ -60,7 +60,12 @@ export function validateBinding(b=binding){
   &&b.frozen.M?.targetHead==='0ea0b71381ad78b8fe1f371441fe546171671ce1'
   &&b.frozen.M?.coordinationRef==='refs/heads/contract-scribe/coordination/0e244828a63771b57e5d7f6813c3ca1e1f68948bf1d62ac5f21b64919fc8f1f0'
   &&b.frozen.M?.coordinationHead==='5b82107b4fa0e5795c625f98d4a74050bec31143'
-  &&Object.keys(b.oldZeroPurposeClaims??{}).length===3
+  &&Object.keys(b.oldZeroPurposeClaims??{}).length===4
+  &&b.frozen.T?.targetRef==='refs/heads/m7-a5-observation-20261022-t'
+  &&b.frozen.T?.targetHead==='0ea0b71381ad78b8fe1f371441fe546171671ce1'
+  &&b.frozen.T?.coordinationRef==='refs/heads/contract-scribe/coordination/46cd76159a71866755a6828d057331fd3b48bae09646daa5fd89773a95597617'
+  &&b.frozen.T?.coordinationHead==='8593ebcbd79722abe276cdc94634595962c57883'
+  &&b.oldZeroPurposeClaims['refs/tags/m7-a5-scripted-20261025-04']==='2e0de0938956a233c349bb62299de99b41893da3'
   &&b.oldZeroPurposeClaims['refs/tags/m7-a5-scripted-20261025-03']==='d269eaacd4aeac63af438b8ef02fa61cfe5e3640'
   &&b.oldZeroPurposeClaims['refs/tags/m7-a5-scripted-20261025-02']===null
   &&b.oldZeroPurposeClaims['refs/tags/m7-a5-scripted-20261024-01']==='ea280dccf6ec60a7c541e2c12dcf1830058040fc'
@@ -122,7 +127,7 @@ function inventory(own){
  return rows.filter(r=>r.id!==own).map(r=>[r.id,r.run_attempt,r.head_sha,r.status,r.conclusion]).sort((a,b)=>a[0]-b[0]);
 }
 function feedback(){
- const query=`query { repository(owner:"SolusQuest",name:"contract-scribe") { pullRequest(number:261) {
+ const query=`query { repository(owner:"SolusQuest",name:"contract-scribe") { pullRequest(number:266) {
  number headRefOid baseRefOid isDraft state reviewDecision
  comments(first:100) { totalCount pageInfo {hasNextPage endCursor} nodes { id databaseId author {login} body createdAt updatedAt url } }
  reviews(first:100) { totalCount pageInfo {hasNextPage endCursor} nodes { id databaseId author {login} state body submittedAt commit {oid} url } }

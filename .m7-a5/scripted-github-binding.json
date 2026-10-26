@@ -1,17 +1,17 @@
 {
-  "purpose": "m7-a5-scripted-github-20261025-04",
+  "purpose": "m7-a5-scripted-github-20261026-05",
   "repository": "SolusQuest/contract-scribe-sandbox",
   "repositoryId": 1361354906,
   "sourceRepository": "SolusQuest/contract-scribe",
   "sourceRepositoryId": 1297409952,
-  "source": "823698c1fe90352cd06da13f8de1e60ccf30e38e",
-  "sourceBase": "96af8d990146be8e6fd2612effa7601d468c883e",
-  "sourcePr": 261,
-  "targetRef": "refs/heads/m7-a5-scripted-20261025-n",
+  "source": "7d33ffe8788dc905f01ec138ae92442a3aa3ef33",
+  "sourceBase": "12d4e54a537a468fe62c773a319498737fef886c",
+  "sourcePr": 266,
+  "targetRef": "refs/heads/m7-a5-scripted-20261026-u",
   "targetSha": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
-  "campaignLineage": "campaign.m7.a5.scripted.20261025.04",
-  "coordinationRef": "refs/heads/contract-scribe/coordination/a27ac127b769390401de604602836bf7171a7fea0f06349462e60dbf6bf03048",
-  "claimRef": "refs/tags/m7-a5-scripted-20261025-04",
+  "campaignLineage": "campaign.m7.a5.scripted.20261026.05",
+  "coordinationRef": "refs/heads/contract-scribe/coordination/ec80aef9c5ecaa245d07ec64dc2f69d593b70df0a36c748d163d801781c554e0",
+  "claimRef": "refs/tags/m7-a5-scripted-20261026-05",
   "maximumWorkflowAttempts": 1,
   "maximumOuterInvocations": 1,
   "maximumSyntheticRequests": 8,
@@ -21,15 +21,15 @@
   "ModelMilliseconds": 600000,
   "requiredBotActor": 41898282,
   "payload": {
-    "artifactId": 12586841461,
-    "producerRunId": 40160994198,
+    "artifactId": 12655571814,
+    "producerRunId": 40333645922,
     "producerAttempt": 1,
     "artifactName": "d2-payload-attempt-1",
-    "zipSha256": "772217ab479973826e0d20783446fc4a72c74082d8435483be23b120d4514d94",
-    "archiveSha256": "36dba2268d6e7194db4f4e41fda6d936592caf86a4adfd1bb38b3ab87ed218a5",
-    "archiveName": "contract-scribe-0.1.0-dev+823698c1fe90352cd06da13f8de1e60ccf30e38e-linux-x64.tar.gz"
+    "zipSha256": "19316dfd9f3acf45583d87b55c9d7b2d901907e968ad12dbad273ae46dad31da",
+    "archiveSha256": "9be063d4f2037923bedc2c4778a79b389dbbfe220f7e5c3ab2c6d8874c4d5e6c",
+    "archiveName": "contract-scribe-0.1.0-dev+7d33ffe8788dc905f01ec138ae92442a3aa3ef33-linux-x64.tar.gz"
   },
-  "sourceAllowlistSha256": "5863af5e05efb0f368052aa9f3daecb9029958bbbdfca568af95d966665e1d60",
+  "sourceAllowlistSha256": "444229abfd10f8097a32031349c5f4a7cba38a8be38e1c3d73542067591dba4d",
   "oldControlFiles": [
     {
       "path": ".github/contract-scribe/handoff.py",
@@ -79,7 +79,7 @@
     {
       "path": ".github/workflows/m7-a5-live.yml",
       "mode": "100644",
-      "sha256": "ef88e2e79e8b480b459c79794155b0851a5146ff267b345a35d3546b7bfce7d1"
+      "sha256": "424ad4399d6c4590e058c3221276e990ea0ea9fd09dd585204cf2f599adffd14"
     },
     {
       "path": ".github/workflows/pr-observer.yml",
@@ -99,7 +99,7 @@
     {
       "path": ".m7-a5/approved-products.json",
       "mode": "100644",
-      "sha256": "5863af5e05efb0f368052aa9f3daecb9029958bbbdfca568af95d966665e1d60"
+      "sha256": "444229abfd10f8097a32031349c5f4a7cba38a8be38e1c3d73542067591dba4d"
     },
     {
       "path": ".m7-a5/audit-preflight.py",
@@ -109,17 +109,17 @@
     {
       "path": ".m7-a5/budget-and-launch.sh",
       "mode": "100644",
-      "sha256": "88761c1f1b1160cb5e610dc94c03114e185ce35c540e419a3407a8b9806461dc"
+      "sha256": "06071de555f515b5b432f6e580d53837bed852254d59525fb31fbaa0ec999d2a"
     },
     {
       "path": ".m7-a5/campaign-binding.mjs",
       "mode": "100644",
-      "sha256": "d5504e8ec4b336e4277bf5a657cdeea3aa18aeb3c57eec6c63e2d0baf78d7377"
+      "sha256": "cd1dd2d26f3e7fd7c3f0c39575c971c1924c191123ff2167f591b6f1b971fcd7"
     },
     {
       "path": ".m7-a5/campaign.json",
       "mode": "100644",
-      "sha256": "7c0df268dfe1234729f9b0d6c6709f3cea9ae1c8128b364f1d664729d0530bb6"
+      "sha256": "72fd9e380f01c7e8b0eb1bcb3388def2f1cb0bb492c886b1d0aaecb9d30c2a3d"
     },
     {
       "path": ".m7-a5/consumer-first-stop.json",
@@ -134,7 +134,7 @@
     {
       "path": ".m7-a5/consumer.json",
       "mode": "100644",
-      "sha256": "a837ee0ee1d8392472fd1f142128a3c8dbdc3025052d8f56eb73c52d81148bd3"
+      "sha256": "b21b0c2a3730e94d599918ea38a9484f0fcf6f240c4c2f5910d7fc3d041efc96"
     },
     {
       "path": ".m7-a5/private-envelope.mjs",
@@ -154,7 +154,7 @@
     {
       "path": ".m7-a5/select-profile.mjs",
       "mode": "100644",
-      "sha256": "24d03aedc866fb738ac379fc2eb6e689bccc8de0e1ab7fc6f2fdbd3906aa4d2f"
+      "sha256": "561cb6050d447837f7dd135192ab8c88ff5e4a87afdba5868a12a1ce3bdce53b"
     },
     {
       "path": ".m7-a5/synthetic-nuget.config",
@@ -164,7 +164,7 @@
     {
       "path": ".m7-a5/verify-source.mjs",
       "mode": "100644",
-      "sha256": "1bf3c92bbed49eadfa9a32a21114b62436d6fc448f6eb81f1e5500082d8a8c02"
+      "sha256": "d055f5bdf6571397122c442a85c6e58454aeccdab80c0ed1d1ea8d194d74e612"
     },
     {
       "path": "README.md",
@@ -265,10 +265,53 @@
       "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
       "coordinationRef": "refs/heads/contract-scribe/coordination/0e244828a63771b57e5d7f6813c3ca1e1f68948bf1d62ac5f21b64919fc8f1f0",
       "coordinationHead": "5b82107b4fa0e5795c625f98d4a74050bec31143"
+    },
+    "N": {
+      "targetRef": "refs/heads/m7-a5-scripted-20261025-n",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/a27ac127b769390401de604602836bf7171a7fea0f06349462e60dbf6bf03048",
+      "coordinationHead": "90f61c1997fcaac18319ad332a28da574f42d301"
+    },
+    "O": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-o",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/ba69074b0bf77813d332d8a19c85ef1a37dc9da8b9ca240bc6aec77277cae7c9",
+      "coordinationHead": "e92639d681e8b8e7d1666fceedf2e05fd7adee80"
+    },
+    "P": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-p",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/c2ccefbb15c361aabded2464c3ec1ffcf4070dff07fb7973522bc1bb8425ca4f",
+      "coordinationHead": "e4e84a115f0ff20fce8a29a0ed6bb9850b8be2d2"
+    },
+    "Q": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-q",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/86f36226075adcf243f2fab195054cad853fa3429e9f9ebbae24afabd16e7db8",
+      "coordinationHead": "d6a88d7a2e564755316dae8b55031506dfa91917"
+    },
+    "R": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-r",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/0fcde6e82fab8092f9c27665e3dbb4529aa7177c2273288f97619f9ee05ce380",
+      "coordinationHead": "b3dcdae08ae0d03820b9d5ded1c12af1fc7e7e0a"
+    },
+    "S": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-s",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/19a0c1709200f776c7b7f381752048ee862cd5711165a6207462d5bfe8be2747",
+      "coordinationHead": "ca4e85ae344db841dfe21e77e190233b7c51b752"
+    },
+    "T": {
+      "targetRef": "refs/heads/m7-a5-observation-20261022-t",
+      "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
+      "coordinationRef": "refs/heads/contract-scribe/coordination/46cd76159a71866755a6828d057331fd3b48bae09646daa5fd89773a95597617",
+      "coordinationHead": "8593ebcbd79722abe276cdc94634595962c57883"
     }
   },
-  "oldPrsSha256": "a018c1f9aeccdc999eb828b50eb6ea5943850d78931938db39eebbac02f5555e",
+  "oldPrsSha256": "2c571ded0c379e22be71e96dcf4d11038897727b02e4f94da0e79f4aa0826463",
   "oldBudgetTags": {
+    "refs/tags/m7-a5-budget-20261022-slot-14": "af9e8c3aab612188bb456c0569767e7e819f38e3",
     "refs/tags/m7-a5-budget-20261022-slot-02": "74c8fb1f93403495a72d62419b43d9b99d23281f",
     "refs/tags/m7-a5-budget-20261022-slot-03": "065f42d8c3d4ed0cef01ade2e48b51c0f3931819",
     "refs/tags/m7-a5-budget-20261022-slot-04": "69cbe35bbf18e552bcf6018ca83cd362e7f5bf59",
@@ -279,9 +322,14 @@
     "refs/tags/m7-a5-budget-20261022-slot-09": "2abce847f421807a11e2b1144dae26da0774e2a2",
     "refs/tags/m7-a5-budget-20261022-slot-10": "b72c7449e46d14f0dbbcce84c9656467237fdfef",
     "refs/tags/m7-a5-budget-20261022-slot-11": "649b301a983b00fa81f9aaf20af4fd25fcfac8a9",
-    "refs/tags/m7-a5-budget-20261022-slot-12": "653fb2c9f477b2d6bd3e92d82b8849ac6625752b"
+    "refs/tags/m7-a5-budget-20261022-slot-12": "653fb2c9f477b2d6bd3e92d82b8849ac6625752b",
+    "refs/tags/m7-a5-budget-20261022-slot-13": "6a498abb71e5912bd0710971aa75388ef278de63",
+    "refs/tags/m7-a5-budget-20261022-slot-15": "a7c6565cc306d05f35dbb596172196c9abdf20a3",
+    "refs/tags/m7-a5-budget-20261022-slot-16": "ece60bb6fdf684386e62cba01c7f57fee0880a2a",
+    "refs/tags/m7-a5-budget-20261022-slot-17": "7967cfe96bf1271aae6ade724158f3280570df7f",
+    "refs/tags/m7-a5-budget-20261022-slot-18": "7977914579543e043e8d3f0fd9cae7f7301a8f73"
   },
-  "sourceFeedbackSha256": "a2906932e7527a6f66689e416ccaa62e75cb45e97dc29c4cda37ac293743cbeb",
+  "sourceFeedbackSha256": "d18c47fcb79d29106336f7e3830220b58ce21a8ed743454f107f589f1bb54216",
   "consumer": {
     "consumerConfigurationVersion": 1,
     "provider": {
@@ -332,6 +380,7 @@
   "oldZeroPurposeClaims": {
     "refs/tags/m7-a5-scripted-20261024-01": "ea280dccf6ec60a7c541e2c12dcf1830058040fc",
     "refs/tags/m7-a5-scripted-20261025-02": null,
-    "refs/tags/m7-a5-scripted-20261025-03": "d269eaacd4aeac63af438b8ef02fa61cfe5e3640"
+    "refs/tags/m7-a5-scripted-20261025-03": "d269eaacd4aeac63af438b8ef02fa61cfe5e3640",
+    "refs/tags/m7-a5-scripted-20261025-04": "2e0de0938956a233c349bb62299de99b41893da3"
   }
 }
