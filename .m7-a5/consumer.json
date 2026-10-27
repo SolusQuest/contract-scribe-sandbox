@@ -13,12 +13,12 @@
   },
   "budgets": {
     "campaign": {
-      "maximumProviderRequests": 8,
+      "maximumProviderRequests": 30,
       "maximumAttemptsPerTarget": 2,
-      "maximumInputTokens": 349244,
-      "maximumUncachedInputTokens": 174622,
-      "maximumOutputTokens": 32768,
-      "maximumCostMicrounits": 960640,
+      "maximumInputTokens": 1160015,
+      "maximumUncachedInputTokens": 559093,
+      "maximumOutputTokens": 104403,
+      "maximumCostMicrounits": 3004251,
       "maximumElapsedMilliseconds": 7200000,
       "maximumCandidatesPerBlock": 30
     },
