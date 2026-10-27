@@ -40,23 +40,35 @@ const extra=checks.check_runs.filter(v=>!requiredNames.includes(v.name));
 if(checks.total_count!==checks.check_runs.length||!sameNames(required,requiredNames)
  ||checks.check_runs.some(v=>v.head_sha!==entry.sha||v.status!=='completed'||v.app?.id!==15368)
  ||required.some(v=>v.conclusion!==(v.name==='integration_unfiltered_evidence'?'skipped':'success')))fail();
-// The product repository's scheduled M5 workflow intentionally runs no jobs.
-// Attribute its entire four-check set; these skips never satisfy required CI.
+// Preserve the original accepted source check identities; scheduled M5 groups
+// accumulate independently and never satisfy required CI.
+const originalChecks=new Map([[122021625304,"validate"],[122021424908,"H3 offline gates"],[122021404978,"Product proof"],[122021378022,"Read-only platform evidence"],[122021377620,"Read-only preflight and transfer"],[122017616249,"action_examples_consumer"],[122017067599,"action_examples_producer"],[122015413633,"action_packaged"],[122015413609,"packed_payload"],[122014473458,"Analyze (csharp)"],[122014472935,"Analyze (python)"],[122014466239,"integration_unfiltered_evidence"],[122014465446,"integration_http_loss (1, After)"],[122014465428,"integration_campaign_crash"],[122014465409,"integration_github_proposal (compiler-inputs)"],[122014465388,"integration_http_loss (2, After)"],[122014465353,"integration_http_loss (0, After)"],[122014465349,"integration_http_loss (2, Before)"],[122014465324,"integration_http_loss (0, Before)"],[122014465317,"payload_producer"],[122014465290,"integration_github_proposal (automatic)"],[122014465284,"integration_github_proposal (remaining)"],[122014465279,"integration_other (remaining)"],[122014465237,"integration_other (campaign)"],[122014465229,"integration_http_loss (1, Before)"],[122014465089,"fast_and_static"]]);
+if(checks.total_count>100||new Set(checks.check_runs.map(v=>v.id)).size!==checks.check_runs.length
+ ||checks.check_runs.some(v=>!Number.isSafeInteger(v.id)||v.id<1)
+ ||[...originalChecks].some(([id,name])=>!checks.check_runs.some(v=>v.id===id&&v.name===name)))fail();
 if(extra.length){
  const names=['Read-only platform evidence','Product proof','H3 offline gates','Read-only preflight and transfer'];
- if(entry.kind!=='merged-baseline'||!sameNames(extra,names)||extra.some(v=>v.conclusion!=='skipped'))fail();
- const matches=extra.map(v=>/^https:\/\/github\.com\/SolusQuest\/contract-scribe\/actions\/runs\/(\d+)\/job\/(\d+)$/.exec(v.details_url));
- if(matches.some(v=>!v)||new Set(matches.map(v=>v[1])).size!==1)fail();
- const id=matches[0][1];const automatic=read(`repos/${approved.repository}/actions/runs/${id}`);
- if(automatic.id!==Number(id)||automatic.workflow_id!==353322607||automatic.path!=='.github/workflows/m5-github-proposal-proof.yml'
-  ||automatic.event!=='schedule'||automatic.repository.full_name!==approved.repository||automatic.head_sha!==entry.sha
-  ||automatic.head_branch!=='main'||automatic.run_attempt!==1||automatic.status!=='completed'||automatic.conclusion!=='skipped')fail();
- const jobs=read(`repos/${approved.repository}/actions/runs/${id}/attempts/1/jobs?per_page=100`);
- if(jobs.total_count!==4||jobs.jobs.length!==4||!sameNames(jobs.jobs,names))fail();
+ if(entry.kind!=='merged-baseline'||extra.some(v=>v.conclusion!=='skipped'))fail();
+ const groups=new Map();
  for(const check of extra){
-  const job=jobs.jobs.find(v=>v.name===check.name);
-  if(job.run_id!==automatic.id||job.head_sha!==entry.sha||job.status!=='completed'||job.conclusion!=='skipped'
-   ||check.details_url!==job.html_url||job.html_url!==`https://github.com/${approved.repository}/actions/runs/${id}/job/${job.id}`)fail();
+  const match=/^https:\/\/github\.com\/SolusQuest\/contract-scribe\/actions\/runs\/([1-9][0-9]*)\/job\/([1-9][0-9]*)$/.exec(check.details_url);
+  if(!match||!Number.isSafeInteger(Number(match[1]))||Number(match[2])!==check.id)fail();
+  const group=groups.get(match[1])??[];group.push(check);groups.set(match[1],group);
+ }
+ for(const [id,group] of groups){
+  if(!sameNames(group,names))fail();
+  const automatic=read(`repos/${approved.repository}/actions/runs/${id}`);
+  if(automatic.id!==Number(id)||automatic.workflow_id!==353322607||automatic.path!=='.github/workflows/m5-github-proposal-proof.yml'
+   ||automatic.event!=='schedule'||automatic.repository.full_name!==approved.repository||automatic.repository.id!==1297409952||automatic.head_sha!==entry.sha
+   ||automatic.head_branch!=='main'||automatic.run_attempt!==1||automatic.status!=='completed'||automatic.conclusion!=='skipped')fail();
+  const jobs=read(`repos/${approved.repository}/actions/runs/${id}/attempts/1/jobs?per_page=100`);
+  if(jobs.total_count!==4||jobs.jobs.length!==4||!sameNames(jobs.jobs,names)
+   ||new Set(jobs.jobs.map(v=>v.id)).size!==4)fail();
+  for(const check of group){
+   const job=jobs.jobs.find(v=>v.name===check.name);
+   if(job.id!==check.id||job.run_id!==automatic.id||job.head_sha!==entry.sha||job.status!=='completed'||job.conclusion!=='skipped'
+    ||check.details_url!==job.html_url||job.html_url!==`https://github.com/${approved.repository}/actions/runs/${id}/job/${job.id}`)fail();
+  }
  }
 }
 const query=`query { repository(owner:"SolusQuest",name:"contract-scribe") { pullRequest(number:267) {
