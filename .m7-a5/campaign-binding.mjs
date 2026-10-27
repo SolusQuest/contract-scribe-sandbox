@@ -4,7 +4,7 @@ import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
 import {execFileSync,spawnSync} from 'node:child_process';
 export const targetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1'; // Frozen A-V bases never follow W.
-export const lifecycleTargetSha='391d1761734dcdd168906477a9862c8b13505ea7'; // Actual native README H1 ACK; frozen A-V still use original0ea.
+export const lifecycleTargetSha=targetSha; // Q0 independent X starts from original four-file seed; W is frozen below.
 export const originalCoord='refs/heads/contract-scribe/coordination/fddfab7d34241bee29f478f81dc8fcc71d3a93195e8eab23d6f8289e23ab634f';
 export const originalHead='d7cdfef50f9a8987e88f35d43fee15699ce9a95a';
 export const priorDiagnosticCoord='refs/heads/contract-scribe/coordination/a9edaa6b9020d5d9674f90c4c7cb704de987cd605e97648cea302dc4d3e34831';
@@ -23,7 +23,7 @@ export const priorDiagnosticHCoord='refs/heads/contract-scribe/coordination/25f0
 export const priorDiagnosticHHead='d7c09d992cca537911653b860f7f2bfa2cd3eca7';
 export const priorDiagnosticICoord='refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607';
 export const priorDiagnosticIHead='b33398cdbe1932f3db887e5ac94941b21beefaf5';
-export const expected={githubCampaignVersion:1,campaignLineage:'campaign.m7.a5.20261022.flash.20',github:{repositoryOwner:'SolusQuest',repositoryName:'contract-scribe-sandbox',targetRef:'refs/heads/m7-a5-observation-20261022-w'}};
+export const expected={"githubCampaignVersion":1,"campaignLineage":"campaign.m7.a5.acquire-b.20261028.x","github":{"repositoryOwner":"SolusQuest","repositoryName":"contract-scribe-sandbox","targetRef":"refs/heads/m7-a5-acquire-b-20261028-x"}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -33,11 +33,11 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({'funded5':{state:'closed'}});
-export const lifecycleCoordHead='cdd784207d23f3b169cdc52dee8507e2296da242';
+export const lifecyclePhases=Object.freeze({'q0':{state:'initial'}});
+export const lifecycleCoordHead=null; // Q0 requires canonical absent independent coordination, never W adoption.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='21'; // Prospective fixed control purpose only; no financial allocation identity minted here.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-21';
+export const fundingSlot='22'; // Prospective fixed control purpose only; no financial allocation identity minted here.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
 export function phaseInfo(){
  const phase=process.env.A5_PHASE;
  if(!Object.hasOwn(lifecyclePhases,phase)||process.env.A5_FUNDING_SLOT||process.env.A5_SLOT!==fundingSlot)fail();
@@ -53,6 +53,7 @@ export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
 
 // Exact existing immutable inventory, through accepted actual19 V; no old state is reused.
 export const extendedFrozen={
+  "W": {"targetRef":"refs/heads/m7-a5-observation-20261022-w","targetHead":"391d1761734dcdd168906477a9862c8b13505ea7","coordinationRef":"refs/heads/contract-scribe/coordination/dc5ff06442ed3a90b4d686d3f7639d915d403491f16069a627734122931fbb3d","coordinationHead":"4f1201a71240b142478e77af7f3023ce4eb1caa8"},
   "V": {
   "targetRef": "refs/heads/m7-a5-observation-20261022-v",
   "targetHead": "0ea0b71381ad78b8fe1f371441fe546171671ce1",
@@ -140,6 +141,7 @@ export const oldZeroClaims={
   "refs/tags/m7-a5-scripted-20261026-05": "856e1d9a2495fa04b132ac2bc8b45e234b300dcd"
 };
 export const oldBudgetTags={
+  "refs/tags/m7-a5-budget-20261022-slot-21":"2cc4559e5a4768bde881894141ccf8f6f065ad62",
   "refs/tags/m7-a5-budget-20261022-slot-19": "b1b27922cfc5e88ab1e55e4583a5e5fbefe46aae",
   "refs/tags/m7-a5-budget-20261022-slot-17": "7967cfe96bf1271aae6ade724158f3280570df7f",
   "refs/tags/m7-a5-budget-20261022-slot-16": "ece60bb6fdf684386e62cba01c7f57fee0880a2a",
@@ -160,7 +162,7 @@ export const oldBudgetTags={
   "refs/tags/m7-a5-budget-20261022-slot-18": "7977914579543e043e8d3f0fd9cae7f7301a8f73"
 };
 export const oldPrsSha256='f25b3284502cab989d82cb0172214f06896ec4e5889ab4253acd5f0fbbf39c99';
-export const sourceFeedbackSha256='abb0c0b3ed52f4862361e978cd46a304f29faf81870279b8e9bc995750268bb2';
+export const sourceFeedbackSha256='b4dae5b31ea01664a47dc717d87190332efc4829ef572af26798e84afeacbeec';
 
 export function canonical(value){
  if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
@@ -181,8 +183,9 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
  if(claimedControl!==null&&(!/^[0-9a-f]{40}$/.test(claimedControl)||claimedControl!==process.env.GITHUB_SHA||claimedControl!==process.env.GITHUB_WORKFLOW_SHA||claimedControl!==process.env.A5_APPROVED_WORKFLOW_SHA))fail();
  const phase=phaseInfo();
  const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
- if(read(base+'heads/m7-a5-observation-20261022-w').object.sha!==lifecycleTargetSha
-  ||read(base+'heads/m7-a5-observation-20261022-i').object.sha!==targetSha
+ const newTarget=read(base+expected.github.targetRef.slice(5));
+ if(newTarget.ref!==expected.github.targetRef||newTarget.object?.type!=='commit'||newTarget.object.sha!==lifecycleTargetSha)fail();
+ if(read(base+'heads/m7-a5-observation-20261022-i').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-h').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-g').object.sha!==targetSha
   ||read(base+'heads/m7-a5-observation-20261022-f').object.sha!==targetSha
@@ -199,9 +202,8 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
   ||read(base+priorDiagnosticFCoord.slice(5)).object.sha!==priorDiagnosticFHead
   ||read(base+priorDiagnosticGCoord.slice(5)).object.sha!==priorDiagnosticGHead
   ||read(base+priorDiagnosticHCoord.slice(5)).object.sha!==priorDiagnosticHHead
-  ||read(base+priorDiagnosticICoord.slice(5)).object.sha!==priorDiagnosticIHead
-  ||read(base+diagnosticCoord.slice(5)).object?.sha!==lifecycleCoordHead)fail();
- const own=read(base+diagnosticCoord.slice(5));if(own.ref!==diagnosticCoord||own.object?.type!=='commit'||own.object.sha!==lifecycleCoordHead)fail();
+  ||read(base+priorDiagnosticICoord.slice(5)).object.sha!==priorDiagnosticIHead)fail();
+ if(!absent(base+diagnosticCoord.slice(5)))fail(); // PRECLAIM/PRELAUNCH Q0 only.
 
  for(const frozen of Object.values(extendedFrozen)){
   const target=read(base+frozen.targetRef.slice(5));
@@ -224,7 +226,7 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
  const selected=prs.filter(v=>v.number<=10).map(v=>({number:v.number,state:v.state,title:v.title,body:v.body,draft:v.draft,merged_at:v.merged_at,headSha:v.head.sha,baseSha:v.base.sha,baseRef:v.base.ref,userId:v.user.id})).sort((a,b)=>a.number-b.number);
  if(selected.length!==10||sha256(canonical(selected))!==oldPrsSha256)fail();
  const pr=prs.find(v=>v.number===11);
- if(!pr||pr.state!==phase.state||pr.closed_at!=='2026-10-27T08:47:19Z')fail();
+ if(!pr||pr.state!=='closed'||pr.closed_at!=='2026-10-27T08:47:19Z')fail();
  const ownPR={number:pr.number,title:pr.title,body:pr.body,draft:pr.draft,merged_at:pr.merged_at,headSha:pr.head.sha,baseSha:pr.base.sha,baseRef:pr.base.ref,userId:pr.user.id,headRepoId:pr.head.repo?.id,baseRepoId:pr.base.repo?.id};
  if(sha256(canonical(ownPR))!=='295dde8313005da25011a7e45afb697aaeff77c4610422a5f045a9dcc3dcc080')fail();
 
@@ -232,8 +234,8 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
 
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
- catch{console.error('Exact funded21/product20 pre-launch binding rejected; no alternate purpose granted.');process.exitCode=1;}
+ catch{console.error('Exact candidate Q0 funding22 pre-launch binding rejected; no alternate purpose granted.');process.exitCode=1;}
 }
 
-// This is PRECLAIM/PRELAUNCH only. Never freeze cdd or PRcount11 after real production work.
+// Q0 PRECLAIM/PRELAUNCH only. After original production ACK learn the actual X PR/canonical descendant; never run this initial inventory guard post-Q0.
 // Postrun acceptance must use actual canonical descendant/WriterACK/M2/publication owner proofs.

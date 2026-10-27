@@ -2,19 +2,39 @@
   "repository": "SolusQuest/contract-scribe",
   "sources": [
     {
-      "sha": "4ca77d69cbaf2d3cb18c49352a43f4449c9da991",
-      "kind": "merged-baseline",
-      "pullRequest": 267,
+      "sha": "3c1e59d78e5aef9191895047984af03940d7361e",
+      "kind": "reviewed-pr-fix",
+      "pullRequest": 269,
+      "baseSha": "4ca77d69cbaf2d3cb18c49352a43f4449c9da991",
       "ciWorkflowId": 311270030,
       "codeqlWorkflowId": 343249902,
+      "ciRunId": 40530791595,
+      "codeqlRunId": 40530785955,
       "payload": {
-        "artifactId": 12710023462,
-        "producerRunId": 40451321393,
+        "artifactId": 12746251797,
+        "producerRunId": 40530791595,
         "producerAttempt": 1,
         "artifactName": "d2-payload-attempt-1",
-        "zipSha256": "ad53970e20f33201094a8f5842532c71d3aaa11c40bf5c511cd684d46ff96151",
-        "archiveSha256": "1d42c5f3592386506f7f087361fe4744c2e8fc7fd80257c569ae7e333d80ef31",
-        "archiveName": "contract-scribe-0.1.0-dev+4ca77d69cbaf2d3cb18c49352a43f4449c9da991-linux-x64.tar.gz"
+        "zipSha256": "131cfd3319ee862fccf581a172682948836c950888adfa632f9d5d7e47d7252e",
+        "archiveSha256": "3f4b754c0c288548887c5f2267fb182f4069d2e38c0a357492b6a13ba5713c9c",
+        "archiveName": "contract-scribe-0.1.0-dev+3c1e59d78e5aef9191895047984af03940d7361e-linux-x64.tar.gz",
+        "inventoryFiles": 155,
+        "productionFiles": {
+          "ContractScribe.Cli.dll": "5a26156d44a0cb8e73bc887a628ac673e61b529a8b65c81b1391a5a7bbf421eb",
+          "ContractScribe.Core.dll": "796c4ee6044449c5178ae33ba367b6d48379ee9e123c7eb3e0f1e950bde55f4c",
+          "ContractScribe.GitHub.dll": "420c15be9b78f90fb264bc763363e6164cd0bd6f058b9bb8a7f4275e6eb7603b"
+        }
+      },
+      "formalReview": {
+        "taskId": "4c879558-0899-4e8f-86d9-30e61517bb79",
+        "clientRequestId": "92ad5445-9178-4c99-9747-9fe5e97349f4",
+        "reviewedHead": "3c1e59d78e5aef9191895047984af03940d7361e",
+        "inputSHA256": "5e7acb47491221dac2fa6dc780d976dc99fa92cdc37805e4b9be049935add387",
+        "verdict": "READY_FOR_HUMAN_REVIEW",
+        "blockingFindings": 0,
+        "preSendEffort": "GPT6/max succeeded",
+        "postReplyEffortVerification": "unknown/http404 disclosed",
+        "ROOTAcceptedForSourceQualificationOnly": true
       }
     }
   ]
