@@ -7,7 +7,7 @@ const fail=()=>{throw Error('Exact reviewed source / terminal quality gate faile
 if(env.GITHUB_REPOSITORY!=='SolusQuest/contract-scribe-sandbox'||env.GITHUB_EVENT_NAME!=='workflow_dispatch'||env.GITHUB_RUN_ATTEMPT!=='1'||env.GITHUB_WORKFLOW_SHA!==env.A5_APPROVED_WORKFLOW_SHA)fail();
 const approved=JSON.parse(fs.readFileSync(new URL('./approved-products.json',import.meta.url)));
 const entry=approved.sources.find(x=>x.sha===env.A5_PRODUCT_SHA);
-if(!entry||entry.sha!=='7d33ffe8788dc905f01ec138ae92442a3aa3ef33'||approved.sources.length!==1||approved.repository!=='SolusQuest/contract-scribe'||sha256(fs.readFileSync(new URL('./approved-products.json',import.meta.url)))!=='444229abfd10f8097a32031349c5f4a7cba38a8be38e1c3d73542067591dba4d')fail();
+if(!entry||entry.sha!=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991'||approved.sources.length!==1||approved.repository!=='SolusQuest/contract-scribe'||sha256(fs.readFileSync(new URL('./approved-products.json',import.meta.url)))!=='094d68835472a3841e1266b3c3d2f4e38502c530f012af22430c44be4340a274')fail();
 const read=path=>JSON.parse(execFileSync('gh',['api',path],{encoding:'utf8',maxBuffer:4*1024*1024}));
 if(read('repos/SolusQuest/contract-scribe-sandbox').id!==1361354906)fail();
 verifyFresh(undefined,read);
@@ -19,11 +19,11 @@ if(entry.kind==='reviewed-pr-fix'){
  if(pr.state!=='open'||!pr.draft||pr.merged_at||pr.head.sha!==entry.sha||pr.head.repo.full_name!==approved.repository||pr.base.ref!=='main'||pr.base.sha!=='12d4e54a537a468fe62c773a319498737fef886c'||entry.pullRequest!==266)fail();
 }else if(entry.kind==='merged-baseline'){
  const current=read(`repos/${approved.repository}/git/ref/heads/main`);
- const merged=read(`repos/${approved.repository}/pulls/264`);
+ const merged=read(`repos/${approved.repository}/pulls/267`);
  if(current.ref!=='refs/heads/main'||current.object?.type!=='commit'||current.object.sha!==entry.sha
-  ||entry.pullRequest!==264||merged.state!=='closed'||merged.merged!==true||!merged.merged_at
-  ||merged.merge_commit_sha!==entry.sha||merged.head.sha!=='97ed8c7e029e8c21944cd5994bb6b401f17d340a'
-  ||merged.head.repo.full_name!==approved.repository||merged.base.ref!=='main'||merged.base.sha!=='ca391cba63c7a19801876751a5b4621bdbdc5ff8')fail();
+  ||entry.pullRequest!==267||merged.state!=='closed'||merged.merged!==true||!merged.merged_at
+  ||merged.merge_commit_sha!==entry.sha||merged.head.sha!=='27ac9a1a9a5c7a19376b0e079f372094a5e9b82f'
+  ||merged.head.repo.full_name!==approved.repository||merged.base.ref!=='main'||merged.base.sha!=='eed83bac974c150b2dabcbed496e31a6433fd8f1')fail();
 }else fail();
 const runs=read(`repos/${approved.repository}/actions/runs?head_sha=${entry.sha}&per_page=100`).workflow_runs;
 for(const id of [entry.ciWorkflowId,entry.codeqlWorkflowId]){
@@ -59,7 +59,7 @@ if(extra.length){
    ||check.details_url!==job.html_url||job.html_url!==`https://github.com/${approved.repository}/actions/runs/${id}/job/${job.id}`)fail();
  }
 }
-const query=`query { repository(owner:"SolusQuest",name:"contract-scribe") { pullRequest(number:266) {
+const query=`query { repository(owner:"SolusQuest",name:"contract-scribe") { pullRequest(number:267) {
  number headRefOid baseRefOid isDraft state reviewDecision
  comments(first:100) { totalCount pageInfo {hasNextPage endCursor} nodes { id databaseId author {login} body createdAt updatedAt url } }
  reviews(first:100) { totalCount pageInfo {hasNextPage endCursor} nodes { id databaseId author {login} state body submittedAt commit {oid} url } }

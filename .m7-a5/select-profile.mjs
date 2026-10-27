@@ -1,7 +1,7 @@
-// This prepared diagnostic tuple enables only unused19; all other slots fail closed.
+// This prepared diagnostic tuple enables only unused20; all other slots fail closed.
 import fs from 'node:fs';
 export function profileName(slot) {
-  if(slot!=='19')throw Error('Inactive or retired slot.');
+  if(slot!=='20')throw Error('Inactive or retired slot.');
   return 'consumer.json';
 }
 export function verify(slot,file) {
