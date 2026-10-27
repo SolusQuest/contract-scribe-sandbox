@@ -33,18 +33,19 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({'fresh-audit12':{state:'closed'}});
+export const lifecyclePhases=Object.freeze({'funded5':{state:'closed'}});
 export const lifecycleCoordHead='cdd784207d23f3b169cdc52dee8507e2296da242';
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingInvocation=null; // No new financial slot or paid launch is allocated.
+export const fundingSlot='21'; // Prospective fixed control purpose only; no financial allocation identity minted here.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-21';
 export function phaseInfo(){
  const phase=process.env.A5_PHASE;
- if(!Object.hasOwn(lifecyclePhases,phase)||process.env.A5_FUNDING_SLOT||process.env.A5_SLOT)fail();
+ if(!Object.hasOwn(lifecyclePhases,phase)||process.env.A5_FUNDING_SLOT||process.env.A5_SLOT!==fundingSlot)fail();
  return lifecyclePhases[phase];
 }
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
  phaseInfo();
- verifyProfile(process.env.A5_PHASE,new URL('./'+profileName(process.env.A5_PHASE),import.meta.url));
+ verifyProfile(process.env.A5_SLOT,new URL('./'+profileName(process.env.A5_SLOT),import.meta.url));
  const actual=fs.readFileSync(file),reviewed=fs.readFileSync(new URL('./campaign.json',import.meta.url));
  if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||diagnosticCoord===priorDiagnosticICoord||Object.values(extendedFrozen).some(v=>v.coordinationRef===diagnosticCoord)||process.env.A5_TARGET_SHA!==lifecycleTargetSha)fail();
  return expected;
@@ -177,7 +178,7 @@ const absentApi=path=>{
 };
 export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=null){
  verifyBinding(file);
- if(claimedControl!==null)fail(); // All claim/paid entry paths remain disabled.
+ if(claimedControl!==null&&(!/^[0-9a-f]{40}$/.test(claimedControl)||claimedControl!==process.env.GITHUB_SHA||claimedControl!==process.env.GITHUB_WORKFLOW_SHA||claimedControl!==process.env.A5_APPROVED_WORKFLOW_SHA))fail();
  const phase=phaseInfo();
  const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
  if(read(base+'heads/m7-a5-observation-20261022-w').object.sha!==lifecycleTargetSha
@@ -214,6 +215,8 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
  }
  const claimRef='refs/tags/m7-a5-budget-20261022-slot-20';
  const wantedTags={...oldBudgetTags,[claimRef]:original20ClaimControl};
+ if(claimedControl===null){if(!absent(base+fundingClaimRef.slice(5)))fail();}
+ else {const ownClaim=read(base+fundingClaimRef.slice(5));if(ownClaim.ref!==fundingClaimRef||ownClaim.object?.type!=='commit'||ownClaim.object.sha!==claimedControl)fail();wantedTags[fundingClaimRef]=claimedControl;}
  const tags=read('repos/SolusQuest/contract-scribe-sandbox/git/matching-refs/tags/m7-a5-budget-20261022-slot-?per_page=100');
  if(!Array.isArray(tags)||tags.length!==Object.keys(wantedTags).length||tags.some(v=>v.object?.type!=='commit')||canonical(Object.fromEntries(tags.map(v=>[v.ref,v.object.sha])))!==canonical(wantedTags))fail();
  const prs=read('repos/SolusQuest/contract-scribe-sandbox/pulls?state=all&per_page=100');
@@ -228,6 +231,9 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
 }
 
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
- try{verifyFresh(process.argv[2]);}
- catch{console.error('Exact actual H1 fresh-Audit-only binding rejected; no paid or historical phase granted.');process.exitCode=1;}
+ try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
+ catch{console.error('Exact funded21/product20 pre-launch binding rejected; no alternate purpose granted.');process.exitCode=1;}
 }
+
+// This is PRECLAIM/PRELAUNCH only. Never freeze cdd or PRcount11 after real production work.
+// Postrun acceptance must use actual canonical descendant/WriterACK/M2/publication owner proofs.

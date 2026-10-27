@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Caller-only real Audit completion gate / one unpaid three-case diagnostic.
-import hashlib,json,os,subprocess,sys
+import hashlib,json,os,re,stat,subprocess,sys
 from pathlib import Path
 
 def require(ok):
@@ -27,9 +27,20 @@ def completed(envelope,exit_code,canonical,sha):
 def campaign_binding():
     return json.loads(Path(__file__).with_name("campaign.json").read_text())
 
+def own_context():
+    e=os.environ
+    require(e.get('A5_PHASE')=='funded5' and e.get('A5_SLOT')=='21' and not e.get('A5_FUNDING_SLOT'))
+    require(re.fullmatch(r'[1-9][0-9]*',e.get('GITHUB_RUN_ID','')) is not None and e.get('GITHUB_RUN_ATTEMPT')=='1')
+    control=e.get('GITHUB_WORKFLOW_SHA','')
+    require(re.fullmatch(r'[0-9a-f]{40}',control) is not None and e.get('GITHUB_SHA')==control and e.get('A5_APPROVED_WORKFLOW_SHA')==control)
+    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'21'}
+
 def verify_receipt(path,cli,sha,target):
-    require(os.environ.get('A5_PHASE')=='fresh-audit12' and sha=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991' and target=='391d1761734dcdd168906477a9862c8b13505ea7')
+    context=own_context();s=Path(path).lstat()
+    require(stat.S_ISREG(s.st_mode) and not stat.S_ISLNK(s.st_mode) and s.st_uid==os.getuid() and stat.S_IMODE(s.st_mode)==0o400 and s.st_size<=65536)
+    require(os.environ.get('A5_PHASE')=='funded5' and sha=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991' and target=='391d1761734dcdd168906477a9862c8b13505ea7')
     r=json.loads(Path(path).read_text())
+    require(all(r.get(k)==v for k,v in context.items()))
     binding=campaign_binding()
     require(r['campaignLineage']==binding['campaignLineage'] and r['targetRef']==binding['github']['targetRef'])
     require(r['campaignSha256']==hashlib.sha256(Path(__file__).with_name('campaign.json').read_bytes()).hexdigest())
@@ -54,11 +65,12 @@ def run_case(name,input_path,cwd,root,cli,temp,sha):
     return record
 
 def main():
-    require(os.environ.get('A5_PHASE')=='fresh-audit12' and not os.environ.get('A5_FUNDING_SLOT') and not os.environ.get('A5_SLOT'))
+    own_context()
     require(os.environ.get('A5_PRODUCT_SHA')=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991' and os.environ.get('A5_TARGET_SHA')=='391d1761734dcdd168906477a9862c8b13505ea7')
     if len(sys.argv)>1 and sys.argv[1]=='verify-receipt':
         verify_receipt(os.environ['RUNNER_TEMP']+'/a5-audit-preflight.json',os.environ['A5_CLI'],os.environ['A5_PRODUCT_SHA'],os.environ['A5_TARGET_SHA']);return
-    require(sys.argv[1] in ['diagnostic','preflight'])
+    require(sys.argv[1]=='preflight')
+    require(not (Path(os.environ['RUNNER_TEMP'])/'a5-audit-preflight.json').exists())
     require(not any(os.environ.get(k) for k in ['GH_TOKEN','GITHUB_TOKEN','CONTRACTSCRIBE_PROVIDER_API_KEY','CONTRACTSCRIBE_GITHUB_TOKEN']))
     temp=Path(os.environ['RUNNER_TEMP']);root=Path(os.environ['A5_TARGET_ROOT']).resolve();cli=Path(os.environ['A5_CLI']).resolve();sha=os.environ['A5_PRODUCT_SHA'];target=os.environ['A5_TARGET_SHA']
     require(subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()==target)
@@ -73,8 +85,9 @@ def main():
     original=cases[0]
     if original['realAuditCompleted']:
         binding=campaign_binding()
-        receipt={**original,'campaignLineage':binding['campaignLineage'],'targetRef':binding['github']['targetRef'],'campaignSha256':hashlib.sha256(Path(__file__).with_name('campaign.json').read_bytes()).hexdigest(),'sourceRevision':sha,'targetSha':target,'cliSha256':hashlib.sha256(cli.read_bytes()).hexdigest()}
-        (temp/'a5-audit-preflight.json').write_text(json.dumps(receipt,separators=(',',':'))+'\n')
+        receipt={**original,**own_context(),'campaignLineage':binding['campaignLineage'],'targetRef':binding['github']['targetRef'],'campaignSha256':hashlib.sha256(Path(__file__).with_name('campaign.json').read_bytes()).hexdigest(),'sourceRevision':sha,'targetSha':target,'cliSha256':hashlib.sha256(cli.read_bytes()).hexdigest()}
+        with (temp/'a5-audit-preflight.json').open('x') as receipt_file:receipt_file.write(json.dumps(receipt,separators=(',',':'))+'\n')
+        (temp/'a5-audit-preflight.json').chmod(0o400)
     require(not subprocess.check_output(['git','-C',str(root),'status','--porcelain','--untracked-files=no'],text=True).strip())
     batch={'mode':sys.argv[1],'sourceRevision':sha,'targetSha':target,'providerCalls':0,'publicationActions':0,'cases':cases,'originalProjectAuditCompleted':original['realAuditCompleted']}
     (temp/'a5-result.json').write_text(json.dumps(batch,separators=(',',':'))+'\n');(temp/'a5-result.json').chmod(0o600)
