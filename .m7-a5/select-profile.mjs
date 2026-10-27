@@ -1,7 +1,7 @@
-// Local continuation candidate: three no-provider preflight gates only.
+// Local H1 candidate: genuine fresh Audit12 only; every paid entry stays disabled.
 // consumer.json is a separately reviewed FUTURE aggregate projection, never selected here.
 import fs from 'node:fs';
-const profiles=Object.freeze({'open-wait':'consumer-zero.json','closed-samebase':'consumer-zero.json','closed-config':'consumer-first-stop.json'});
+const profiles=Object.freeze({'fresh-audit12':'consumer-zero.json'});
 export function profileName(phase) {
  if(!Object.hasOwn(profiles,phase))throw Error('Inactive lifecycle phase; paid execution unavailable.');
  return profiles[phase];
@@ -10,7 +10,7 @@ const aggregate={maximumProviderRequests:30,maximumAttemptsPerTarget:2,maximumIn
 function check(value,phase) {
  const i=value.budgets.invocation,c=value.budgets.campaign;
  if(JSON.stringify(c)!==JSON.stringify(aggregate))throw Error('Prospective funded aggregate mismatch.');
- const expectedTargets=phase==='closed-config'?4:5;
+ const expectedTargets=5;
  if(i.maximumProviderRequests!==0||i.maximumTargets!==expectedTargets
  ||i.maximumCachedInputTokens!==174622||i.maximumUncachedInputTokens!==174622
  ||i.maximumOutputTokens!==32768||i.maximumRequestOutputTokens!==4096

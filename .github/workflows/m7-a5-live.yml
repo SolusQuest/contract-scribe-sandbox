@@ -5,7 +5,7 @@ on:
     inputs:
       target_sha:
         required: true
-        default: 0ea0b71381ad78b8fe1f371441fe546171671ce1
+        default: 391d1761734dcdd168906477a9862c8b13505ea7
       approved_workflow_sha:
         required: true
       product_sha:
@@ -14,7 +14,7 @@ on:
       phase:
         required: true
         type: choice
-        options: ['open-wait', 'closed-samebase', 'closed-config']
+        options: ['fresh-audit12']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -73,7 +73,7 @@ jobs:
           umask 077
           cp control/.m7-a5/campaign.json "$RUNNER_TEMP/campaign.json"
           node control/.m7-a5/select-profile.mjs copy "$A5_PHASE" "$RUNNER_TEMP/consumer.json"
-      - name: Single expected lifecycle preflight with provider secret withheld
+      - name: Single genuine fresh Audit12 with provider credentials withheld
         id: live
         env:
           GH_TOKEN: ${{ github.token }}
@@ -85,7 +85,7 @@ jobs:
           A5_CLI: ${{ env.A5_ACQUIRED_CLI }}
           A5_CAMPAIGN: ${{ runner.temp }}/campaign.json
           A5_CONSUMER: ${{ runner.temp }}/consumer.json
-        run: bash control/.m7-a5/budget-and-launch.sh gate
+        run: bash control/.m7-a5/budget-and-launch.sh audit
       - name: Seal bounded result
         if: always() && steps.live.outputs.started == 'true'
         env:
@@ -98,5 +98,5 @@ jobs:
           path: ${{ runner.temp }}/a5-private.jwe
           if-no-files-found: error
           retention-days: 1
-      # Raw CLI exit4 for the expected closed gate remains in the sealed result.
-      # Workflow success only means that the named expected zero-provider gate matched.
+      # Underlying Audit CLI1 means actual violations; it remains in the sealed Audit record.
+      # Outer wrapper success requires genuine complete counts1compliant/12violation/0skip.

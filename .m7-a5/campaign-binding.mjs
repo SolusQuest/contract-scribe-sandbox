@@ -4,7 +4,7 @@ import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
 import {execFileSync,spawnSync} from 'node:child_process';
 export const targetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1'; // Frozen A-V bases never follow W.
-export const lifecycleTargetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1'; // Exact first-three-gate W base; later native ACK requires a new reviewed pin.
+export const lifecycleTargetSha='391d1761734dcdd168906477a9862c8b13505ea7'; // Actual native README H1 ACK; frozen A-V still use original0ea.
 export const originalCoord='refs/heads/contract-scribe/coordination/fddfab7d34241bee29f478f81dc8fcc71d3a93195e8eab23d6f8289e23ab634f';
 export const originalHead='d7cdfef50f9a8987e88f35d43fee15699ce9a95a';
 export const priorDiagnosticCoord='refs/heads/contract-scribe/coordination/a9edaa6b9020d5d9674f90c4c7cb704de987cd605e97648cea302dc4d3e34831';
@@ -33,17 +33,13 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({
- 'open-wait':{state:'open',outcome:'github-proposal.awaiting-review',exit:0},
- 'closed-samebase':{state:'closed',outcome:'github-proposal.closed-unmerged',exit:4},
- 'closed-config':{state:'closed',outcome:'github-proposal.closed-unmerged',exit:4}
-});
+export const lifecyclePhases=Object.freeze({'fresh-audit12':{state:'closed'}});
 export const lifecycleCoordHead='cdd784207d23f3b169cdc52dee8507e2296da242';
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
 export const fundingInvocation=null; // No new financial slot or paid launch is allocated.
 export function phaseInfo(){
  const phase=process.env.A5_PHASE;
- if(!Object.hasOwn(lifecyclePhases,phase)||process.env.A5_FUNDING_SLOT)fail();
+ if(!Object.hasOwn(lifecyclePhases,phase)||process.env.A5_FUNDING_SLOT||process.env.A5_SLOT)fail();
  return lifecyclePhases[phase];
 }
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
@@ -225,29 +221,13 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
  const selected=prs.filter(v=>v.number<=10).map(v=>({number:v.number,state:v.state,title:v.title,body:v.body,draft:v.draft,merged_at:v.merged_at,headSha:v.head.sha,baseSha:v.base.sha,baseRef:v.base.ref,userId:v.user.id})).sort((a,b)=>a.number-b.number);
  if(selected.length!==10||sha256(canonical(selected))!==oldPrsSha256)fail();
  const pr=prs.find(v=>v.number===11);
- if(!pr||pr.state!==phase.state)fail();
+ if(!pr||pr.state!==phase.state||pr.closed_at!=='2026-10-27T08:47:19Z')fail();
  const ownPR={number:pr.number,title:pr.title,body:pr.body,draft:pr.draft,merged_at:pr.merged_at,headSha:pr.head.sha,baseSha:pr.base.sha,baseRef:pr.base.ref,userId:pr.user.id,headRepoId:pr.head.repo?.id,baseRepoId:pr.base.repo?.id};
  if(sha256(canonical(ownPR))!=='295dde8313005da25011a7e45afb697aaeff77c4610422a5f045a9dcc3dcc080')fail();
 
 }
 
-export function validateZeroResult(envelope,exit) {
- const phase=phaseInfo(),u=envelope?.invocationUsage,c=u?.calls;
- if(envelope.githubProposalEnvelopeVersion!==1||envelope.cliContractBaseline!=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991'
- ||envelope.terminalLayer!=='preflight'||envelope.outcome!==phase.outcome||exit!==phase.exit
- ||![null,48].includes(envelope.checkpointRevision)||u?.invocationUsageVersion!==1||!c
- ||['physicalProviderDispatches','logicalProviderCalls','retryDispatches','toolCalls','activeSent','activeReserved','uncorrelatedDispatches'].some(k=>c[k]!==0)
- ||u.checkpointFailure!==null||u.providerDiagnostics?.missingDispatches!==0||u.providerDiagnostics?.observations?.length!==0)fail();
- if(u.work&&['startedTargets','resumedTargets','acceptedTargets','skippedTargets','failedTargets','reconstructedTargets'].some(k=>u.work[k]!==0))fail();
- if(process.env.A5_PHASE!=='open-wait'&&!envelope.diagnosticCodes?.includes('github-proposal.closed-same-base'))fail();
- return {phase:process.env.A5_PHASE,actualCLIExit:exit,outcome:envelope.outcome,zeroNewProviderRequests:true,productPreflightBeforeAudit:true,readOnlyCoordinationUnchangedRequired:true};
-}
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
- try{
-  if(process.argv[2]==='check-zero'){
-   const file=process.argv[3],exitFile=process.argv[4];
-   if(fs.statSync(file).size>1048576)fail();
-   validateZeroResult(JSON.parse(fs.readFileSync(file,'utf8')),Number(fs.readFileSync(exitFile,'utf8')));
-  }else verifyFresh(process.argv[2]);
- }catch{console.error('Bound no-provider lifecycle gate rejected; no paid or alternate phase granted.');process.exitCode=1;}
+ try{verifyFresh(process.argv[2]);}
+ catch{console.error('Exact actual H1 fresh-Audit-only binding rejected; no paid or historical phase granted.');process.exitCode=1;}
 }

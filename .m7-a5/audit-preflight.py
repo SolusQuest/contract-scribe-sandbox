@@ -22,18 +22,20 @@ def completed(envelope,exit_code,canonical,sha):
         key={'audit.outcome.compliant':'compliant','audit.outcome.violation':'violation','audit.outcome.skipped':'skipped'}[row['auditOutcome']]
         actual[key]+=1
     require(actual==counts)
+    require(counts=={'compliant':1,'violation':12,'skipped':0})
 
 def campaign_binding():
     return json.loads(Path(__file__).with_name("campaign.json").read_text())
 
 def verify_receipt(path,cli,sha,target):
+    require(os.environ.get('A5_PHASE')=='fresh-audit12' and sha=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991' and target=='391d1761734dcdd168906477a9862c8b13505ea7')
     r=json.loads(Path(path).read_text())
     binding=campaign_binding()
     require(r['campaignLineage']==binding['campaignLineage'] and r['targetRef']==binding['github']['targetRef'])
     require(r['campaignSha256']==hashlib.sha256(Path(__file__).with_name('campaign.json').read_bytes()).hexdigest())
     require(r['realAuditCompleted'] is True and r['case']=='project-workspace' and r['sourceRevision']==sha and r['targetSha']==target)
     require(r['cliSha256']==hashlib.sha256(Path(cli).read_bytes()).hexdigest())
-    require(r['envelope']['terminalLayer']=='audit' and r['envelope']['counts']['skipped']==0)
+    require(r['envelope']['terminalLayer']=='audit' and r['envelope']['counts']=={'compliant':1,'violation':12,'skipped':0})
 
 def run_case(name,input_path,cwd,root,cli,temp,sha):
     out=temp/(name+'-out.json');stdout=temp/(name+'-stdout.txt');stderr=temp/(name+'-stderr.txt')
@@ -52,6 +54,8 @@ def run_case(name,input_path,cwd,root,cli,temp,sha):
     return record
 
 def main():
+    require(os.environ.get('A5_PHASE')=='fresh-audit12' and not os.environ.get('A5_FUNDING_SLOT') and not os.environ.get('A5_SLOT'))
+    require(os.environ.get('A5_PRODUCT_SHA')=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991' and os.environ.get('A5_TARGET_SHA')=='391d1761734dcdd168906477a9862c8b13505ea7')
     if len(sys.argv)>1 and sys.argv[1]=='verify-receipt':
         verify_receipt(os.environ['RUNNER_TEMP']+'/a5-audit-preflight.json',os.environ['A5_CLI'],os.environ['A5_PRODUCT_SHA'],os.environ['A5_TARGET_SHA']);return
     require(sys.argv[1] in ['diagnostic','preflight'])
