@@ -105,6 +105,17 @@ jobs:
           cli_exit=$?
           set -e
           printf '%s' "$cli_exit" >"$RUNNER_TEMP/a5-exit-code.txt"
+      - name: Observe actual Actions quota after this invocation
+        if: always() && (steps.live.outcome == 'success' || steps.live.outcome == 'failure')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYTHON'
+          import json,os,subprocess
+          r=subprocess.run(['gh','api','--include','repos/SolusQuest/contract-scribe-sandbox'],capture_output=True,text=True)
+          headers=r.stdout.partition('\n\n')[0]
+          print(json.dumps({'originalRunId':os.environ['GITHUB_RUN_ID'],'quotaReadExit':r.returncode,'headers':[line for line in headers.splitlines() if line.lower().startswith(('http/','x-ratelimit-','retry-after:','date:'))]}))
+          PYTHON
       - name: Seal bounded result
         if: always() && (steps.live.outcome == 'success' || steps.live.outcome == 'failure')
         env:
