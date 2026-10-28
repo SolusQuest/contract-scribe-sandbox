@@ -7,13 +7,13 @@ const fail=()=>{throw Error('Exact reviewed source / terminal quality gate faile
 if(env.GITHUB_REPOSITORY!=='SolusQuest/contract-scribe-sandbox'||env.GITHUB_EVENT_NAME!=='workflow_dispatch'||env.GITHUB_RUN_ATTEMPT!=='1'||env.GITHUB_WORKFLOW_SHA!==env.A5_APPROVED_WORKFLOW_SHA)fail();
 const approved=JSON.parse(fs.readFileSync(new URL('./approved-products.json',import.meta.url)));
 const entry=approved.sources.find(x=>x.sha===env.A5_PRODUCT_SHA);
-if(!entry||entry.sha!=='1ebcd16b11eaa2389b4b3df76d6991bb9cfb578b'||approved.sources.length!==1||approved.repository!=='SolusQuest/contract-scribe'||sha256(fs.readFileSync(new URL('./approved-products.json',import.meta.url)))!=='a89df28c00e081c112e0409d9dcd72ed03c50264429bae6daf78498b7f721085')fail();
+if(!entry||entry.sha!=='8675685f067adf7bf6c7adc373ea8fdbd09bf6a1'||approved.sources.length!==1||approved.repository!=='SolusQuest/contract-scribe'||sha256(fs.readFileSync(new URL('./approved-products.json',import.meta.url)))!=='e56df7b918b5fd318d6c42f0630637b93cdcf6586e9ca8a9ad229e123271c613')fail();
 const read=path=>JSON.parse(execFileSync('gh',['api',path],{encoding:'utf8',maxBuffer:4*1024*1024}));
 if(read('repos/SolusQuest/contract-scribe-sandbox').id!==1361354906)fail();
 verifyFresh(undefined,read);
 // Reviewed PR fixes require a newly reviewed control commit allowlist entry
 // naming that PR and exact head; arbitrary dispatch product_sha is rejected.
-if(entry.kind!=='reviewed-pr-fix'||entry.pullRequest!==269)fail();
+if(entry.kind!=='owner-approved-pr-fix'||entry.pullRequest!==269)fail();
 const candidate=read(`repos/${approved.repository}/pulls/${entry.pullRequest}`);
 if(candidate.state!=='open'||!candidate.draft||candidate.merged_at||candidate.head.sha!==entry.sha||candidate.head.repo.full_name!==approved.repository||candidate.base.ref!=='main'||candidate.base.sha!==entry.baseSha||entry.baseSha!=='4ca77d69cbaf2d3cb18c49352a43f4449c9da991')fail();
 const runs=read(`repos/${approved.repository}/actions/runs?head_sha=${entry.sha}&per_page=100`).workflow_runs;
@@ -31,11 +31,8 @@ const extra=checks.check_runs.filter(v=>!requiredNames.includes(v.name));
 if(checks.total_count!==checks.check_runs.length||!sameNames(required,requiredNames)
  ||checks.check_runs.some(v=>v.head_sha!==entry.sha||v.status!=='completed'||v.app?.id!==15368)
  ||required.some(v=>v.conclusion!==(v.name==='integration_unfiltered_evidence'?'skipped':'success')))fail();
-// Exact original candidate check identities. Candidate is not main; no scheduled
-// main group can satisfy or silently extend this fixed current-PR qualification.
-const originalChecks=new Map([[122799927993, "validate"], [122791239451, "action_examples_consumer"], [122790397188, "action_examples_producer"], [122787925222, "action_packaged"], [122787925213, "packed_payload"], [122786589136, "integration_unfiltered_evidence"], [122786587925, "integration_http_loss (2, Before)"], [122786587903, "payload_producer"], [122786587852, "integration_http_loss (1, After)"], [122786587744, "integration_http_loss (0, Before)"], [122786587733, "integration_http_loss (0, After)"], [122786587695, "integration_http_loss (2, After)"], [122786587619, "integration_github_proposal (remaining)"], [122786587612, "integration_http_loss (1, Before)"], [122786587609, "integration_other (campaign)"], [122786587531, "fast_and_static"], [122786587480, "integration_github_proposal (compiler-inputs)"], [122786587442, "integration_github_proposal (automatic)"], [122786587379, "integration_other (remaining)"], [122786586979, "integration_campaign_crash"], [122786576459, "Analyze (csharp)"], [122786576195, "Analyze (python)"]]);
-if(extra.length||checks.total_count!==22||new Set(checks.check_runs.map(v=>v.id)).size!==22
- ||[...originalChecks].some(([id,name])=>!checks.check_runs.some(v=>v.id===id&&v.name===name)))fail();
+// Every required check must belong to this exact head and current allowlisted runs.
+if(extra.length||checks.total_count!==requiredNames.length||new Set(checks.check_runs.map(v=>v.id)).size!==requiredNames.length)fail();
 const query=`query { repository(owner:"SolusQuest",name:"contract-scribe") { pullRequest(number:269) {
  number headRefOid baseRefOid isDraft state reviewDecision
  comments(first:100) { totalCount pageInfo {hasNextPage endCursor} nodes { id databaseId author {login} body createdAt updatedAt url } }

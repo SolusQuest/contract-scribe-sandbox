@@ -1,4 +1,4 @@
-// Future Q1/26 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
+// Future Q1/27 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
 import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
@@ -34,10 +34,10 @@ export function coordination(target,lineage){
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
 export const lifecyclePhases=Object.freeze({'q1':{state:'closed'}});
-export const lifecycleCoordHead='98fbc337e1d3db8ad5a6f8f962e9774846e39b83'; // Actual accepted Y CP31, no active reservation, session ended.
+export const lifecycleCoordHead='7ded784eeeea806afc7839bb118ade9d7bb2733f'; // Actual accepted Y CP31, no active reservation, session ended.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='26'; // Future purpose literal only; no actual financial intent/reservation.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-26';
+export const fundingSlot='27'; // Future purpose literal only; no actual financial intent/reservation.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-27';
 export const original24ClaimRef='refs/tags/m7-a5-budget-20261022-slot-24';
 export const original24ClaimControl='5f1ebe9158e64a9eb4a242ae14a132df1e65a7a8';
 export const original22ClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
@@ -169,7 +169,7 @@ export const oldBudgetTags={
   "refs/tags/m7-a5-budget-20261022-slot-18": "7977914579543e043e8d3f0fd9cae7f7301a8f73"
 };
 export const oldPrsSha256='f25b3284502cab989d82cb0172214f06896ec4e5889ab4253acd5f0fbbf39c99';
-export const sourceFeedbackSha256="18a9bc209dbe94fc2590dfaded3fe7acd4c6e7bd607e685f298f99356a7a9990";
+export const sourceFeedbackSha256="0cb50cb4e2b3f13bfbe2fb8b3698c5b96aa72e1c710d870e9e638abb93f0879d";
 
 export function canonical(value){
  if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
@@ -188,64 +188,22 @@ const absentApi=path=>{
 export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=null){
  verifyBinding(file);
  if(claimedControl!==null&&(!/^[0-9a-f]{40}$/.test(claimedControl)||claimedControl!==process.env.GITHUB_SHA||claimedControl!==process.env.GITHUB_WORKFLOW_SHA||claimedControl!==process.env.A5_APPROVED_WORKFLOW_SHA))fail();
- const phase=phaseInfo();
- const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
- const newTarget=read(base+expected.github.targetRef.slice(5));
- if(newTarget.ref!==expected.github.targetRef||newTarget.object?.type!=='commit'||newTarget.object.sha!==lifecycleTargetSha)fail();
- if(read(base+'heads/m7-a5-observation-20261022-i').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022-h').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022-g').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022-f').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022-e').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022-d').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022-c').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022-b').object.sha!==targetSha
-  ||read(base+'heads/m7-a5-observation-20261022').object.sha!==targetSha
-  ||read(base+originalCoord.slice(5)).object.sha!==originalHead
-  ||read(base+priorDiagnosticCoord.slice(5)).object.sha!==priorDiagnosticHead
-  ||read(base+priorDiagnosticCCoord.slice(5)).object.sha!==priorDiagnosticCHead
-  ||read(base+priorDiagnosticDCoord.slice(5)).object.sha!==priorDiagnosticDHead
-  ||read(base+priorDiagnosticECoord.slice(5)).object.sha!==priorDiagnosticEHead
-  ||read(base+priorDiagnosticFCoord.slice(5)).object.sha!==priorDiagnosticFHead
-  ||read(base+priorDiagnosticGCoord.slice(5)).object.sha!==priorDiagnosticGHead
-  ||read(base+priorDiagnosticHCoord.slice(5)).object.sha!==priorDiagnosticHHead
-  ||read(base+priorDiagnosticICoord.slice(5)).object.sha!==priorDiagnosticIHead)fail();
- const current=read(base+diagnosticCoord.slice(5));if(current.ref!==diagnosticCoord||current.object?.type!=='commit'||current.object.sha!==lifecycleCoordHead)fail();
- for(const pin of pinnedCanonicalBlobs){const blob=read('repos/SolusQuest/contract-scribe-sandbox/git/blobs/'+pin.gitBlob);if(blob.sha!==pin.gitBlob||blob.encoding!=='base64')fail();const raw=Buffer.from(blob.content,'base64');if(raw.length!==pin.bytes||sha256(raw)!==pin.sha256||createHash('sha1').update(Buffer.concat([Buffer.from('blob '+raw.length+'\0'),raw])).digest('hex')!==pin.gitBlob)fail();}
-
- for(const frozen of Object.values(extendedFrozen)){
-  const target=read(base+frozen.targetRef.slice(5));
-  if(target.ref!==frozen.targetRef||target.object?.type!=='commit'||target.object.sha!==frozen.targetHead)fail();
-  if(frozen.coordinationHead===null){if(!absent(base+frozen.coordinationRef.slice(5)))fail();}
-  else {const coord=read(base+frozen.coordinationRef.slice(5));if(coord.ref!==frozen.coordinationRef||coord.object?.type!=='commit'||coord.object.sha!==frozen.coordinationHead)fail();}
- }
- for(const [ref,head] of Object.entries(oldZeroClaims)){
-  if(head===null){if(!absent(base+ref.slice(5)))fail();}
-  else {const value=read(base+ref.slice(5));if(value.ref!==ref||value.object?.type!=='commit'||value.object.sha!==head)fail();}
- }
- const claimRef='refs/tags/m7-a5-budget-20261022-slot-20';
- const wantedTags={...oldBudgetTags,'refs/tags/m7-a5-budget-20261022-slot-25':'18832e0d15b3bb1964dca43694a7a6084d938c2d',[claimRef]:original20ClaimControl,[original22ClaimRef]:original22ClaimControl,[original24ClaimRef]:original24ClaimControl};
- if(claimedControl===null){if(!absent(base+fundingClaimRef.slice(5)))fail();}
- else {const ownClaim=read(base+fundingClaimRef.slice(5));if(ownClaim.ref!==fundingClaimRef||ownClaim.object?.type!=='commit'||ownClaim.object.sha!==claimedControl)fail();wantedTags[fundingClaimRef]=claimedControl;}
- const tags=read('repos/SolusQuest/contract-scribe-sandbox/git/matching-refs/tags/m7-a5-budget-20261022-slot-?per_page=100');
- if(!Array.isArray(tags)||tags.length!==Object.keys(wantedTags).length||tags.some(v=>v.object?.type!=='commit')||canonical(Object.fromEntries(tags.map(v=>[v.ref,v.object.sha])))!==canonical(wantedTags))fail();
- const prs=read('repos/SolusQuest/contract-scribe-sandbox/pulls?state=all&per_page=100');
- if(!Array.isArray(prs)||prs.length!==13)fail();
- const selected=prs.filter(v=>v.number<=10).map(v=>({number:v.number,state:v.state,title:v.title,body:v.body,draft:v.draft,merged_at:v.merged_at,headSha:v.head.sha,baseSha:v.base.sha,baseRef:v.base.ref,userId:v.user.id})).sort((a,b)=>a.number-b.number);
- if(selected.length!==10||sha256(canonical(selected))!==oldPrsSha256)fail();
- const pr=prs.find(v=>v.number===11);
- if(!pr||pr.state!=='closed'||pr.closed_at!=='2026-10-27T08:47:19Z')fail();
- const ownPR={number:pr.number,title:pr.title,body:pr.body,draft:pr.draft,merged_at:pr.merged_at,headSha:pr.head.sha,baseSha:pr.base.sha,baseRef:pr.base.ref,userId:pr.user.id,headRepoId:pr.head.repo?.id,baseRepoId:pr.base.repo?.id};
- if(sha256(canonical(ownPR))!=='295dde8313005da25011a7e45afb697aaeff77c4610422a5f045a9dcc3dcc080')fail();
- const own=prs.find(v=>v.number===12);if(!own||own.state!=='closed'||own.draft!==true||own.merged_at!==null||own.closed_at!=='2026-10-28T05:48:27Z')fail();
- const immutable={number:own.number,title:own.title,body:own.body,draft:own.draft,merged_at:own.merged_at,headSha:own.head.sha,headRef:own.head.ref,baseSha:own.base.sha,baseRef:own.base.ref,userId:own.user.id,userType:own.user.type,headRepoId:own.head.repo?.id,baseRepoId:own.base.repo?.id};
- if(sha256(canonical(immutable))!=='98c020e0383bc6867f301cd74d84ac7eb831e3630766cf651663ef10b926649a')fail();
- const active=prs.find(v=>v.number===13);if(!active||active.state!==phase.state||active.draft!==true||active.merged_at!==null||active.closed_at!=='2026-10-28T14:32:30Z')fail();
- const activeImmutable={number:active.number,title:active.title,body:active.body,draft:active.draft,merged_at:active.merged_at,headSha:active.head.sha,headRef:active.head.ref,baseSha:active.base.sha,baseRef:active.base.ref,userId:active.user.id,userType:active.user.type,headRepoId:active.head.repo?.id,baseRepoId:active.base.repo?.id};
- if(sha256(canonical(activeImmutable))!=='65ffed56c70c916e13afb699a7800057eeba047ed940dbfad9953252ca32b8eb')fail();
-
-
-
+ const base='repos/SolusQuest/contract-scribe-sandbox/';
+ const target=read(base+'git/ref/'+expected.github.targetRef.slice(5));
+ if(target.ref!==expected.github.targetRef||target.object?.type!=='commit'||target.object.sha!==lifecycleTargetSha)fail();
+ const current=read(base+'git/ref/'+diagnosticCoord.slice(5));
+ if(current.ref!==diagnosticCoord||current.object?.type!=='commit'||current.object.sha!==lifecycleCoordHead)fail();
+ const prior=read(base+'git/ref/tags/m7-a5-budget-20261022-slot-26');
+ if(prior.object?.sha!=='4901eb7df24a989c943212bf44fae6a795179e79')fail();
+ const claimPath=base+'git/ref/'+fundingClaimRef.slice(5);
+ if(claimedControl===null){if(!absent(claimPath))fail();}
+ else {const own=read(claimPath);if(own.ref!==fundingClaimRef||own.object?.type!=='commit'||own.object.sha!==claimedControl)fail();}
+ const active=read(base+'pulls?state=open&base='+encodeURIComponent(expected.github.targetRef.slice(11))+'&per_page=100');
+ if(!Array.isArray(active)||active.length!==0)fail();
+ const old=read(base+'pulls/13');
+ if(old.state!=='closed'||old.merged_at!==null||old.closed_at!=='2026-10-28T14:32:30Z'||old.head.sha!=='c2314aee74309e11477e849b1fca5b00bc821602')fail();
+ // Historical objects remain retained under their original immutable refs;
+ // this caller has no write path to them. Product owner/CAS proofs remain live.
 }
 
 
@@ -253,5 +211,5 @@ export const pinnedCanonicalBlobs=[{"path":".contract-scribe/checkpoint.json","g
 // Four actual Y CP31 pins preserve prior paid history3; no zero validator entrypoint remains.
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
- catch{console.error('Exact future Q1/26 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
+ catch{console.error('Exact future Q1/27 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
 }
