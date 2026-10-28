@@ -29,17 +29,17 @@ def campaign_binding():
 
 def own_context():
     e=os.environ
-    require(re.fullmatch(r'[0-9a-f]{40}', '0ea0b71381ad78b8fe1f371441fe546171671ce1') is not None)
-    require(e.get('A5_PHASE')=='q0' and e.get('A5_SLOT')=='24' and not e.get('A5_FUNDING_SLOT'))
+    require(re.fullmatch(r'[0-9a-f]{40}', 'e63ef28df2a43170afc2766052d7a8b043b10602') is not None)
+    require(e.get('A5_PHASE')=='q1' and e.get('A5_SLOT')=='25' and not e.get('A5_FUNDING_SLOT'))
     require(re.fullmatch(r'[1-9][0-9]*',e.get('GITHUB_RUN_ID','')) is not None and e.get('GITHUB_RUN_ATTEMPT')=='1')
     control=e.get('GITHUB_WORKFLOW_SHA','')
     require(re.fullmatch(r'[0-9a-f]{40}',control) is not None and e.get('GITHUB_SHA')==control and e.get('A5_APPROVED_WORKFLOW_SHA')==control)
-    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'24'}
+    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'25'}
 
 def verify_receipt(path,cli,sha,target):
     context=own_context();s=Path(path).lstat()
     require(stat.S_ISREG(s.st_mode) and not stat.S_ISLNK(s.st_mode) and s.st_uid==os.getuid() and stat.S_IMODE(s.st_mode)==0o400 and s.st_size<=65536)
-    require(os.environ.get('A5_PHASE')=='q0' and sha=='1ebcd16b11eaa2389b4b3df76d6991bb9cfb578b' and target=='0ea0b71381ad78b8fe1f371441fe546171671ce1')
+    require(os.environ.get('A5_PHASE')=='q1' and sha=='1ebcd16b11eaa2389b4b3df76d6991bb9cfb578b' and target=='e63ef28df2a43170afc2766052d7a8b043b10602')
     r=json.loads(Path(path).read_text())
     require(all(r.get(k)==v for k,v in context.items()))
     binding=campaign_binding()
@@ -67,7 +67,7 @@ def run_case(name,input_path,cwd,root,cli,temp,sha):
 
 def main():
     own_context()
-    require(os.environ.get('A5_PRODUCT_SHA')=='1ebcd16b11eaa2389b4b3df76d6991bb9cfb578b' and os.environ.get('A5_TARGET_SHA')=='0ea0b71381ad78b8fe1f371441fe546171671ce1')
+    require(os.environ.get('A5_PRODUCT_SHA')=='1ebcd16b11eaa2389b4b3df76d6991bb9cfb578b' and os.environ.get('A5_TARGET_SHA')=='e63ef28df2a43170afc2766052d7a8b043b10602')
     if len(sys.argv)>1 and sys.argv[1]=='verify-receipt':
         verify_receipt(os.environ['RUNNER_TEMP']+'/a5-audit-preflight.json',os.environ['A5_CLI'],os.environ['A5_PRODUCT_SHA'],os.environ['A5_TARGET_SHA']);return
     require(sys.argv[1]=='preflight')
