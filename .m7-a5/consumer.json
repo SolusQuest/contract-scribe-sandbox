@@ -45,6 +45,7 @@
     "reasoningMicrounitsPerMillion": 0
   },
   "timeouts": {
-    "checkpointAcceptanceMilliseconds": 90000
+    "checkpointAcceptanceMilliseconds": 90000,
+    "repositoryToolMilliseconds": 90000
   }
 }
