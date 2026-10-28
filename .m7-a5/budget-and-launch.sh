@@ -2,7 +2,7 @@
 # Exact firstfunded5 caller: PROSPECTIVE Q1 funding29 / independent Y; no actual funding identity created.
 set -euo pipefail
 umask 077
-q1_head='462bf240914f89f596d622028e8fc4b8ce39e0f1'
+q1_head='420600c71772ab4fd5ea51a16306c16b855499d5'
 [[ "$q1_head" =~ ^[0-9a-f]{40}$ ]] || { printf 'Q1 exact seed is not bound.\n' >&2; exit 1; }
 paid_mode="${1:-}"
 test "$paid_mode" = claim || test "$paid_mode" = launch
@@ -20,8 +20,8 @@ test "$(git -C "$paid_dir/.." rev-parse HEAD)" = "$GITHUB_WORKFLOW_SHA"
 test -z "$(git -C "$paid_dir/.." status --porcelain)"
 test "$(gh api repos/SolusQuest/contract-scribe-sandbox --jq .id)" = 1361354906
 test "$A5_PRODUCT_SHA" = 8675685f067adf7bf6c7adc373ea8fdbd09bf6a1
-test "$A5_TARGET_SHA" = 462bf240914f89f596d622028e8fc4b8ce39e0f1
-test "$A5_SLOT" = 32
+test "$A5_TARGET_SHA" = 420600c71772ab4fd5ea51a16306c16b855499d5
+test "$A5_SLOT" = 33
 test "${A5_PHASE:-}" = q2
 test -z "${A5_FUNDING_SLOT:-}${DOTNET_STARTUP_HOOKS:-}${CONTRACTSCRIBE_TEST_GITHUB_ENDPOINT:-}${CONTRACTSCRIBE_TEST_GITHUB_FAULT:-}"
 test "$(git -C "$A5_TARGET_ROOT" rev-parse HEAD)" = "$A5_TARGET_SHA"
@@ -40,7 +40,7 @@ if [[ "$paid_mode" = claim ]]; then
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 const e=process.env,h=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='32'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
+if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='33'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
 const value={runId:e.GITHUB_RUN_ID,attempt:e.GITHUB_RUN_ATTEMPT,slot:e.A5_SLOT,control:e.GITHUB_SHA,source:e.A5_PRODUCT_SHA,target:e.A5_TARGET_SHA,campaignSha256:h(e.A5_CAMPAIGN),consumerSha256:h(e.A5_CONSUMER),auditReceiptSha256:h(e.RUNNER_TEMP+'/a5-audit-preflight.json')};
 fs.writeFileSync(process.argv[2],JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});fs.chmodSync(process.argv[2],0o400);
 JS

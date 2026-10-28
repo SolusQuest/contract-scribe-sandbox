@@ -5,7 +5,7 @@ on:
     inputs:
       target_sha:
         required: true
-        default: 462bf240914f89f596d622028e8fc4b8ce39e0f1
+        default: 420600c71772ab4fd5ea51a16306c16b855499d5
       approved_workflow_sha:
         required: true
       product_sha:
@@ -14,7 +14,7 @@ on:
       slot:
         required: true
         type: choice
-        options: ['32']
+        options: ['33']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -95,7 +95,7 @@ jobs:
           headers=r.stdout.partition('\n\n')[0]
           print(json.dumps({'originalRunId':os.environ['GITHUB_RUN_ID'],'quotaReadExit':r.returncode,'position':'before','headers':[line for line in headers.splitlines() if line.lower().startswith(('http/','x-ratelimit-','retry-after:','date:'))]}))
           PYTHON
-      - name: Atomic original prospective funding32 claim after own complete real Audit
+      - name: Atomic original prospective funding33 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
         id: budget
         env:
