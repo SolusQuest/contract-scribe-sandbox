@@ -14,7 +14,7 @@ on:
       phase:
         required: true
         type: choice
-        options: ['open-wait','closed-samebase','closed-config','changed-base','final-noop','recover']
+        options: ['open-wait','closed-samebase','closed-config','changed-base','final-noop','recover','audit-only']
       expected_violations:
         required: true
         type: choice
@@ -102,7 +102,7 @@ jobs:
           test "$A5_CONTROL" = "$GITHUB_SHA"
           test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
           test "$(git -C target rev-parse HEAD)" = "$A5_TARGET"
-          if [ "$A5_PHASE" = final-noop ] || [ "$A5_PHASE" = recover ]; then
+          if [ "$A5_PHASE" = final-noop ] || [ "$A5_PHASE" = recover ] || [ "$A5_PHASE" = audit-only ]; then
             set +e
             env -u CONTRACTSCRIBE_GITHUB_TOKEN dotnet "$A5_CLI" audit --repository-root "$GITHUB_WORKSPACE/target" --input App/App.csproj --policy policy.json --output "$RUNNER_TEMP/audit-canonical.json" >"$RUNNER_TEMP/audit-envelope.json" 2>"$RUNNER_TEMP/audit-stderr.txt"
             audit_exit=$?
@@ -120,6 +120,12 @@ jobs:
           assert actual==wanted
           (p/'a5-audit-preflight.json').write_text(json.dumps({'realAuditCompleted':True,'sourceRevision':os.environ['A5_SOURCE'],'targetSha':os.environ['A5_TARGET'],'originalRunId':os.environ['GITHUB_RUN_ID'],'originalControlSha':os.environ['A5_CONTROL'],'fundingSlot':None,'providerSecretAbsent':True,'envelope':e}))
           PYTHON
+          fi
+          if [ "$A5_PHASE" = audit-only ]; then
+            cp "$RUNNER_TEMP/audit-envelope.json" "$RUNNER_TEMP/a5-result.json"
+            cp "$RUNNER_TEMP/audit-stderr.txt" "$RUNNER_TEMP/a5-stderr.txt"
+            printf '%s' "$audit_exit" >"$RUNNER_TEMP/a5-exit-code.txt"
+            exit 0
           fi
           set +e
           dotnet "$A5_CLI" github-proposal --repository-root "$GITHUB_WORKSPACE/target" --input App/App.csproj --policy policy.json --campaign "$RUNNER_TEMP/campaign.json" --configuration "$RUNNER_TEMP/consumer.json" >"$RUNNER_TEMP/a5-result.json" 2>"$RUNNER_TEMP/a5-stderr.txt"
