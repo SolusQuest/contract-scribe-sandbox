@@ -5,7 +5,7 @@ on:
     inputs:
       target_sha:
         required: true
-        default: 420600c71772ab4fd5ea51a16306c16b855499d5
+        default: 185397a501e93f9d2815f34de14c13f56b86ef67
       approved_workflow_sha:
         required: true
       product_sha:
@@ -14,7 +14,7 @@ on:
       slot:
         required: true
         type: choice
-        options: ['34']
+        options: ['35']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -30,7 +30,7 @@ jobs:
       pull-requests: write
       actions: read
     env:
-      A5_PHASE: q0
+      A5_PHASE: q1
       A5_SLOT: ${{ inputs.slot }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -95,7 +95,7 @@ jobs:
           headers=r.stdout.partition('\n\n')[0]
           print(json.dumps({'originalRunId':os.environ['GITHUB_RUN_ID'],'quotaReadExit':r.returncode,'position':'before','headers':[line for line in headers.splitlines() if line.lower().startswith(('http/','x-ratelimit-','retry-after:','date:'))]}))
           PYTHON
-      - name: Atomic original prospective funding34 claim after own complete real Audit
+      - name: Atomic original prospective funding35 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
         id: budget
         env:

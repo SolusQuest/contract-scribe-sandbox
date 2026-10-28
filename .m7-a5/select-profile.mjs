@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 export const paidProfileSHA256='60c20e8ac8196d9fe1423444f344cf037ec3ae82165ad0d778ffe5449ef787a2';
-export function profileName(slot){if(slot!=='34')throw Error('Inactive or retired funding slot.');return 'consumer.json';}
+export function profileName(slot){if(slot!=='35')throw Error('Inactive or retired funding slot.');return 'consumer.json';}
 export function verify(slot,file){
  const wanted=fs.readFileSync(new URL('./'+profileName(slot),import.meta.url)),actual=fs.readFileSync(file);
  if(!actual.equals(wanted)||createHash('sha256').update(actual).digest('hex')!==paidProfileSHA256)throw Error('Exact candidate Q1 funding29 full profile rejected.');
