@@ -1,10 +1,10 @@
-// Future Q1/27 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
+// Future Q0/28 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
 import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
 import {execFileSync,spawnSync} from 'node:child_process';
 export const targetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1'; // Frozen A-V bases never follow W.
-export const lifecycleTargetSha='e63ef28df2a43170afc2766052d7a8b043b10602'; // Actual new README1 H1 accepted by original native CAS and full preservation.
+export const lifecycleTargetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1'; // Actual new README1 H1 accepted by original native CAS and full preservation.
 export const originalCoord='refs/heads/contract-scribe/coordination/fddfab7d34241bee29f478f81dc8fcc71d3a93195e8eab23d6f8289e23ab634f';
 export const originalHead='d7cdfef50f9a8987e88f35d43fee15699ce9a95a';
 export const priorDiagnosticCoord='refs/heads/contract-scribe/coordination/a9edaa6b9020d5d9674f90c4c7cb704de987cd605e97648cea302dc4d3e34831';
@@ -23,7 +23,7 @@ export const priorDiagnosticHCoord='refs/heads/contract-scribe/coordination/25f0
 export const priorDiagnosticHHead='d7c09d992cca537911653b860f7f2bfa2cd3eca7';
 export const priorDiagnosticICoord='refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607';
 export const priorDiagnosticIHead='b33398cdbe1932f3db887e5ac94941b21beefaf5';
-export const expected={"githubCampaignVersion":1,"campaignLineage":"campaign.m7.a5.provenance.20261028.y","github":{"repositoryOwner":"SolusQuest","repositoryName":"contract-scribe-sandbox","targetRef":"refs/heads/m7-a5-provenance-20261028-y"}};
+export const expected={"githubCampaignVersion":1,"campaignLineage":"campaign.m7.a5.history.20261029.z","github":{"repositoryOwner":"SolusQuest","repositoryName":"contract-scribe-sandbox","targetRef":"refs/heads/m7-a5-history-fix-20261029-z"}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -33,11 +33,11 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({'q1':{state:'closed'}});
-export const lifecycleCoordHead='7ded784eeeea806afc7839bb118ade9d7bb2733f'; // Actual accepted Y CP31, no active reservation, session ended.
+export const lifecyclePhases=Object.freeze({'q0':{state:'closed'}});
+export const lifecycleCoordHead=null; // Fresh isolated candidate, no migration of old Y snapshot.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='27'; // Future purpose literal only; no actual financial intent/reservation.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-27';
+export const fundingSlot='28'; // Future purpose literal only; no actual financial intent/reservation.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-28';
 export const original24ClaimRef='refs/tags/m7-a5-budget-20261022-slot-24';
 export const original24ClaimControl='5f1ebe9158e64a9eb4a242ae14a132df1e65a7a8';
 export const original22ClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
@@ -191,10 +191,11 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
  const base='repos/SolusQuest/contract-scribe-sandbox/';
  const target=read(base+'git/ref/'+expected.github.targetRef.slice(5));
  if(target.ref!==expected.github.targetRef||target.object?.type!=='commit'||target.object.sha!==lifecycleTargetSha)fail();
- const current=read(base+'git/ref/'+diagnosticCoord.slice(5));
- if(current.ref!==diagnosticCoord||current.object?.type!=='commit'||current.object.sha!==lifecycleCoordHead)fail();
- const prior=read(base+'git/ref/tags/m7-a5-budget-20261022-slot-26');
- if(prior.object?.sha!=='4901eb7df24a989c943212bf44fae6a795179e79')fail();
+ const coordPath=base+'git/ref/'+diagnosticCoord.slice(5);
+ if(lifecycleCoordHead===null){if(!absent(coordPath))fail();}
+ else {const current=read(coordPath);if(current.ref!==diagnosticCoord||current.object?.type!=='commit'||current.object.sha!==lifecycleCoordHead)fail();}
+ const prior=read(base+'git/ref/tags/m7-a5-budget-20261022-slot-27');
+ if(prior.object?.sha!=='d4249bce9846e1b18badc8b08acdab4f557b112e')fail();
  const claimPath=base+'git/ref/'+fundingClaimRef.slice(5);
  if(claimedControl===null){if(!absent(claimPath))fail();}
  else {const own=read(claimPath);if(own.ref!==fundingClaimRef||own.object?.type!=='commit'||own.object.sha!==claimedControl)fail();}
@@ -211,5 +212,5 @@ export const pinnedCanonicalBlobs=[{"path":".contract-scribe/checkpoint.json","g
 // Four actual Y CP31 pins preserve prior paid history3; no zero validator entrypoint remains.
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
- catch{console.error('Exact future Q1/27 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
+ catch{console.error('Exact future Q0/28 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
 }
