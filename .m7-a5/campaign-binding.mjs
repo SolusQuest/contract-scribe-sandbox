@@ -1,4 +1,4 @@
-// Future Q0/28 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
+// Future Q0/29 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
 import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
@@ -36,8 +36,8 @@ export const diagnosticCoord=coordination(expected.github.targetRef,expected.cam
 export const lifecyclePhases=Object.freeze({'q0':{state:'closed'}});
 export const lifecycleCoordHead=null; // Fresh isolated candidate, no migration of old Y snapshot.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='28'; // Future purpose literal only; no actual financial intent/reservation.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-28';
+export const fundingSlot='29'; // Future purpose literal only; no actual financial intent/reservation.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-29';
 export const original24ClaimRef='refs/tags/m7-a5-budget-20261022-slot-24';
 export const original24ClaimControl='5f1ebe9158e64a9eb4a242ae14a132df1e65a7a8';
 export const original22ClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
@@ -212,5 +212,5 @@ export const pinnedCanonicalBlobs=[{"path":".contract-scribe/checkpoint.json","g
 // Four actual Y CP31 pins preserve prior paid history3; no zero validator entrypoint remains.
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
- catch{console.error('Exact future Q0/28 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
+ catch{console.error('Exact future Q0/29 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
 }

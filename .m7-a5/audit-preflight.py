@@ -30,11 +30,11 @@ def campaign_binding():
 def own_context():
     e=os.environ
     require(re.fullmatch(r'[0-9a-f]{40}', '0ea0b71381ad78b8fe1f371441fe546171671ce1') is not None)
-    require(e.get('A5_PHASE')=='q0' and e.get('A5_SLOT')=='28' and not e.get('A5_FUNDING_SLOT'))
+    require(e.get('A5_PHASE')=='q0' and e.get('A5_SLOT')=='29' and not e.get('A5_FUNDING_SLOT'))
     require(re.fullmatch(r'[1-9][0-9]*',e.get('GITHUB_RUN_ID','')) is not None and e.get('GITHUB_RUN_ATTEMPT')=='1')
     control=e.get('GITHUB_WORKFLOW_SHA','')
     require(re.fullmatch(r'[0-9a-f]{40}',control) is not None and e.get('GITHUB_SHA')==control and e.get('A5_APPROVED_WORKFLOW_SHA')==control)
-    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'28'}
+    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'29'}
 
 def verify_receipt(path,cli,sha,target):
     context=own_context();s=Path(path).lstat()
