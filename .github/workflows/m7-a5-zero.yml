@@ -15,6 +15,11 @@ on:
         required: true
         type: choice
         options: ['open-wait','closed-samebase','closed-config','changed-base','final-noop','recover']
+      expected_violations:
+        required: true
+        type: choice
+        default: '12'
+        options: ['12','7','6','2','1','0']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -24,7 +29,7 @@ jobs:
     # Synthetic, fixed-candidate lifecycle; provider secret is never injected.
     if: github.repository_id == '1361354906' && github.event_name == 'workflow_dispatch' && github.run_attempt == 1
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     permissions:
       contents: write
       pull-requests: write
@@ -79,6 +84,7 @@ jobs:
           A5_SOURCE: ${{ inputs.product_sha }}
           A5_TARGET: ${{ inputs.target_sha }}
           A5_CONTROL: ${{ inputs.approved_workflow_sha }}
+          A5_EXPECTED_VIOLATIONS: ${{ inputs.expected_violations }}
         run: |
           set -euo pipefail
           test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
@@ -95,8 +101,13 @@ jobs:
             python3 - <<'PYTHON'
           import hashlib,json,os,pathlib
           p=pathlib.Path(os.environ['RUNNER_TEMP']);e=json.loads((p/'audit-envelope.json').read_text());raw=(p/'audit-canonical.json').read_bytes()
-          wanted={'compliant':13,'violation':0,'skipped':0} if os.environ['A5_PHASE']=='final-noop' else {'compliant':1,'violation':12,'skipped':0}
+          violations=0 if os.environ['A5_PHASE']=='final-noop' else int(os.environ['A5_EXPECTED_VIOLATIONS'])
+          assert 0<=violations<=12
+          wanted={'compliant':13-violations,'violation':violations,'skipped':0}
           assert e['terminalState']=='committed' and e['counts']==wanted and e['sourceRevision']==os.environ['A5_SOURCE'] and e['resultDigest']==hashlib.sha256(raw).hexdigest()
+          rows=json.loads(raw)['results'];actual={'compliant':0,'violation':0,'skipped':0}
+          for row in rows: actual[{'audit.outcome.compliant':'compliant','audit.outcome.violation':'violation','audit.outcome.skipped':'skipped'}[row['auditOutcome']]]+=1
+          assert actual==wanted
           (p/'a5-audit-preflight.json').write_text(json.dumps({'realAuditCompleted':True,'sourceRevision':os.environ['A5_SOURCE'],'targetSha':os.environ['A5_TARGET'],'originalRunId':os.environ['GITHUB_RUN_ID'],'originalControlSha':os.environ['A5_CONTROL'],'fundingSlot':None,'providerSecretAbsent':True,'envelope':e}))
           PYTHON
           fi

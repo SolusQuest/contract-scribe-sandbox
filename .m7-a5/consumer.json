@@ -31,7 +31,7 @@
       "maximumRequestOutputTokens": 4096,
       "maximumRequestElapsedMilliseconds": 90000,
       "maximumConnectMilliseconds": 10000,
-      "maximumElapsedMilliseconds": 600000,
+      "maximumElapsedMilliseconds": 1200000,
       "maximumToolCalls": 64,
       "maximumToolCallsPerResponse": 8
     }
