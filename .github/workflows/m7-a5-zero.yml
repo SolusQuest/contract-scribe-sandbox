@@ -1,0 +1,118 @@
+name: M7 A5 zero-call lifecycle
+run-name: M7 A5 zero ${{ inputs.phase }}
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        required: true
+        default: 0ea0b71381ad78b8fe1f371441fe546171671ce1
+      approved_workflow_sha:
+        required: true
+      product_sha:
+        required: true
+        default: 8675685f067adf7bf6c7adc373ea8fdbd09bf6a1
+      phase:
+        required: true
+        type: choice
+        options: ['open-wait','closed-samebase','closed-config','changed-base','final-noop']
+permissions: {}
+concurrency:
+  group: m7-a5-observation-20261022
+  cancel-in-progress: false
+jobs:
+  observe:
+    # Synthetic, fixed-candidate lifecycle; provider secret is never injected.
+    if: github.repository_id == '1361354906' && github.event_name == 'workflow_dispatch' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    env:
+      A5_PHASE: ${{ inputs.phase }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: SolusQuest/contract-scribe
+          ref: ${{ inputs.product_sha }}
+          path: product
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ inputs.target_sha }}
+          path: target
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: '10.0.403'
+      - name: Acquire reviewed exact current-CI payload before provider injection
+        env:
+          GH_TOKEN: ${{ github.token }}
+          A5_PRODUCT_SHA: ${{ inputs.product_sha }}
+          A5_PRODUCT_ROOT: ${{ github.workspace }}/product
+        run: python3 control/.m7-a5/acquire-payload.py
+      - name: Restore synthetic target without credentials and select bounded profile
+        run: |
+          set -euo pipefail
+          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}"
+          dotnet restore target/App/App.csproj --configfile control/.m7-a5/synthetic-nuget.config
+          dotnet build target/App/App.csproj -c Debug --no-restore
+          umask 077
+          cp control/.m7-a5/campaign.json "$RUNNER_TEMP/campaign.json"
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const v=JSON.parse(fs.readFileSync('control/.m7-a5/consumer.json'));
+          if(process.env.A5_PHASE==='closed-config')v.budgets.campaign.maximumAttemptsPerTarget=3;
+          fs.writeFileSync(process.env.RUNNER_TEMP+'/consumer.json',JSON.stringify(v)+'\n',{flag:'wx',mode:0o600});
+          JS
+      - name: One production lifecycle invocation without provider credentials
+        id: live
+        env:
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          A5_CLI: ${{ env.A5_ACQUIRED_CLI }}
+          A5_SOURCE: ${{ inputs.product_sha }}
+          A5_TARGET: ${{ inputs.target_sha }}
+          A5_CONTROL: ${{ inputs.approved_workflow_sha }}
+        run: |
+          set -euo pipefail
+          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
+          test "$A5_SOURCE" = 8675685f067adf7bf6c7adc373ea8fdbd09bf6a1
+          test "$A5_CONTROL" = "$GITHUB_SHA"
+          test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
+          test "$(git -C target rev-parse HEAD)" = "$A5_TARGET"
+          if [ "$A5_PHASE" = final-noop ]; then
+            set +e
+            env -u CONTRACTSCRIBE_GITHUB_TOKEN dotnet "$A5_CLI" audit --repository-root "$GITHUB_WORKSPACE/target" --input App/App.csproj --policy policy.json --output "$RUNNER_TEMP/audit-canonical.json" >"$RUNNER_TEMP/audit-envelope.json" 2>"$RUNNER_TEMP/audit-stderr.txt"
+            audit_exit=$?
+            set -e
+            test "$audit_exit" = 0
+            python3 - <<'PYTHON'
+          import hashlib,json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP']);e=json.loads((p/'audit-envelope.json').read_text());raw=(p/'audit-canonical.json').read_bytes()
+          assert e['terminalState']=='committed' and e['counts']=={'compliant':13,'violation':0,'skipped':0} and e['sourceRevision']==os.environ['A5_SOURCE'] and e['resultDigest']==hashlib.sha256(raw).hexdigest()
+          (p/'a5-audit-preflight.json').write_text(json.dumps({'realAuditCompleted':True,'sourceRevision':os.environ['A5_SOURCE'],'targetSha':os.environ['A5_TARGET'],'runId':os.environ['GITHUB_RUN_ID'],'envelope':e}))
+          PYTHON
+          fi
+          set +e
+          dotnet "$A5_CLI" github-proposal --repository-root "$GITHUB_WORKSPACE/target" --input App/App.csproj --policy policy.json --campaign "$RUNNER_TEMP/campaign.json" --configuration "$RUNNER_TEMP/consumer.json" >"$RUNNER_TEMP/a5-result.json" 2>"$RUNNER_TEMP/a5-stderr.txt"
+          cli_exit=$?
+          set -e
+          printf '%s' "$cli_exit" >"$RUNNER_TEMP/a5-exit-code.txt"
+      - name: Seal bounded result
+        if: always() && (steps.live.outcome == 'success' || steps.live.outcome == 'failure')
+        env:
+          A5_RECIPIENT_PUBLIC_KEY: ${{ github.workspace }}/control/.m7-a5/recipient-public.pem
+        run: bash control/.m7-a5/private-result-collection.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always() && (steps.live.outcome == 'success' || steps.live.outcome == 'failure')
+        with:
+          name: m7-a5-zero-${{ inputs.phase }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/a5-private.jwe
+          if-no-files-found: error
+          retention-days: 1
