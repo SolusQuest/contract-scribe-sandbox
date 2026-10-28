@@ -14,7 +14,7 @@ on:
       phase:
         required: true
         type: choice
-        options: ['open-wait','closed-samebase','closed-config','changed-base','final-noop']
+        options: ['open-wait','closed-samebase','closed-config','changed-base','final-noop','recover']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -26,8 +26,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
-      contents: read
-      pull-requests: read
+      contents: write
+      pull-requests: write
       actions: read
     env:
       A5_PHASE: ${{ inputs.phase }}
@@ -86,17 +86,18 @@ jobs:
           test "$A5_CONTROL" = "$GITHUB_SHA"
           test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
           test "$(git -C target rev-parse HEAD)" = "$A5_TARGET"
-          if [ "$A5_PHASE" = final-noop ]; then
+          if [ "$A5_PHASE" = final-noop ] || [ "$A5_PHASE" = recover ]; then
             set +e
             env -u CONTRACTSCRIBE_GITHUB_TOKEN dotnet "$A5_CLI" audit --repository-root "$GITHUB_WORKSPACE/target" --input App/App.csproj --policy policy.json --output "$RUNNER_TEMP/audit-canonical.json" >"$RUNNER_TEMP/audit-envelope.json" 2>"$RUNNER_TEMP/audit-stderr.txt"
             audit_exit=$?
             set -e
-            test "$audit_exit" = 0
+            if [ "$A5_PHASE" = final-noop ]; then test "$audit_exit" = 0; else test "$audit_exit" = 1; fi
             python3 - <<'PYTHON'
           import hashlib,json,os,pathlib
           p=pathlib.Path(os.environ['RUNNER_TEMP']);e=json.loads((p/'audit-envelope.json').read_text());raw=(p/'audit-canonical.json').read_bytes()
-          assert e['terminalState']=='committed' and e['counts']=={'compliant':13,'violation':0,'skipped':0} and e['sourceRevision']==os.environ['A5_SOURCE'] and e['resultDigest']==hashlib.sha256(raw).hexdigest()
-          (p/'a5-audit-preflight.json').write_text(json.dumps({'realAuditCompleted':True,'sourceRevision':os.environ['A5_SOURCE'],'targetSha':os.environ['A5_TARGET'],'runId':os.environ['GITHUB_RUN_ID'],'envelope':e}))
+          wanted={'compliant':13,'violation':0,'skipped':0} if os.environ['A5_PHASE']=='final-noop' else {'compliant':1,'violation':12,'skipped':0}
+          assert e['terminalState']=='committed' and e['counts']==wanted and e['sourceRevision']==os.environ['A5_SOURCE'] and e['resultDigest']==hashlib.sha256(raw).hexdigest()
+          (p/'a5-audit-preflight.json').write_text(json.dumps({'realAuditCompleted':True,'sourceRevision':os.environ['A5_SOURCE'],'targetSha':os.environ['A5_TARGET'],'originalRunId':os.environ['GITHUB_RUN_ID'],'originalControlSha':os.environ['A5_CONTROL'],'fundingSlot':None,'providerSecretAbsent':True,'envelope':e}))
           PYTHON
           fi
           set +e
