@@ -1,12 +1,12 @@
-// Prospective Q1 funded5 purpose: prospective Q1 funding25, candidate-only campaign Y.
+// Prospective Q1 funded5 purpose: prospective Q1 funding26, candidate-only campaign Y.
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
-export const paidProfileSHA256='2b7f650bde8f7587b1b43256522e883e64565d15bc606f48c2affcf304aa0073';
-export function profileName(slot){if(slot!=='25')throw Error('Inactive or retired funding slot.');return 'consumer.json';}
+export const paidProfileSHA256='84980cac710c3b53337267070b3b5830337ccd7ef7862e5d1d20b283c1333369';
+export function profileName(slot){if(slot!=='26')throw Error('Inactive or retired funding slot.');return 'consumer.json';}
 export function verify(slot,file){
  const wanted=fs.readFileSync(new URL('./'+profileName(slot),import.meta.url)),actual=fs.readFileSync(file);
- if(!actual.equals(wanted)||createHash('sha256').update(actual).digest('hex')!==paidProfileSHA256)throw Error('Exact candidate Q1 funding25 full profile rejected.');
- const v=JSON.parse(actual),i=v.budgets.invocation,c=v.budgets.campaign;
+ if(!actual.equals(wanted)||createHash('sha256').update(actual).digest('hex')!==paidProfileSHA256)throw Error('Exact candidate Q1 funding26 full profile rejected.');
+ const v=JSON.parse(actual);if(v.timeouts?.checkpointAcceptanceMilliseconds!==90000||Object.keys(v.timeouts).length!==1)throw Error('Checkpoint configuration changed.');const i=v.budgets.invocation,c=v.budgets.campaign;
  if(i.maximumTargets!==5||i.maximumProviderRequests!==6||i.maximumCachedInputTokens!==130966||i.maximumUncachedInputTokens!==130966||i.maximumOutputTokens!==24576||i.maximumRequestOutputTokens!==4096||i.maximumElapsedMilliseconds!==600000||i.maximumRequestElapsedMilliseconds!==90000||i.maximumConnectMilliseconds!==10000||i.maximumToolCalls!==64||i.maximumToolCallsPerResponse!==8
  ||c.maximumProviderRequests!==24||c.maximumInputTokens!==1047732||c.maximumUncachedInputTokens!==523866||c.maximumOutputTokens!==98304||c.maximumCostMicrounits!==2881920||c.maximumAttemptsPerTarget!==2||c.maximumCandidatesPerBlock!==30||c.maximumElapsedMilliseconds!==6587252)throw Error('Original per-invocation or accepted cumulative limits changed.');
  const worst=BigInt(i.maximumCachedInputTokens+i.maximumUncachedInputTokens)*2n+BigInt(i.maximumOutputTokens)*8n+7n;

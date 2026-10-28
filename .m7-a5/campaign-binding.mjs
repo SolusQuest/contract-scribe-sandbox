@@ -1,4 +1,4 @@
-// Future Q1/25 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
+// Future Q1/26 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
 import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
@@ -34,10 +34,10 @@ export function coordination(target,lineage){
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
 export const lifecyclePhases=Object.freeze({'q1':{state:'closed'}});
-export const lifecycleCoordHead='92733ef17c3e721bae903f6286238830f2245156'; // Actual accepted Y CP31, no active reservation, session ended.
+export const lifecycleCoordHead='98fbc337e1d3db8ad5a6f8f962e9774846e39b83'; // Actual accepted Y CP31, no active reservation, session ended.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='25'; // Future purpose literal only; no actual financial intent/reservation.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-25';
+export const fundingSlot='26'; // Future purpose literal only; no actual financial intent/reservation.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-26';
 export const original24ClaimRef='refs/tags/m7-a5-budget-20261022-slot-24';
 export const original24ClaimControl='5f1ebe9158e64a9eb4a242ae14a132df1e65a7a8';
 export const original22ClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
@@ -224,7 +224,7 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
   else {const value=read(base+ref.slice(5));if(value.ref!==ref||value.object?.type!=='commit'||value.object.sha!==head)fail();}
  }
  const claimRef='refs/tags/m7-a5-budget-20261022-slot-20';
- const wantedTags={...oldBudgetTags,[claimRef]:original20ClaimControl,[original22ClaimRef]:original22ClaimControl,[original24ClaimRef]:original24ClaimControl};
+ const wantedTags={...oldBudgetTags,'refs/tags/m7-a5-budget-20261022-slot-25':'18832e0d15b3bb1964dca43694a7a6084d938c2d',[claimRef]:original20ClaimControl,[original22ClaimRef]:original22ClaimControl,[original24ClaimRef]:original24ClaimControl};
  if(claimedControl===null){if(!absent(base+fundingClaimRef.slice(5)))fail();}
  else {const ownClaim=read(base+fundingClaimRef.slice(5));if(ownClaim.ref!==fundingClaimRef||ownClaim.object?.type!=='commit'||ownClaim.object.sha!==claimedControl)fail();wantedTags[fundingClaimRef]=claimedControl;}
  const tags=read('repos/SolusQuest/contract-scribe-sandbox/git/matching-refs/tags/m7-a5-budget-20261022-slot-?per_page=100');
@@ -253,5 +253,5 @@ export const pinnedCanonicalBlobs=[{"path":".contract-scribe/checkpoint.json","g
 // Four actual Y CP31 pins preserve prior paid history3; no zero validator entrypoint remains.
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
- catch{console.error('Exact future Q1/25 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
+ catch{console.error('Exact future Q1/26 own-Audit-bound paid gate rejected; no alternate slot/target/retry granted.');process.exitCode=1;}
 }

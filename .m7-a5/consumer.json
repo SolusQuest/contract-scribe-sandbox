@@ -43,5 +43,8 @@
     "uncachedInputMicrounitsPerMillion": 2000000,
     "outputMicrounitsPerMillion": 8000000,
     "reasoningMicrounitsPerMillion": 0
+  },
+  "timeouts": {
+    "checkpointAcceptanceMilliseconds": 90000
   }
 }
