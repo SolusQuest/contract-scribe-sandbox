@@ -17,7 +17,7 @@ def completed(envelope,exit_code,canonical,sha):
     require(envelope.get('resultDigest')==digest and envelope.get('outputCommit')=={'status':'committed','identity':digest})
     require(envelope.get('diagnosticCodes')==[] and bool(envelope.get('toolchain')))
     # Product emitted and bound these canonical result bytes. Validate their count projection.
-    rows=json.loads(canonical)['results'];actual={'compliant':0,'violation':0,'skipped':0}
+    rows=json.loads(canonical)['results'];actual={'compliant':1,'violation':12,'skipped':0}
     for row in rows:
         key={'audit.outcome.compliant':'compliant','audit.outcome.violation':'violation','audit.outcome.skipped':'skipped'}[row['auditOutcome']]
         actual[key]+=1
@@ -29,17 +29,17 @@ def campaign_binding():
 
 def own_context():
     e=os.environ
-    require(re.fullmatch(r'[0-9a-f]{40}', '0ea0b71381ad78b8fe1f371441fe546171671ce1') is not None)
-    require(e.get('A5_PHASE')=='q0' and e.get('A5_SLOT')=='29' and not e.get('A5_FUNDING_SLOT'))
+    require(re.fullmatch(r'[0-9a-f]{40}', '4964652a64b3f5f4c523cf060383868e74f1fd75') is not None)
+    require(e.get('A5_PHASE')=='q1' and e.get('A5_SLOT')=='30' and not e.get('A5_FUNDING_SLOT'))
     require(re.fullmatch(r'[1-9][0-9]*',e.get('GITHUB_RUN_ID','')) is not None and e.get('GITHUB_RUN_ATTEMPT')=='1')
     control=e.get('GITHUB_WORKFLOW_SHA','')
     require(re.fullmatch(r'[0-9a-f]{40}',control) is not None and e.get('GITHUB_SHA')==control and e.get('A5_APPROVED_WORKFLOW_SHA')==control)
-    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'29'}
+    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'30'}
 
 def verify_receipt(path,cli,sha,target):
     context=own_context();s=Path(path).lstat()
     require(stat.S_ISREG(s.st_mode) and not stat.S_ISLNK(s.st_mode) and s.st_uid==os.getuid() and stat.S_IMODE(s.st_mode)==0o400 and s.st_size<=65536)
-    require(os.environ.get('A5_PHASE')=='q0' and sha=='8675685f067adf7bf6c7adc373ea8fdbd09bf6a1' and target=='0ea0b71381ad78b8fe1f371441fe546171671ce1')
+    require(os.environ.get('A5_PHASE')=='q1' and sha=='8675685f067adf7bf6c7adc373ea8fdbd09bf6a1' and target=='4964652a64b3f5f4c523cf060383868e74f1fd75')
     r=json.loads(Path(path).read_text())
     require(all(r.get(k)==v for k,v in context.items()))
     binding=campaign_binding()
@@ -67,7 +67,7 @@ def run_case(name,input_path,cwd,root,cli,temp,sha):
 
 def main():
     own_context()
-    require(os.environ.get('A5_PRODUCT_SHA')=='8675685f067adf7bf6c7adc373ea8fdbd09bf6a1' and os.environ.get('A5_TARGET_SHA')=='0ea0b71381ad78b8fe1f371441fe546171671ce1')
+    require(os.environ.get('A5_PRODUCT_SHA')=='8675685f067adf7bf6c7adc373ea8fdbd09bf6a1' and os.environ.get('A5_TARGET_SHA')=='4964652a64b3f5f4c523cf060383868e74f1fd75')
     if len(sys.argv)>1 and sys.argv[1]=='verify-receipt':
         verify_receipt(os.environ['RUNNER_TEMP']+'/a5-audit-preflight.json',os.environ['A5_CLI'],os.environ['A5_PRODUCT_SHA'],os.environ['A5_TARGET_SHA']);return
     require(sys.argv[1]=='preflight')
