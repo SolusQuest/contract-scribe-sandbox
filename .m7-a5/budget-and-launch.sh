@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Exact firstfunded5 caller: prospective Q1 funding23 / stable candidate X with original22 history.
+# Exact firstfunded5 caller: PROSPECTIVE Q0 funding24 / independent Y; no actual funding identity created.
 set -euo pipefail
 umask 077
-q1_h1='3367575c1c85d38ad6352e35e6fdb65ea6fa1a4c'
-[[ "$q1_h1" =~ ^[0-9a-f]{40}$ ]] || { printf 'Q1 exact H1 is not bound.\n' >&2; exit 1; }
+q0_seed='0ea0b71381ad78b8fe1f371441fe546171671ce1'
+[[ "$q0_seed" =~ ^[0-9a-f]{40}$ ]] || { printf 'Q0 exact seed is not bound.\n' >&2; exit 1; }
 paid_mode="${1:-}"
 test "$paid_mode" = claim || test "$paid_mode" = launch
 if [[ "$paid_mode" = claim ]]; then test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}"; fi
@@ -19,10 +19,10 @@ test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
 test "$(git -C "$paid_dir/.." rev-parse HEAD)" = "$GITHUB_WORKFLOW_SHA"
 test -z "$(git -C "$paid_dir/.." status --porcelain)"
 test "$(gh api repos/SolusQuest/contract-scribe-sandbox --jq .id)" = 1361354906
-test "$A5_PRODUCT_SHA" = 3c1e59d78e5aef9191895047984af03940d7361e
-test "$A5_TARGET_SHA" = 3367575c1c85d38ad6352e35e6fdb65ea6fa1a4c
-test "$A5_SLOT" = 23
-test "${A5_PHASE:-}" = q1
+test "$A5_PRODUCT_SHA" = 1ebcd16b11eaa2389b4b3df76d6991bb9cfb578b
+test "$A5_TARGET_SHA" = 0ea0b71381ad78b8fe1f371441fe546171671ce1
+test "$A5_SLOT" = 24
+test "${A5_PHASE:-}" = q0
 test -z "${A5_FUNDING_SLOT:-}${DOTNET_STARTUP_HOOKS:-}${CONTRACTSCRIBE_TEST_GITHUB_ENDPOINT:-}${CONTRACTSCRIBE_TEST_GITHUB_FAULT:-}"
 test "$(git -C "$A5_TARGET_ROOT" rev-parse HEAD)" = "$A5_TARGET_SHA"
 test -z "$(git -C "$A5_TARGET_ROOT" status --porcelain --untracked-files=no)"
@@ -40,7 +40,7 @@ if [[ "$paid_mode" = claim ]]; then
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 const e=process.env,h=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='23'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
+if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='24'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
 const value={runId:e.GITHUB_RUN_ID,attempt:e.GITHUB_RUN_ATTEMPT,slot:e.A5_SLOT,control:e.GITHUB_SHA,source:e.A5_PRODUCT_SHA,target:e.A5_TARGET_SHA,campaignSha256:h(e.A5_CAMPAIGN),consumerSha256:h(e.A5_CONSUMER),auditReceiptSha256:h(e.RUNNER_TEMP+'/a5-audit-preflight.json')};
 fs.writeFileSync(process.argv[2],JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});fs.chmodSync(process.argv[2],0o400);
 JS

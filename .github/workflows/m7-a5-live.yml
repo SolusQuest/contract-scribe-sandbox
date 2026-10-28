@@ -5,16 +5,16 @@ on:
     inputs:
       target_sha:
         required: true
-        default: 3367575c1c85d38ad6352e35e6fdb65ea6fa1a4c
+        default: 0ea0b71381ad78b8fe1f371441fe546171671ce1
       approved_workflow_sha:
         required: true
       product_sha:
         required: true
-        default: 3c1e59d78e5aef9191895047984af03940d7361e
+        default: 1ebcd16b11eaa2389b4b3df76d6991bb9cfb578b
       slot:
         required: true
         type: choice
-        options: ['23']
+        options: ['24']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -30,7 +30,7 @@ jobs:
       pull-requests: write
       actions: read
     env:
-      A5_PHASE: q1
+      A5_PHASE: q0
       A5_SLOT: ${{ inputs.slot }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -85,7 +85,7 @@ jobs:
           A5_TARGET_SHA: ${{ inputs.target_sha }}
           A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
         run: python3 control/.m7-a5/audit-preflight.py preflight
-      - name: Atomic original unused funding23 claim after own complete real Audit
+      - name: Atomic original prospective funding24 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
         id: budget
         env:

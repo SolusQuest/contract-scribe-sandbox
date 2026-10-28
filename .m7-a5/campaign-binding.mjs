@@ -1,10 +1,10 @@
-// Q1 PRECLAIM/PRELAUNCH only: current closed PR12, accepted CP41, stable X history.
+// PROSPECTIVE Q0/24 PRECLAIM/PRELAUNCH only: new Y absent; old X/PR12 are frozen history.
 import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
 import {execFileSync,spawnSync} from 'node:child_process';
 export const targetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1'; // Frozen A-V bases never follow W.
-export const lifecycleTargetSha='3367575c1c85d38ad6352e35e6fdb65ea6fa1a4c'; // MUST bind actual independent X README H1 ACK before materialization/execution; never reuse W commit.
+export const lifecycleTargetSha='0ea0b71381ad78b8fe1f371441fe546171671ce1'; // New Y Q0 seed only. Later heads require separate actual binding.
 export const originalCoord='refs/heads/contract-scribe/coordination/fddfab7d34241bee29f478f81dc8fcc71d3a93195e8eab23d6f8289e23ab634f';
 export const originalHead='d7cdfef50f9a8987e88f35d43fee15699ce9a95a';
 export const priorDiagnosticCoord='refs/heads/contract-scribe/coordination/a9edaa6b9020d5d9674f90c4c7cb704de987cd605e97648cea302dc4d3e34831';
@@ -23,7 +23,7 @@ export const priorDiagnosticHCoord='refs/heads/contract-scribe/coordination/25f0
 export const priorDiagnosticHHead='d7c09d992cca537911653b860f7f2bfa2cd3eca7';
 export const priorDiagnosticICoord='refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607';
 export const priorDiagnosticIHead='b33398cdbe1932f3db887e5ac94941b21beefaf5';
-export const expected={"githubCampaignVersion":1,"campaignLineage":"campaign.m7.a5.acquire-b.20261028.x","github":{"repositoryOwner":"SolusQuest","repositoryName":"contract-scribe-sandbox","targetRef":"refs/heads/m7-a5-acquire-b-20261028-x"}};
+export const expected={"githubCampaignVersion":1,"campaignLineage":"campaign.m7.a5.provenance.20261028.y","github":{"repositoryOwner":"SolusQuest","repositoryName":"contract-scribe-sandbox","targetRef":"refs/heads/m7-a5-provenance-20261028-y"}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -33,11 +33,11 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({'q1':{state:'closed'}});
-export const lifecycleCoordHead='0fb906bfd958550ac3ba8cd76b2a6e23c5430385'; // ROOT-accepted CP41 cleanup PRELAUNCH pin only; productive Q1 must learn its actual descendant.
+export const lifecyclePhases=Object.freeze({'q0':{state:'closed'}});
+export const lifecycleCoordHead=null; // No Y state exists; no old CP grants Y authority.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='23'; // Planned purpose literal only; actual financial intent/allocation not created by this template.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-23';
+export const fundingSlot='24'; // Planned purpose literal only; actual financial intent/allocation not created by this template.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-24';
 export const original22ClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
 export const original22ClaimControl='d745881ae2f623e5aba5ded36691f26687c764cf';
 export function phaseInfo(){
@@ -47,7 +47,7 @@ export function phaseInfo(){
 }
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
  phaseInfo();
- if(!/^[0-9a-f]{40}$/.test(lifecycleTargetSha)||lifecycleTargetSha===targetSha)fail(); // Unbound/old target is never executable.
+ if(!/^[0-9a-f]{40}$/.test(lifecycleTargetSha)||lifecycleTargetSha!==targetSha)fail(); // Unbound/old target is never executable.
  verifyProfile(process.env.A5_SLOT,new URL('./'+profileName(process.env.A5_SLOT),import.meta.url));
  const actual=fs.readFileSync(file),reviewed=fs.readFileSync(new URL('./campaign.json',import.meta.url));
  if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||diagnosticCoord===priorDiagnosticICoord||Object.values(extendedFrozen).some(v=>v.coordinationRef===diagnosticCoord)||process.env.A5_TARGET_SHA!==lifecycleTargetSha)fail();
@@ -56,6 +56,7 @@ export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
 
 // Exact existing immutable inventory, through accepted actual19 V; no old state is reused.
 export const extendedFrozen={
+  X:{targetRef:'refs/heads/m7-a5-acquire-b-20261028-x',targetHead:'3367575c1c85d38ad6352e35e6fdb65ea6fa1a4c',coordinationRef:'refs/heads/contract-scribe/coordination/9f4c5866a5fa55aa01af4a8a33f76d92498bc30a0d1576b2e8b7940556267ad9',coordinationHead:'c6b8cd46746be521566ccf75d65ad3328bc776b7'},
   "W": {"targetRef":"refs/heads/m7-a5-observation-20261022-w","targetHead":"391d1761734dcdd168906477a9862c8b13505ea7","coordinationRef":"refs/heads/contract-scribe/coordination/dc5ff06442ed3a90b4d686d3f7639d915d403491f16069a627734122931fbb3d","coordinationHead":"4f1201a71240b142478e77af7f3023ce4eb1caa8"},
   "V": {
   "targetRef": "refs/heads/m7-a5-observation-20261022-v",
@@ -144,6 +145,7 @@ export const oldZeroClaims={
   "refs/tags/m7-a5-scripted-20261026-05": "856e1d9a2495fa04b132ac2bc8b45e234b300dcd"
 };
 export const oldBudgetTags={
+ 'refs/tags/m7-a5-budget-20261022-slot-23':'49e8f407452090043343fca7ed7d821610020d56',
   "refs/tags/m7-a5-budget-20261022-slot-21":"2cc4559e5a4768bde881894141ccf8f6f065ad62",
   "refs/tags/m7-a5-budget-20261022-slot-19": "b1b27922cfc5e88ab1e55e4583a5e5fbefe46aae",
   "refs/tags/m7-a5-budget-20261022-slot-17": "7967cfe96bf1271aae6ade724158f3280570df7f",
@@ -165,7 +167,7 @@ export const oldBudgetTags={
   "refs/tags/m7-a5-budget-20261022-slot-18": "7977914579543e043e8d3f0fd9cae7f7301a8f73"
 };
 export const oldPrsSha256='f25b3284502cab989d82cb0172214f06896ec4e5889ab4253acd5f0fbbf39c99';
-export const sourceFeedbackSha256='b4dae5b31ea01664a47dc717d87190332efc4829ef572af26798e84afeacbeec';
+export const sourceFeedbackSha256="18a9bc209dbe94fc2590dfaded3fe7acd4c6e7bd607e685f298f99356a7a9990";
 
 export function canonical(value){
  if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
@@ -206,7 +208,8 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
   ||read(base+priorDiagnosticGCoord.slice(5)).object.sha!==priorDiagnosticGHead
   ||read(base+priorDiagnosticHCoord.slice(5)).object.sha!==priorDiagnosticHHead
   ||read(base+priorDiagnosticICoord.slice(5)).object.sha!==priorDiagnosticIHead)fail();
- const current=read(base+diagnosticCoord.slice(5));if(current.ref!==diagnosticCoord||current.object?.type!=='commit'||current.object.sha!==lifecycleCoordHead)fail();
+ // Y is a prospective independent candidate, never an alias of frozen old X.
+ if(!absent(base+diagnosticCoord.slice(5)))fail();
  for(const pin of pinnedCanonicalBlobs){const blob=read('repos/SolusQuest/contract-scribe-sandbox/git/blobs/'+pin.gitBlob);if(blob.sha!==pin.gitBlob||blob.encoding!=='base64')fail();const raw=Buffer.from(blob.content,'base64');if(raw.length!==pin.bytes||sha256(raw)!==pin.sha256||createHash('sha1').update(Buffer.concat([Buffer.from('blob '+raw.length+'\0'),raw])).digest('hex')!==pin.gitBlob)fail();}
 
  for(const frozen of Object.values(extendedFrozen)){
@@ -241,10 +244,11 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
 }
 
 
-export const pinnedCanonicalBlobs=[{"path": ".contract-scribe/checkpoint.json", "gitBlob": "55ebf06032f89b40bc198359c5487a5b1e9bc499", "bytes": 42880, "sha256": "94391ee4bc4d7f4edfa3ce48a58027ab448593c1501397178fe266bc3573785b"}, {"path": ".contract-scribe/coordination-state-v1.json", "gitBlob": "f92d0c57f90ea7bffa281a6e730ed946feba0481", "bytes": 1037, "sha256": "bc0da896a01931c119e119134d7b9932c6dcb16f5886b019f232d3b28ae81dfe"}, {"path": ".contract-scribe/plan.json", "gitBlob": "77a8e97d9d2bf667cc21a03bd9092a8e469eed44", "bytes": 30291, "sha256": "9efedc95fc788820075a6c45dfcf4481ddd1c730ba83bf8a43e83c0a6bd1617e"}, {"path": ".contract-scribe/publication-event.json", "gitBlob": "63102019a55d7b7062f553b86523eab6d3d884f4", "bytes": 2044, "sha256": "503fdba7febdc9e138576a3ccb2ef344a6184aac636f6d979cab5253343feab3"}];
-// After ordinary productive execution, learn/validate actual canonical descendant and NEW PR.
-// Never reuse this CP41/PR-count12 prelaunch guard post-run.
+export const pinnedCanonicalBlobs=[{"path":".contract-scribe/checkpoint.json","gitBlob":"2f983a9a365793415067bcb39e237c0bde7ab356","bytes":27833,"sha256":"5f0530d7e4132fa346e818012f162156a663f2d973346fd571ba23d3a56ee40e"},{"path":".contract-scribe/coordination-state-v1.json","gitBlob":"f07c1fcdea367d9a5f2262cd3b98281ff3ec64ff","bytes":1037,"sha256":"18916093f3b803eb767b98eb961c4af16fc6a5252efc935ab0587ac65d889703"},{"path":".contract-scribe/plan.json","gitBlob":"58d7f50b17bd5d824781c47c9e9f29a8005614ac","bytes":30291,"sha256":"a937c7f20cf090cdb08b934a32e3064db4153946d4f2ae54c327d8a898003a30"},{"path":".contract-scribe/publication-event.json","gitBlob":"63102019a55d7b7062f553b86523eab6d3d884f4","bytes":2044,"sha256":"503fdba7febdc9e138576a3ccb2ef344a6184aac636f6d979cab5253343feab3"}];
+// Old X blobs below are immutable FAILED original23 evidence; not Y state authority.
+// After productive Y execution, learn actual canonical descendant and new bot PR.
+// Never reuse absent-Y/PR-count12 prelaunch guard post-run.
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
  try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
- catch{console.error('Exact bound Q1 funding23 pre-launch rejected; no alternate purpose or retry granted.');process.exitCode=1;}
+ catch{console.error('Exact prospective Q0 funding24 pre-launch rejected; no alternate purpose or retry granted.');process.exitCode=1;}
 }
