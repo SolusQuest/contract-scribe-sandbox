@@ -1,4 +1,4 @@
-// Caller-only exact separate diagnostic identity and one-use collision gate.
+// Caller-only accepted X CP41 zero-model lifecycle bindings; no paid purpose.
 import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
@@ -33,19 +33,19 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({'q0':{state:'initial'}});
-export const lifecycleCoordHead=null; // Q0 requires canonical absent independent coordination, never W adoption.
+export const lifecyclePhases=Object.freeze({'open-wait':{state:'open',outcome:'github-proposal.awaiting-review',exit:0},'closed-samebase':{state:'closed',outcome:'github-proposal.closed-unmerged',exit:4},'closed-config':{state:'closed',outcome:'github-proposal.closed-unmerged',exit:4}});
+export const lifecycleCoordHead='0fb906bfd958550ac3ba8cd76b2a6e23c5430385'; // Exact ROOT-accepted CP41 cleanup state, unchanged in all three early gates.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='22'; // Prospective fixed control purpose only; no financial allocation identity minted here.
+export const fundingSlot=null; // No funding invocation exists for a zero gate.
 export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
 export function phaseInfo(){
  const phase=process.env.A5_PHASE;
- if(!Object.hasOwn(lifecyclePhases,phase)||process.env.A5_FUNDING_SLOT||process.env.A5_SLOT!==fundingSlot)fail();
+ if(!Object.hasOwn(lifecyclePhases,phase)||process.env.A5_FUNDING_SLOT||process.env.A5_SLOT)fail();
  return lifecyclePhases[phase];
 }
 export function verifyBinding(file=new URL('./campaign.json',import.meta.url)){
  phaseInfo();
- verifyProfile(process.env.A5_SLOT,new URL('./'+profileName(process.env.A5_SLOT),import.meta.url));
+ verifyProfile(process.env.A5_PHASE,new URL('./'+profileName(process.env.A5_PHASE),import.meta.url));
  const actual=fs.readFileSync(file),reviewed=fs.readFileSync(new URL('./campaign.json',import.meta.url));
  if(!actual.equals(reviewed)||JSON.stringify(JSON.parse(actual))!==JSON.stringify(expected)||diagnosticCoord===originalCoord||diagnosticCoord===priorDiagnosticCoord||diagnosticCoord===priorDiagnosticCCoord||diagnosticCoord===priorDiagnosticDCoord||diagnosticCoord===priorDiagnosticECoord||diagnosticCoord===priorDiagnosticFCoord||diagnosticCoord===priorDiagnosticGCoord||diagnosticCoord===priorDiagnosticHCoord||diagnosticCoord===priorDiagnosticICoord||Object.values(extendedFrozen).some(v=>v.coordinationRef===diagnosticCoord)||process.env.A5_TARGET_SHA!==lifecycleTargetSha)fail();
  return expected;
@@ -180,7 +180,7 @@ const absentApi=path=>{
 };
 export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=null){
  verifyBinding(file);
- if(claimedControl!==null&&(!/^[0-9a-f]{40}$/.test(claimedControl)||claimedControl!==process.env.GITHUB_SHA||claimedControl!==process.env.GITHUB_WORKFLOW_SHA||claimedControl!==process.env.A5_APPROVED_WORKFLOW_SHA))fail();
+ if(claimedControl!==null)fail(); // A paid claim/launch path is never available.
  const phase=phaseInfo();
  const base='repos/SolusQuest/contract-scribe-sandbox/git/ref/';
  const newTarget=read(base+expected.github.targetRef.slice(5));
@@ -203,7 +203,8 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
   ||read(base+priorDiagnosticGCoord.slice(5)).object.sha!==priorDiagnosticGHead
   ||read(base+priorDiagnosticHCoord.slice(5)).object.sha!==priorDiagnosticHHead
   ||read(base+priorDiagnosticICoord.slice(5)).object.sha!==priorDiagnosticIHead)fail();
- if(!absent(base+diagnosticCoord.slice(5)))fail(); // PRECLAIM/PRELAUNCH Q0 only.
+ const current=read(base+diagnosticCoord.slice(5));if(current.ref!==diagnosticCoord||current.object?.type!=='commit'||current.object.sha!==lifecycleCoordHead)fail();
+ for(const pin of pinnedCanonicalBlobs){const blob=read('repos/SolusQuest/contract-scribe-sandbox/git/blobs/'+pin.gitBlob);if(blob.sha!==pin.gitBlob||blob.encoding!=='base64')fail();const raw=Buffer.from(blob.content,'base64');if(raw.length!==pin.bytes||sha256(raw)!==pin.sha256||createHash('sha1').update(Buffer.concat([Buffer.from('blob '+raw.length+'\0'),raw])).digest('hex')!==pin.gitBlob)fail();}
 
  for(const frozen of Object.values(extendedFrozen)){
   const target=read(base+frozen.targetRef.slice(5));
@@ -216,26 +217,46 @@ export function verifyFresh(file,read=readApi,absent=absentApi,claimedControl=nu
   else {const value=read(base+ref.slice(5));if(value.ref!==ref||value.object?.type!=='commit'||value.object.sha!==head)fail();}
  }
  const claimRef='refs/tags/m7-a5-budget-20261022-slot-20';
- const wantedTags={...oldBudgetTags,[claimRef]:original20ClaimControl};
- if(claimedControl===null){if(!absent(base+fundingClaimRef.slice(5)))fail();}
- else {const ownClaim=read(base+fundingClaimRef.slice(5));if(ownClaim.ref!==fundingClaimRef||ownClaim.object?.type!=='commit'||ownClaim.object.sha!==claimedControl)fail();wantedTags[fundingClaimRef]=claimedControl;}
+ const wantedTags={...oldBudgetTags,[claimRef]:original20ClaimControl,[fundingClaimRef]:'d745881ae2f623e5aba5ded36691f26687c764cf'};
  const tags=read('repos/SolusQuest/contract-scribe-sandbox/git/matching-refs/tags/m7-a5-budget-20261022-slot-?per_page=100');
  if(!Array.isArray(tags)||tags.length!==Object.keys(wantedTags).length||tags.some(v=>v.object?.type!=='commit')||canonical(Object.fromEntries(tags.map(v=>[v.ref,v.object.sha])))!==canonical(wantedTags))fail();
  const prs=read('repos/SolusQuest/contract-scribe-sandbox/pulls?state=all&per_page=100');
- if(!Array.isArray(prs)||prs.length!==11)fail();
+ if(!Array.isArray(prs)||prs.length!==12)fail();
  const selected=prs.filter(v=>v.number<=10).map(v=>({number:v.number,state:v.state,title:v.title,body:v.body,draft:v.draft,merged_at:v.merged_at,headSha:v.head.sha,baseSha:v.base.sha,baseRef:v.base.ref,userId:v.user.id})).sort((a,b)=>a.number-b.number);
  if(selected.length!==10||sha256(canonical(selected))!==oldPrsSha256)fail();
  const pr=prs.find(v=>v.number===11);
  if(!pr||pr.state!=='closed'||pr.closed_at!=='2026-10-27T08:47:19Z')fail();
  const ownPR={number:pr.number,title:pr.title,body:pr.body,draft:pr.draft,merged_at:pr.merged_at,headSha:pr.head.sha,baseSha:pr.base.sha,baseRef:pr.base.ref,userId:pr.user.id,headRepoId:pr.head.repo?.id,baseRepoId:pr.base.repo?.id};
  if(sha256(canonical(ownPR))!=='295dde8313005da25011a7e45afb697aaeff77c4610422a5f045a9dcc3dcc080')fail();
+ const own=prs.find(v=>v.number===12);if(!own||own.state!==phase.state||own.draft!==true||own.merged_at!==null||(phase.state==='open'?own.closed_at!==null:typeof own.closed_at!=='string'))fail();
+ const immutable={number:own.number,title:own.title,body:own.body,draft:own.draft,merged_at:own.merged_at,headSha:own.head.sha,headRef:own.head.ref,baseSha:own.base.sha,baseRef:own.base.ref,userId:own.user.id,userType:own.user.type,headRepoId:own.head.repo?.id,baseRepoId:own.base.repo?.id};
+ if(sha256(canonical(immutable))!=='98c020e0383bc6867f301cd74d84ac7eb831e3630766cf651663ef10b926649a')fail();
+
 
 }
 
+
+export const pinnedCanonicalBlobs=[{"path": ".contract-scribe/checkpoint.json", "gitBlob": "55ebf06032f89b40bc198359c5487a5b1e9bc499", "bytes": 42880, "sha256": "94391ee4bc4d7f4edfa3ce48a58027ab448593c1501397178fe266bc3573785b"}, {"path": ".contract-scribe/coordination-state-v1.json", "gitBlob": "f92d0c57f90ea7bffa281a6e730ed946feba0481", "bytes": 1037, "sha256": "bc0da896a01931c119e119134d7b9932c6dcb16f5886b019f232d3b28ae81dfe"}, {"path": ".contract-scribe/plan.json", "gitBlob": "77a8e97d9d2bf667cc21a03bd9092a8e469eed44", "bytes": 30291, "sha256": "9efedc95fc788820075a6c45dfcf4481ddd1c730ba83bf8a43e83c0a6bd1617e"}, {"path": ".contract-scribe/publication-event.json", "gitBlob": "63102019a55d7b7062f553b86523eab6d3d884f4", "bytes": 2044, "sha256": "503fdba7febdc9e138576a3ccb2ef344a6184aac636f6d979cab5253343feab3"}];
+export const original22History={"providerRequests": {"observed": 4, "conservativeUnobserved": 0, "totalCharged": 4}, "input": {"observed": 69008, "conservativeUnobserved": 0, "totalCharged": 69008}, "cachedInput": {"observed": 43904, "conservativeUnobserved": 0, "totalCharged": 43904}, "uncachedInput": {"observed": 25104, "conservativeUnobserved": 0, "totalCharged": 25104}, "output": {"observed": 5652, "conservativeUnobserved": 0, "totalCharged": 5652}, "reasoning": {"observed": 2943, "conservativeUnobserved": 0, "totalCharged": 2943}};
+
+// Counter predicates accept bounded facts only; they do not create an envelope.
+export function validateZeroCounters(u){
+ if(!u||!u.calls||!u.work||u.accounting!==null||u.completeness!=='complete'||u.checkpointFailure!==null||u.providerDiagnostics?.missingDispatches!==0||u.providerDiagnostics?.observations?.length!==0)fail();
+ if(['physicalProviderDispatches','logicalProviderCalls','retryDispatches','toolCalls','activeSent','activeReserved','uncorrelatedDispatches'].some(k=>u.calls[k]!==0))fail();
+ if(u.work.selectedTargets!==5||u.work.remainingTargets!==0||u.work.deferredTargets!==7)fail();
+ if(['startedTargets','resumedTargets','acceptedTargets','skippedTargets','failedTargets','reconstructedTargets'].some(k=>u.work[k]!==0))fail();
+ if(!u.tokens||['input','cachedInput','uncachedInput','output','reasoning'].some(k=>u.tokens[k]?.observed!==0||u.tokens[k]?.missingDispatches!==0))fail();
+ return true;
+}
+export function validateZeroResult(envelope,exit){
+ const phase=phaseInfo(),u=envelope?.invocationUsage;
+ if(envelope?.githubProposalEnvelopeVersion!==1||envelope.cliContractBaseline!=='3c1e59d78e5aef9191895047984af03940d7361e'||envelope.terminalLayer!=='preflight'||envelope.campaignOperation!=='resume'||envelope.outcome!==phase.outcome||exit!==phase.exit||envelope.checkpointRevision!==41||envelope.publicationOperationId!==null||envelope.pullRequestUrl!=='https://github.com/SolusQuest/contract-scribe-sandbox/pull/12'||u?.invocationUsageVersion!==1||u.checkpointRevision!==41||u.campaignLineage!==expected.campaignLineage||u.pullRequestUrl!==envelope.pullRequestUrl||u.publicationOperationId!==null)fail();
+ if(u.snapshotId!=="f3908e55e0029713803452b77028f6174ac84d47b4dd4cab263232b128a52f40"||u.batchId!=="933075b3f71248c30c7df558b629b0d902121c52b022e0a25b4a805dbfbe9312"||envelope.generationId!=="generation.17e9265f075681b2ada84920dad20753c0944dd08a102a6fe7188f3a29e3d15a"||u.generationId!==envelope.generationId)fail();
+ validateZeroCounters(u);
+ if(canonical(u.history)!==canonical(original22History)||canonical(envelope.diagnosticCodes)!==canonical(process.env.A5_PHASE==='open-wait'?[]:['github-proposal.closed-same-base']))fail();
+ return {phase:process.env.A5_PHASE,actualCLIExit:exit,outcome:envelope.outcome,zeroNewProviderRequests:true,callerAuditInvoked:false};
+}
 if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
- try{verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
- catch{console.error('Exact candidate Q0 funding22 pre-launch binding rejected; no alternate purpose granted.');process.exitCode=1;}
+ try{if(process.argv[2]==='check-zero'){const[file,exitFile]=process.argv.slice(3);if(fs.statSync(file).size>1048576)fail();validateZeroResult(JSON.parse(fs.readFileSync(file,'utf8')),Number(fs.readFileSync(exitFile,'utf8')));}else verifyFresh(process.argv[2],undefined,undefined,process.argv[3]??null);}
+ catch{console.error('Exact accepted-X zero gate rejected; no paid or alternate purpose granted.');process.exitCode=1;}
 }
-
-// Q0 PRECLAIM/PRELAUNCH only. After original production ACK learn the actual X PR/canonical descendant; never run this initial inventory guard post-Q0.
-// Postrun acceptance must use actual canonical descendant/WriterACK/M2/publication owner proofs.
