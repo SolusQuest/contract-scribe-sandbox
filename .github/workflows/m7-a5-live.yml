@@ -14,7 +14,7 @@ on:
       slot:
         required: true
         type: choice
-        options: ['30']
+        options: ['31']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -85,7 +85,7 @@ jobs:
           A5_TARGET_SHA: ${{ inputs.target_sha }}
           A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
         run: python3 control/.m7-a5/audit-preflight.py preflight
-      - name: Atomic original prospective funding30 claim after own complete real Audit
+      - name: Atomic original prospective funding31 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
         id: budget
         env:

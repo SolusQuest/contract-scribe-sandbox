@@ -17,7 +17,7 @@ def completed(envelope,exit_code,canonical,sha):
     require(envelope.get('resultDigest')==digest and envelope.get('outputCommit')=={'status':'committed','identity':digest})
     require(envelope.get('diagnosticCodes')==[] and bool(envelope.get('toolchain')))
     # Product emitted and bound these canonical result bytes. Validate their count projection.
-    rows=json.loads(canonical)['results'];actual={'compliant':1,'violation':12,'skipped':0}
+    rows=json.loads(canonical)['results'];actual={'compliant':0,'violation':0,'skipped':0}
     for row in rows:
         key={'audit.outcome.compliant':'compliant','audit.outcome.violation':'violation','audit.outcome.skipped':'skipped'}[row['auditOutcome']]
         actual[key]+=1
@@ -30,11 +30,11 @@ def campaign_binding():
 def own_context():
     e=os.environ
     require(re.fullmatch(r'[0-9a-f]{40}', '4964652a64b3f5f4c523cf060383868e74f1fd75') is not None)
-    require(e.get('A5_PHASE')=='q1' and e.get('A5_SLOT')=='30' and not e.get('A5_FUNDING_SLOT'))
+    require(e.get('A5_PHASE')=='q1' and e.get('A5_SLOT')=='31' and not e.get('A5_FUNDING_SLOT'))
     require(re.fullmatch(r'[1-9][0-9]*',e.get('GITHUB_RUN_ID','')) is not None and e.get('GITHUB_RUN_ATTEMPT')=='1')
     control=e.get('GITHUB_WORKFLOW_SHA','')
     require(re.fullmatch(r'[0-9a-f]{40}',control) is not None and e.get('GITHUB_SHA')==control and e.get('A5_APPROVED_WORKFLOW_SHA')==control)
-    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'30'}
+    return {'originalRunId':e['GITHUB_RUN_ID'],'originalRunAttempt':'1','originalControlSha':control,'fundingSlot':'31'}
 
 def verify_receipt(path,cli,sha,target):
     context=own_context();s=Path(path).lstat()

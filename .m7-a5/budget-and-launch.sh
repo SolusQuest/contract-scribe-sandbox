@@ -21,7 +21,7 @@ test -z "$(git -C "$paid_dir/.." status --porcelain)"
 test "$(gh api repos/SolusQuest/contract-scribe-sandbox --jq .id)" = 1361354906
 test "$A5_PRODUCT_SHA" = 8675685f067adf7bf6c7adc373ea8fdbd09bf6a1
 test "$A5_TARGET_SHA" = 4964652a64b3f5f4c523cf060383868e74f1fd75
-test "$A5_SLOT" = 30
+test "$A5_SLOT" = 31
 test "${A5_PHASE:-}" = q1
 test -z "${A5_FUNDING_SLOT:-}${DOTNET_STARTUP_HOOKS:-}${CONTRACTSCRIBE_TEST_GITHUB_ENDPOINT:-}${CONTRACTSCRIBE_TEST_GITHUB_FAULT:-}"
 test "$(git -C "$A5_TARGET_ROOT" rev-parse HEAD)" = "$A5_TARGET_SHA"
@@ -40,7 +40,7 @@ if [[ "$paid_mode" = claim ]]; then
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 const e=process.env,h=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='30'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
+if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='31'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
 const value={runId:e.GITHUB_RUN_ID,attempt:e.GITHUB_RUN_ATTEMPT,slot:e.A5_SLOT,control:e.GITHUB_SHA,source:e.A5_PRODUCT_SHA,target:e.A5_TARGET_SHA,campaignSha256:h(e.A5_CAMPAIGN),consumerSha256:h(e.A5_CONSUMER),auditReceiptSha256:h(e.RUNNER_TEMP+'/a5-audit-preflight.json')};
 fs.writeFileSync(process.argv[2],JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});fs.chmodSync(process.argv[2],0o400);
 JS
