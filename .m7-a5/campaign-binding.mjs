@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
 import {execFileSync,spawnSync} from 'node:child_process';
-export const targetSha='4964652a64b3f5f4c523cf060383868e74f1fd75'; // Frozen A-V bases never follow W.
-export const lifecycleTargetSha='4964652a64b3f5f4c523cf060383868e74f1fd75'; // Actual new README1 H1 accepted by original native CAS and full preservation.
+export const targetSha='462bf240914f89f596d622028e8fc4b8ce39e0f1'; // Frozen A-V bases never follow W.
+export const lifecycleTargetSha='462bf240914f89f596d622028e8fc4b8ce39e0f1'; // Actual new README1 H1 accepted by original native CAS and full preservation.
 export const originalCoord='refs/heads/contract-scribe/coordination/fddfab7d34241bee29f478f81dc8fcc71d3a93195e8eab23d6f8289e23ab634f';
 export const originalHead='d7cdfef50f9a8987e88f35d43fee15699ce9a95a';
 export const priorDiagnosticCoord='refs/heads/contract-scribe/coordination/a9edaa6b9020d5d9674f90c4c7cb704de987cd605e97648cea302dc4d3e34831';
@@ -33,11 +33,11 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({'q1':{state:'closed'}});
-export const lifecycleCoordHead='d9e67e53842e5570400db1b16e3dcebac71e9d24'; // Fresh isolated candidate, no migration of old Y snapshot.
+export const lifecyclePhases=Object.freeze({'q2':{state:'closed'}});
+export const lifecycleCoordHead='95edb0439f8998b71ebacf1ad50f730addd402d6'; // Fresh isolated candidate, no migration of old Y snapshot.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='31'; // Future purpose literal only; no actual financial intent/reservation.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-31';
+export const fundingSlot='32'; // Future purpose literal only; no actual financial intent/reservation.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-32';
 export const original24ClaimRef='refs/tags/m7-a5-budget-20261022-slot-24';
 export const original24ClaimControl='5f1ebe9158e64a9eb4a242ae14a132df1e65a7a8';
 export const original22ClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
