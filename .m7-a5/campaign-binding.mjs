@@ -1,4 +1,4 @@
-// Future Q0/29 ONLY: accepted Y README1 H1 + CP31/closed PR13 history; no allocation here.
+// Prospective AA preparatory two-target invocation, unused slot34; allocation and execution have not occurred.
 import fs from 'node:fs';
 import {verify as verifyProfile,profileName} from './select-profile.mjs';
 import {createHash} from 'node:crypto';
@@ -23,7 +23,7 @@ export const priorDiagnosticHCoord='refs/heads/contract-scribe/coordination/25f0
 export const priorDiagnosticHHead='d7c09d992cca537911653b860f7f2bfa2cd3eca7';
 export const priorDiagnosticICoord='refs/heads/contract-scribe/coordination/315cf82b6dc4f2b3875fd127aa016d2ee3b6279cf5439ee0c8232242fbd6a607';
 export const priorDiagnosticIHead='b33398cdbe1932f3db887e5ac94941b21beefaf5';
-export const expected={"githubCampaignVersion":1,"campaignLineage":"campaign.m7.a5.history.20261029.z","github":{"repositoryOwner":"SolusQuest","repositoryName":"contract-scribe-sandbox","targetRef":"refs/heads/m7-a5-history-fix-20261029-z"}};
+export const expected={"githubCampaignVersion":1,"campaignLineage":"campaign.m7.a5.content.20261029.aa","github":{"repositoryOwner":"SolusQuest","repositoryName":"contract-scribe-sandbox","targetRef":"refs/heads/m7-a5-content-fix-20261029-aa"}};
 const fail=()=>{throw Error('Separate diagnostic identity or one-use collision gate failed.');};
 export function coordination(target,lineage){
  const h=createHash('sha256');
@@ -33,11 +33,11 @@ export function coordination(target,lineage){
  return 'refs/heads/contract-scribe/coordination/'+h.digest('hex');
 }
 export const diagnosticCoord=coordination(expected.github.targetRef,expected.campaignLineage);
-export const lifecyclePhases=Object.freeze({'q2':{state:'closed'}});
-export const lifecycleCoordHead='7d39c32ed6c40f1959a9b5ccdf01ada66eef73c6'; // Fresh isolated candidate, no migration of old Y snapshot.
+export const lifecyclePhases=Object.freeze({'q0':{state:'fresh'}});
+export const lifecycleCoordHead=null; // Fresh isolated candidate, no migration of old Y snapshot.
 export const original20ClaimControl='d25c465bcc6de2e66969d25f3cb1d39568f39d2b';
-export const fundingSlot='33'; // Future purpose literal only; no actual financial intent/reservation.
-export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-33';
+export const fundingSlot='34'; // Future purpose literal only; no actual financial intent/reservation.
+export const fundingClaimRef='refs/tags/m7-a5-budget-20261022-slot-34';
 export const original24ClaimRef='refs/tags/m7-a5-budget-20261022-slot-24';
 export const original24ClaimControl='5f1ebe9158e64a9eb4a242ae14a132df1e65a7a8';
 export const original22ClaimRef='refs/tags/m7-a5-budget-20261022-slot-22';
@@ -169,7 +169,7 @@ export const oldBudgetTags={
   "refs/tags/m7-a5-budget-20261022-slot-18": "7977914579543e043e8d3f0fd9cae7f7301a8f73"
 };
 export const oldPrsSha256='f25b3284502cab989d82cb0172214f06896ec4e5889ab4253acd5f0fbbf39c99';
-export const sourceFeedbackSha256="90b139838b00f2e0b2eab1ebc7ba4b1afc07991c968f0d1b4493ff54981854d8";
+export const sourceFeedbackSha256='b742173d7d14f20d98616fa1ea17024628f717cfc3d556fd76d0ee6a4e08b7a1';
 
 export function canonical(value){
  if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';

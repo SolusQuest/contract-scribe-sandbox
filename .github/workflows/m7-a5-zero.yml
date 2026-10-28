@@ -5,12 +5,12 @@ on:
     inputs:
       target_sha:
         required: true
-        default: 0ea0b71381ad78b8fe1f371441fe546171671ce1
+        default: 420600c71772ab4fd5ea51a16306c16b855499d5
       approved_workflow_sha:
         required: true
       product_sha:
         required: true
-        default: 8675685f067adf7bf6c7adc373ea8fdbd09bf6a1
+        default: 8c1b0affecee1dd9b357b376bab8b2bd675a891b
       phase:
         required: true
         type: choice
@@ -18,8 +18,8 @@ on:
       expected_violations:
         required: true
         type: choice
-        default: '12'
-        options: ['12','7','6','2','1','0']
+        default: '6'
+        options: ['12','7','6','4','2','1','0']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -98,7 +98,7 @@ jobs:
         run: |
           set -euo pipefail
           test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
-          test "$A5_SOURCE" = 8675685f067adf7bf6c7adc373ea8fdbd09bf6a1
+          test "$A5_SOURCE" = 8c1b0affecee1dd9b357b376bab8b2bd675a891b
           test "$A5_CONTROL" = "$GITHUB_SHA"
           test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
           test "$(git -C target rev-parse HEAD)" = "$A5_TARGET"

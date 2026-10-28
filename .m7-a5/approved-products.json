@@ -2,28 +2,28 @@
   "repository": "SolusQuest/contract-scribe",
   "sources": [
     {
-      "sha": "8675685f067adf7bf6c7adc373ea8fdbd09bf6a1",
+      "sha": "8c1b0affecee1dd9b357b376bab8b2bd675a891b",
       "kind": "owner-approved-pr-fix",
       "pullRequest": 269,
       "baseSha": "4ca77d69cbaf2d3cb18c49352a43f4449c9da991",
       "ciWorkflowId": 311270030,
       "codeqlWorkflowId": 343249902,
-      "ciRunId": 40728940971,
-      "codeqlRunId": 40728935642,
+      "ciRunId": 40777226218,
+      "codeqlRunId": 40777218546,
       "payload": {
-        "artifactId": 12834042011,
+        "artifactId": 12854898933,
+        "producerRunId": 40777226218,
         "producerAttempt": 1,
         "artifactName": "d2-payload-attempt-1",
-        "zipSha256": "4ba4e59c9bdbf7f60c4583d43b9edb234c3058bad4ebd232081d6b02c0ad1c58",
-        "archiveSha256": "a0f03a30d425feae511ccf1dc1ccabe0f57be3e7cd469f598923bfe846ce042d",
-        "archiveName": "contract-scribe-0.1.0-dev+8675685f067adf7bf6c7adc373ea8fdbd09bf6a1-linux-x64.tar.gz",
+        "zipSha256": "d3e4ec6124d2acce09be0286b814da87e456c30f712404a13a9cd0cda2001a00",
+        "archiveSha256": "e4449514d6f0556de23e244009a157f2add0fbca4ff139110bd0d8cd1ccf5121",
+        "archiveName": "contract-scribe-0.1.0-dev+8c1b0affecee1dd9b357b376bab8b2bd675a891b-linux-x64.tar.gz",
         "inventoryFiles": 155,
         "productionFiles": {
-          "ContractScribe.Cli.dll": "07d06a499f0f29d8fcb4a425a3fdd681c5c02e2a2664d44ceb9840fa40187fcb",
-          "ContractScribe.Core.dll": "a27ce53b1042ec35d320678cd652ede5f7f88ac70a8219c8df1a2dd6d2736450",
-          "ContractScribe.GitHub.dll": "8b445b8c29ca1efd22e402e5c52abdbc3d4ac04262779156ed102281444502e0"
-        },
-        "producerRunId": 40728940971
+          "ContractScribe.Cli.dll": "6875268799304e645ba406870b5ddc9a579410e19114aa591e388e38c3ffecba",
+          "ContractScribe.Core.dll": "fe175712eb40eab540a454e401aeaec78d9340f81db60bb1cb051e9bdcedf839",
+          "ContractScribe.GitHub.dll": "a67cae16c6584da7d4a67b2ffa09a611bc1cfca967b2bd7a011c5a0c75e6dcba"
+        }
       },
       "priorFormalReview": {
         "taskId": "7cef3ce0-433a-47f6-860b-5eb3b84ca90c",

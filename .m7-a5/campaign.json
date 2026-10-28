@@ -1,9 +1,9 @@
 {
   "githubCampaignVersion": 1,
-  "campaignLineage": "campaign.m7.a5.history.20261029.z",
+  "campaignLineage": "campaign.m7.a5.content.20261029.aa",
   "github": {
     "repositoryOwner": "SolusQuest",
     "repositoryName": "contract-scribe-sandbox",
-    "targetRef": "refs/heads/m7-a5-history-fix-20261029-z"
+    "targetRef": "refs/heads/m7-a5-content-fix-20261029-aa"
   }
 }

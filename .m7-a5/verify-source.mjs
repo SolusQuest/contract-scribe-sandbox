@@ -7,7 +7,7 @@ const fail=()=>{throw Error('Exact reviewed source / terminal quality gate faile
 if(env.GITHUB_REPOSITORY!=='SolusQuest/contract-scribe-sandbox'||env.GITHUB_EVENT_NAME!=='workflow_dispatch'||env.GITHUB_RUN_ATTEMPT!=='1'||env.GITHUB_WORKFLOW_SHA!==env.A5_APPROVED_WORKFLOW_SHA)fail();
 const approved=JSON.parse(fs.readFileSync(new URL('./approved-products.json',import.meta.url)));
 const entry=approved.sources.find(x=>x.sha===env.A5_PRODUCT_SHA);
-if(!entry||entry.sha!=='8675685f067adf7bf6c7adc373ea8fdbd09bf6a1'||approved.sources.length!==1||approved.repository!=='SolusQuest/contract-scribe'||sha256(fs.readFileSync(new URL('./approved-products.json',import.meta.url)))!=='e56df7b918b5fd318d6c42f0630637b93cdcf6586e9ca8a9ad229e123271c613')fail();
+if(!entry||entry.sha!=='8c1b0affecee1dd9b357b376bab8b2bd675a891b'||approved.sources.length!==1||approved.repository!=='SolusQuest/contract-scribe'||sha256(fs.readFileSync(new URL('./approved-products.json',import.meta.url)))!=='390210e52cb9841be61e5e354a83197fed0d41adde660878c5bfd1e01bcca1f4')fail();
 const read=path=>JSON.parse(execFileSync('gh',['api',path],{encoding:'utf8',maxBuffer:4*1024*1024}));
 if(read('repos/SolusQuest/contract-scribe-sandbox').id!==1361354906)fail();
 verifyFresh(undefined,read);
