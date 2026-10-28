@@ -76,6 +76,16 @@ jobs:
           if(process.env.A5_PHASE==='closed-config')v.budgets.campaign.maximumAttemptsPerTarget=3;
           fs.writeFileSync(process.env.RUNNER_TEMP+'/consumer.json',JSON.stringify(v)+'\n',{flag:'wx',mode:0o600});
           JS
+      - name: Observe starting Actions quota before this invocation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYTHON'
+          import json,os,subprocess
+          r=subprocess.run(['gh','api','--include','repos/SolusQuest/contract-scribe-sandbox'],capture_output=True,text=True)
+          headers=r.stdout.partition('\n\n')[0]
+          print(json.dumps({'originalRunId':os.environ['GITHUB_RUN_ID'],'quotaReadExit':r.returncode,'position':'before','headers':[line for line in headers.splitlines() if line.lower().startswith(('http/','x-ratelimit-','retry-after:','date:'))]}))
+          PYTHON
       - name: One production lifecycle invocation without provider credentials
         id: live
         env:

@@ -85,6 +85,16 @@ jobs:
           A5_TARGET_SHA: ${{ inputs.target_sha }}
           A5_APPROVED_WORKFLOW_SHA: ${{ inputs.approved_workflow_sha }}
         run: python3 control/.m7-a5/audit-preflight.py preflight
+      - name: Observe starting Actions quota before this invocation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYTHON'
+          import json,os,subprocess
+          r=subprocess.run(['gh','api','--include','repos/SolusQuest/contract-scribe-sandbox'],capture_output=True,text=True)
+          headers=r.stdout.partition('\n\n')[0]
+          print(json.dumps({'originalRunId':os.environ['GITHUB_RUN_ID'],'quotaReadExit':r.returncode,'position':'before','headers':[line for line in headers.splitlines() if line.lower().startswith(('http/','x-ratelimit-','retry-after:','date:'))]}))
+          PYTHON
       - name: Atomic original prospective funding32 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
         id: budget
