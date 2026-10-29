@@ -1,0 +1,114 @@
+name: M7 A5 credential-free scope diagnosis
+run-name: M7 A5 credential-free scope diagnosis
+on:
+  workflow_dispatch:
+    inputs:
+      approved_workflow_sha:
+        required: true
+permissions: {}
+jobs:
+  probe:
+    if: github.repository_id == '1361354906' && github.event_name == 'workflow_dispatch' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: SolusQuest/contract-scribe
+          ref: 8c1b0affecee1dd9b357b376bab8b2bd675a891b
+          path: product
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 4e223e66952d717b97435b0cda1e65800f49624d
+          path: target
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: '10.0.403'
+      - name: Acquire original qualified payload without provider credentials
+        env:
+          GH_TOKEN: ${{ github.token }}
+          A5_PRODUCT_SHA: 8c1b0affecee1dd9b357b376bab8b2bd675a891b
+          A5_PRODUCT_ROOT: ${{ github.workspace }}/product
+          A5_CONTROL: ${{ inputs.approved_workflow_sha }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_SHA" = "$A5_CONTROL"
+          test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
+          test "$(git -C product rev-parse HEAD)" = 8c1b0affecee1dd9b357b376bab8b2bd675a891b
+          test "$(git -C target rev-parse HEAD)" = 4e223e66952d717b97435b0cda1e65800f49624d
+          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
+          python3 control/.m7-a5/acquire-payload.py
+      - name: Prepare native producer-consumer probe without credentials
+        run: |
+          set -euo pipefail
+          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}"
+          umask 077
+          dotnet restore target/App/App.csproj --configfile control/.m7-a5/synthetic-nuget.config -nodeReuse:false
+          payload_root="$(dirname "$A5_ACQUIRED_CLI")"
+          dotnet restore control/.m7-a5/scope-probe/ScopeProbe.csproj --configfile control/.m7-a5/synthetic-nuget.config -p:ProbePayloadRoot="$payload_root" -nodeReuse:false
+          dotnet build control/.m7-a5/scope-probe/ScopeProbe.csproj -c Release --no-restore -p:ProbePayloadRoot="$payload_root" -nodeReuse:false
+          dotnet restore control/.m7-a5/scope-probe/hook/ClosedBranchHook.csproj --configfile control/.m7-a5/synthetic-nuget.config -nodeReuse:false
+          dotnet build control/.m7-a5/scope-probe/hook/ClosedBranchHook.csproj -c Release --no-restore -nodeReuse:false
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'TestResults/scribe-scope-diagnosis';p.mkdir(parents=True)
+          (pathlib.Path(os.environ['RUNNER_TEMP'])/'probe-state').mkdir()
+          w=pathlib.Path(os.environ['GITHUB_WORKSPACE'])
+          (p/'local-paths.json').write_text(json.dumps({'base':os.environ['RUNNER_TEMP'],'target':str(w/'target'),'consumer':str(w/'control/.m7-a5/consumer.json'),'state':str(pathlib.Path(os.environ['RUNNER_TEMP'])/'probe-state/checkpoint.json')}))
+          PY
+      - name: Exercise actual native original production request and tool scopes
+        env:
+          AA_PROBE_WORKDIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}"
+          dotnet control/.m7-a5/scope-probe/bin/Release/net10.0/ContractScribe.Tests.dll
+          cp "$RUNNER_TEMP/TestResults/scribe-scope-diagnosis/scope-probe-results.json" "$RUNNER_TEMP/native-probe-without-hook.json"
+      - name: Verify closed observer without changing the startup environment or guards
+        env:
+          AA_PROBE_WORKDIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          test -z "${CONTRACTSCRIBE_PROVIDER_API_KEY:-}${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}"
+          umask 077
+          trace="$RUNNER_TEMP/closed-branches.jsonl"
+          test ! -e "$trace"
+          : > "$trace"
+          DOTNET_STARTUP_HOOKS="$GITHUB_WORKSPACE/control/.m7-a5/scope-probe/hook/bin/Release/net10.0/ClosedBranchHook.dll" A5_CLOSED_BRANCH_OUTPUT="$trace" dotnet control/.m7-a5/scope-probe/bin/Release/net10.0/ContractScribe.Tests.dll
+      - name: Export only bounded counts and closed failure branches
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import collections,json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP']);full=p/'TestResults/scribe-scope-diagnosis/scope-probe-results.json'
+          summary={'providerRequests':0,'githubProductMutations':0,'source':'8c1b0affecee1dd9b357b376bab8b2bd675a891b','target':'4e223e66952d717b97435b0cda1e65800f49624d','noRawMessagesArgumentsWireOrEventPipeExported':True,'startupGuardsUnchanged':True,'completed':False}
+          if full.exists():
+            d=json.loads(full.read_text());rows=d['rows'];summary.update(pairs=d['pairs'],calls=d['calls'],validReads=sum(r['expectedValid']for r in rows),validReadFailures=sum(r['expectedValid']and r['failure']is not None for r in rows),negativeReads=sum(not r['expectedValid']for r in rows),hostFailureCode=(d.get('hostTerminal',{}).get('Failure')or{}).get('Code'),toolchain=d.get('hostTerminal',{}).get('Toolchain'),failureBranches=[{'failureCode':r['failure'],'methods':r['branches']}for r in rows if r['expectedValid']and r['failure']is not None])
+          trace=p/'closed-branches.jsonl';allowed={'ReadExcerpt','SelectLines','ResolveFile','NormalizeRepositoryPath','CreateEvidence','CreateExcerpt','CreateRoute','GetScope','BindScope'}
+          observed=[]
+          if trace.exists():
+            assert trace.stat().st_size<=32768
+            observed=[json.loads(x)for x in trace.read_text().splitlines()]
+            assert len(observed)<=64
+            for r in observed:assert set(r)=={'failureCode','methods'}and r['failureCode']in{'repository.invalid-request','argument-exception'}and set(r['methods'])<=allowed
+          summary['closedObservations']=observed
+          summary['completed']=summary.get('pairs')==15 and summary.get('validReads')==300 and summary.get('validReadFailures')==0 and summary.get('negativeReads')==60 and len(observed)==60 and all('SelectLines'in r['methods']for r in observed)
+          out=p/'scope-probe-summary.json';out.write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps({k:v for k,v in summary.items()if k not in{'closedObservations','failureBranches'}}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: m7-a5-scope-probe-${{ github.run_id }}-attempt-1
+          path: ${{ runner.temp }}/scope-probe-summary.json
+          if-no-files-found: error
+          retention-days: 90
