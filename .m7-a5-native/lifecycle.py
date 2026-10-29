@@ -1,13 +1,13 @@
 """One synthetic consumer lifecycle. Product behavior remains in the pinned CLI."""
 from pathlib import Path
 import base64,collections,hashlib,json,os,re,subprocess,sys,time
-SOURCE='3aa7f52c63856001e768b3118e469dac189dabee'
+SOURCE='dd5fa0384076bedbde5ec0cdba6bae5a5e50c381'
 BASELINE='45a382b2fc49a1a6f16a7015a4981b4a2386f5db'
 REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'p0':'48','q1':'49','q2':'50','q3':'51'}
+SLOTS={'p0':'48','q1':'52','q2':'53','q3':'54'}
 ORDER=['baseline','claim-p0','paid-p0','open-wait','close-p0','closed-base','closed-config','readme1','audit-q1','claim-q1','paid-q1','readme2','changed-base','merge-q1','audit-q2','claim-q2','paid-q2','merge-q2','audit-q3','claim-q3','paid-q3','merge-q3','audit-final','final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
@@ -98,7 +98,9 @@ def run_cli(label,paid=False,expected=None,code=0,override=None):
     if paid:
         require(0<n<=6);work=usage['work'];require(work['acceptedTargets']==work['startedTargets']==2 and work['skippedTargets']==work['failedTargets']==0);require(usage['accounting']['unsettledDispatches']==0)
         url=value['pullRequestUrl'];m=re.fullmatch(r'https://github.com/SolusQuest/contract-scribe-sandbox/pull/([1-9][0-9]*)',url);require(m is not None);pr=owned_pr(int(m[1]));require(pr['state']=='open' and pr['draft'] and not pr['merged']);state.setdefault('prs',{})[label]={'number':pr['number'],'node':pr['node_id'],'head':pr['head']['sha'],'base':pr['base']['sha'],'headRef':'refs/heads/'+pr['head']['ref']};save()
-    else:require(n==0)
+    else:
+        require(n==0)
+        if label=='open-wait':require(value['pullRequestUrl']=='https://github.com/'+REPO+'/pull/'+str(state['prs']['p0']['number']))
     require(not git(['status','--porcelain','--untracked-files=no']).stdout.strip());event({'type':'invoke','label':label,'code':p.returncode,'outcome':value['outcome'],'physical':n,'accepted':(usage.get('work')or{}).get('acceptedTargets',0)});print('Invocation',label,value['outcome'],'physical',n)
 
 def readme(index):

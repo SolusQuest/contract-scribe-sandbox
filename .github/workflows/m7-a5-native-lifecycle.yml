@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: SolusQuest/contract-scribe
-          ref: 3aa7f52c63856001e768b3118e469dac189dabee
+          ref: dd5fa0384076bedbde5ec0cdba6bae5a5e50c381
           path: product
           persist-credentials: false
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -51,18 +51,10 @@ jobs:
           test -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
           dotnet restore target/App/App.csproj --configfile control/.m7-a5-native/nuget.config
           dotnet build target/App/App.csproj -c Debug --no-restore -nodeReuse:false
-      - name: baseline
-        run: python3 control/.m7-a5-native/lifecycle.py baseline
-      - name: claim-p0
+      - name: Restore the verified successful P0 prefix without replaying it
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py claim-p0
-      - name: paid-p0
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
-        run: python3 control/.m7-a5-native/lifecycle.py paid-p0
+        run: python3 control/.m7-a5-native/restore.py
       - name: open-wait
         env:
           CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
