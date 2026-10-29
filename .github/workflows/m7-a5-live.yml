@@ -94,6 +94,8 @@ jobs:
           r=subprocess.run(['gh','api','--include','repos/SolusQuest/contract-scribe-sandbox'],capture_output=True,text=True)
           headers=r.stdout.partition('\n\n')[0]
           print(json.dumps({'originalRunId':os.environ['GITHUB_RUN_ID'],'quotaReadExit':r.returncode,'position':'before','headers':[line for line in headers.splitlines() if line.lower().startswith(('http/','x-ratelimit-','retry-after:','date:'))]}))
+          values={key.strip().lower():value.strip()for line in headers.splitlines()if ':' in line for key,value in [line.split(':',1)]}
+          assert r.returncode==0 and values.get('x-ratelimit-resource')=='core' and int(values.get('x-ratelimit-limit','0'))>=5000 and int(values.get('x-ratelimit-remaining','0'))>=4000, 'Actual write-job core quota insufficient; stop before claim and provider injection.'
           PYTHON
       - name: Atomic original prospective funding38 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
