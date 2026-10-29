@@ -1,13 +1,13 @@
 """One synthetic consumer lifecycle. Product behavior remains in the pinned CLI."""
 from pathlib import Path
 import base64,collections,hashlib,json,os,re,subprocess,sys,time
-SOURCE='64e446e740473f04ced080ac1268a07c7ad30c40'
+SOURCE='3aa7f52c63856001e768b3118e469dac189dabee'
 BASELINE='420600c71772ab4fd5ea51a16306c16b855499d5'
 REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'p0':'40','q1':'41','q2':'42','q3':'43'}
+SLOTS={'p0':'44','q1':'45','q2':'46','q3':'47'}
 ORDER=['baseline','claim-p0','paid-p0','open-wait','close-p0','closed-base','closed-config','readme1','audit-q1','claim-q1','paid-q1','readme2','changed-base','merge-q1','audit-q2','claim-q2','paid-q2','merge-q2','audit-q3','claim-q3','paid-q3','merge-q3','audit-final','final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
@@ -48,7 +48,7 @@ def guard():
     e=os.environ;require(e.get('GITHUB_REPOSITORY')==REPO and e.get('GITHUB_RUN_ATTEMPT')=='1' and e.get('GITHUB_EVENT_NAME')=='workflow_dispatch')
     require(e['GITHUB_SHA']==e['GITHUB_WORKFLOW_SHA']==e['LIFE_APPROVED_CONTROL']);require(git(['rev-parse','HEAD'],Path('control')).stdout.decode().strip()==e['GITHUB_SHA'])
     require(git(['rev-parse','HEAD'],Path('product')).stdout.decode().strip()==SOURCE)
-    require(not any(e.get(k) for k in ['DOTNET_STARTUP_HOOKS','CONTRACTSCRIBE_TEST_GITHUB_ENDPOINT','CONTRACTSCRIBE_TEST_GITHUB_FAULT']))
+    require(not any(e.get(k) for k in ['DOTNET_STARTUP_HOOKS','CONTRACTSCRIBE_TEST_GITHUB_ENDPOINT','CONTRACTSCRIBE_TEST_GITHUB_GIT_ENDPOINT','CONTRACTSCRIBE_TEST_GITHUB_FAULT']))
     require(sha(e['LIFE_CLI'])==e['LIFE_CLI_SHA256']);require(head()==state['targetSha'])
     require(not git(['status','--porcelain','--untracked-files=no']).stdout.strip())
     require(sha(HERE/'consumer.json')==state['consumerSha256'] and sha(HERE/'campaign.json')==state['campaignSha256'])
