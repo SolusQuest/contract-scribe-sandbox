@@ -74,6 +74,7 @@ jobs:
           import fs from 'node:fs';
           const v=JSON.parse(fs.readFileSync('control/.m7-a5/consumer.json'));
           if(process.env.A5_PHASE==='closed-config')v.budgets.campaign.maximumAttemptsPerTarget=3;
+          if(process.env.A5_PHASE==='recover')v.budgets.invocation.maximumProviderRequests=0;
           fs.writeFileSync(process.env.RUNNER_TEMP+'/consumer.json',JSON.stringify(v)+'\n',{flag:'wx',mode:0o600});
           JS
       - name: Observe starting Actions quota before this invocation
