@@ -5,7 +5,7 @@ on:
     inputs:
       target_sha:
         required: true
-        default: 76caaae0bd2048f370f9aba858145150b9b0f14c
+        default: bc206b90d6fa802a8795f3223829c32492391840
       approved_workflow_sha:
         required: true
       product_sha:
@@ -14,7 +14,7 @@ on:
       slot:
         required: true
         type: choice
-        options: ['38']
+        options: ['39']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -30,7 +30,7 @@ jobs:
       pull-requests: write
       actions: read
     env:
-      A5_PHASE: q2
+      A5_PHASE: q3
       A5_SLOT: ${{ inputs.slot }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -97,7 +97,7 @@ jobs:
           values={key.strip().lower():value.strip()for line in headers.splitlines()if ':' in line for key,value in [line.split(':',1)]}
           assert r.returncode==0 and values.get('x-ratelimit-resource')=='core' and int(values.get('x-ratelimit-limit','0'))>=5000 and int(values.get('x-ratelimit-remaining','0'))>=4000, 'Actual write-job core quota insufficient; stop before claim and provider injection.'
           PYTHON
-      - name: Atomic original prospective funding38 claim after own complete real Audit
+      - name: Atomic original prospective funding39 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
         id: budget
         env:
