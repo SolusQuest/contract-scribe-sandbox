@@ -24,7 +24,7 @@
     },
     "invocation": {
       "maximumTargets": 2,
-      "maximumProviderRequests": 2,
+      "maximumProviderRequests": 16,
       "maximumCachedInputTokens": 262142,
       "maximumUncachedInputTokens": 262142,
       "maximumOutputTokens": 32768,
