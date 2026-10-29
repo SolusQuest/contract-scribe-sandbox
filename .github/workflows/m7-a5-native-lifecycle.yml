@@ -51,30 +51,10 @@ jobs:
           test -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
           dotnet restore target/App/App.csproj --configfile control/.m7-a5-native/nuget.config
           dotnet build target/App/App.csproj -c Debug --no-restore -nodeReuse:false
-      - name: Restore the verified successful P0 prefix without replaying it
+      - name: Restore the verified successful prefix without replaying it
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 control/.m7-a5-native/restore.py
-      - name: open-wait
-        env:
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py open-wait
-      - name: close-p0
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py close-p0
-      - name: closed-base
-        env:
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py closed-base
-      - name: closed-config
-        env:
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py closed-config
-      - name: readme1
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py readme1
       - name: audit-q1
         run: python3 control/.m7-a5-native/lifecycle.py audit-q1
       - name: claim-q1

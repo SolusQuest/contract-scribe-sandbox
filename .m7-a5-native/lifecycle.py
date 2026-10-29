@@ -7,7 +7,7 @@ REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'p0':'48','q1':'52','q2':'53','q3':'54'}
+SLOTS={'p0':'48','q1':'55','q2':'56','q3':'57'}
 ORDER=['baseline','claim-p0','paid-p0','open-wait','close-p0','closed-base','closed-config','readme1','audit-q1','claim-q1','paid-q1','readme2','changed-base','merge-q1','audit-q2','claim-q2','paid-q2','merge-q2','audit-q3','claim-q3','paid-q3','merge-q3','audit-final','final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
@@ -57,9 +57,15 @@ def guard():
 def no_credentials():require(not any(os.environ.get(k) for k in ['GH_TOKEN','GITHUB_TOKEN','CONTRACTSCRIBE_PROVIDER_API_KEY','CONTRACTSCRIBE_GITHUB_TOKEN']))
 
 def audit(label,remaining):
-    no_credentials();out=WORK/(label+'-audit.json');stdout=WORK/(label+'-audit-envelope.json');stderr=WORK/(label+'-audit-stderr.txt')
+    no_credentials()
+    current=head()
+    if state.get('preparedTargetSha')!=current:
+        with (WORK/(label+'-prepare-stdout.txt')).open('xb')as a,(WORK/(label+'-prepare-stderr.txt')).open('xb')as b:
+            prepared=subprocess.run(['dotnet','build','App/App.csproj','-c','Debug','--no-restore','-nodeReuse:false'],cwd=TARGET,stdout=a,stderr=b)
+        require(prepared.returncode==0);state['preparedTargetSha']=current;save();event({'type':'prepare','label':label,'target':current,'credentialsAbsent':True})
+    out=WORK/(label+'-audit.json');stdout=WORK/(label+'-audit-envelope.json');stderr=WORK/(label+'-audit-stderr.txt')
     with stdout.open('xb')as a,stderr.open('xb')as b:p=subprocess.run(['dotnet',os.environ['LIFE_CLI'],'audit','--repository-root',str(TARGET),'--input','App/App.csproj','--policy','policy.json','--output',str(out)],stdout=a,stderr=b)
-    e=json.loads(stdout.read_text());raw=out.read_bytes();v=json.loads(raw);counts=e['counts'];require(p.returncode==(1 if remaining else 0));require(e['terminalLayer']=='audit' and e['terminalState']=='committed' and e['sourceRevision']==SOURCE and e['cliContractBaseline']==SOURCE and not e['diagnosticCodes']);require(e['resultDigest']==hashlib.sha256(raw).hexdigest() and e['outputCommit']=={'status':'committed','identity':e['resultDigest']})
+    e=json.loads(stdout.read_text());require(p.returncode==(1 if remaining else 0));require(e['terminalLayer']=='audit' and e['terminalState']=='committed' and e['sourceRevision']==SOURCE and e['cliContractBaseline']==SOURCE and not e['diagnosticCodes']);raw=out.read_bytes();v=json.loads(raw);counts=e['counts'];require(e['resultDigest']==hashlib.sha256(raw).hexdigest() and e['outputCommit']=={'status':'committed','identity':e['resultDigest']})
     require(counts=={'compliant':13-remaining,'violation':remaining,'skipped':0});rows=v['results'];ids=[x['classification']['symbolRef']['documentationCommentId'] for x in rows];require(len(rows)==len(set(ids))==13 and set(ids)==IDENTITIES)
     actual=collections.Counter(x['auditOutcome'] for x in rows);require(actual['audit.outcome.violation']==remaining and actual['audit.outcome.compliant']==13-remaining and actual['audit.outcome.skipped']==0)
     require(not re.search(rb'/home/runner/|/Users/|/Volumes/',raw));state['audit']={'label':label,'target':head(),'remaining':remaining,'digest':e['resultDigest'],'counts':counts,'identities':[{'symbolRef':x['classification']['symbolRef'],'kind':x['classification']['primaryKind'],'outcome':x['auditOutcome']} for x in rows]};state.setdefault('audits',[]).append(state['audit']);save();event({'type':'audit','label':label,'target':head(),'counts':counts,'fullTargetCount':13,'methodTargetCount':12,'providerCredentialsAbsent':True});print('Audit',label,counts)
