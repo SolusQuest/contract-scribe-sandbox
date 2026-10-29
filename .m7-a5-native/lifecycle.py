@@ -2,12 +2,12 @@
 from pathlib import Path
 import base64,collections,hashlib,json,os,re,subprocess,sys,time
 SOURCE='3aa7f52c63856001e768b3118e469dac189dabee'
-BASELINE='420600c71772ab4fd5ea51a16306c16b855499d5'
+BASELINE='45a382b2fc49a1a6f16a7015a4981b4a2386f5db'
 REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'p0':'44','q1':'45','q2':'46','q3':'47'}
+SLOTS={'p0':'48','q1':'49','q2':'50','q3':'51'}
 ORDER=['baseline','claim-p0','paid-p0','open-wait','close-p0','closed-base','closed-config','readme1','audit-q1','claim-q1','paid-q1','readme2','changed-base','merge-q1','audit-q2','claim-q2','paid-q2','merge-q2','audit-q3','claim-q3','paid-q3','merge-q3','audit-final','final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
@@ -83,7 +83,12 @@ def run_cli(label,paid=False,expected=None,code=0,override=None):
         with (WORK/('launch-'+phase+'.json')).open('x')as f:f.write(json.dumps(state['claims'][phase])+'\n')
     else:require(not os.environ.get('CONTRACTSCRIBE_PROVIDER_API_KEY'))
     args=['dotnet',os.environ['LIFE_CLI'],'github-proposal','--repository-root',str(TARGET),'--input','App/App.csproj','--policy','policy.json','--campaign',str(HERE/'campaign.json'),'--configuration',str(HERE/'consumer.json')]
-    if override is not None:args+=['--configuration-override',json.dumps(override)]
+    if override is not None:
+        require(override=={'budgets':{'invocation':{'maximumTargets':1}}})
+        layer=json.loads((HERE/'consumer.json').read_text());layer['budgets']['invocation']['maximumTargets']=1
+        override_file=WORK/(label+'-configuration-override.json')
+        with override_file.open('x')as f:f.write(json.dumps(layer,indent=2)+'\n')
+        args+=['--configuration-override',str(override_file)]
     out=WORK/(label+'-result.json');err=WORK/(label+'-stderr.txt');event({'type':'invoke','label':label,'state':'starting','target':head(),'slot':SLOTS.get(label),'maximumPhysical':6 if paid else 0})
     env=dict(os.environ);env.pop('GH_TOKEN',None);env.pop('GITHUB_TOKEN',None)
     with out.open('xb')as a,err.open('xb')as b:p=subprocess.run(args,stdout=a,stderr=b,env=env)
