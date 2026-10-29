@@ -130,7 +130,8 @@ public sealed class ActualAaRepositoryScopeProbe
             }));
         File.WriteAllText(Path.Join(evidence, "scope-probe-results.json"), JsonSerializer.Serialize(new
         { source = "8c1b0affecee1dd9b357b376bab8b2bd675a891b", syntheticTarget = "4e223e66952d717b97435b0cda1e65800f49624d",
-            hostTerminal = outcome.Terminal, pairs, calls = rows.Count, failedValidRequests = invalid, rows }, new JsonSerializerOptions { WriteIndented = true }));
+            hostTerminal = outcome.Terminal, loaderFact = outcome.LoaderFact,
+            pairs, calls = rows.Count, failedValidRequests = invalid, rows }, new JsonSerializerOptions { WriteIndented = true }));
         Assert.Null(consumerFailure);
         Assert.Equal(15, pairs);
         Assert.NotEmpty(rows);
