@@ -2,7 +2,7 @@
 # Prospective AA preparatory two-target invocation, unused slot34; allocation and execution have not occurred.
 set -euo pipefail
 umask 077
-q1_head='4e223e66952d717b97435b0cda1e65800f49624d'
+q1_head='6d64daef3f8c42c1861aaddf56bcc7b5f0d65dfa'
 [[ "$q1_head" =~ ^[0-9a-f]{40}$ ]] || { printf 'Q1 exact seed is not bound.\n' >&2; exit 1; }
 paid_mode="${1:-}"
 test "$paid_mode" = claim || test "$paid_mode" = launch
@@ -20,8 +20,8 @@ test "$(git -C "$paid_dir/.." rev-parse HEAD)" = "$GITHUB_WORKFLOW_SHA"
 test -z "$(git -C "$paid_dir/.." status --porcelain)"
 test "$(gh api repos/SolusQuest/contract-scribe-sandbox --jq .id)" = 1361354906
 test "$A5_PRODUCT_SHA" = 8c1b0affecee1dd9b357b376bab8b2bd675a891b
-test "$A5_TARGET_SHA" = 4e223e66952d717b97435b0cda1e65800f49624d
-test "$A5_SLOT" = 36
+test "$A5_TARGET_SHA" = 6d64daef3f8c42c1861aaddf56bcc7b5f0d65dfa
+test "$A5_SLOT" = 37
 test "${A5_PHASE:-}" = q1
 test -z "${A5_FUNDING_SLOT:-}${DOTNET_STARTUP_HOOKS:-}${CONTRACTSCRIBE_TEST_GITHUB_ENDPOINT:-}${CONTRACTSCRIBE_TEST_GITHUB_FAULT:-}"
 test "$(git -C "$A5_TARGET_ROOT" rev-parse HEAD)" = "$A5_TARGET_SHA"
@@ -40,7 +40,7 @@ if [[ "$paid_mode" = claim ]]; then
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 const e=process.env,h=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='36'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
+if(!/^[1-9][0-9]*$/.test(e.GITHUB_RUN_ID)||e.A5_SLOT!=='37'||e.GITHUB_RUN_ATTEMPT!=='1')throw Error('Paid claim context rejected.');
 const value={runId:e.GITHUB_RUN_ID,attempt:e.GITHUB_RUN_ATTEMPT,slot:e.A5_SLOT,control:e.GITHUB_SHA,source:e.A5_PRODUCT_SHA,target:e.A5_TARGET_SHA,campaignSha256:h(e.A5_CAMPAIGN),consumerSha256:h(e.A5_CONSUMER),auditReceiptSha256:h(e.RUNNER_TEMP+'/a5-audit-preflight.json')};
 fs.writeFileSync(process.argv[2],JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});fs.chmodSync(process.argv[2],0o400);
 JS
@@ -64,8 +64,14 @@ fs.writeFileSync(process.argv[2],JSON.stringify({runId:process.env.GITHUB_RUN_ID
 JS
 # Existing real production CLI, fixed reviewed provider profile, original output boundaries.
 # Never set -x or log credentials / provider requests / responses / reasoning.
+test -z "${DOTNET_STARTUP_HOOKS:-}${A5_CLOSED_BRANCH_OUTPUT:-}"
+test -f "$paid_dir/scope-probe/hook/bin/Release/net10.0/ClosedBranchHook.dll"
+closed_branch_output="$RUNNER_TEMP/a5-closed-tool-branches.jsonl"
+test ! -e "$closed_branch_output"
+umask 077
+: > "$closed_branch_output"
 set +e
-dotnet "$A5_CLI" github-proposal --repository-root "$A5_TARGET_ROOT" --input App/App.csproj --policy policy.json --campaign "$A5_CAMPAIGN" --configuration "$A5_CONSUMER" >"$RUNNER_TEMP/a5-result.json" 2>"$RUNNER_TEMP/a5-stderr.txt"
+DOTNET_STARTUP_HOOKS="$paid_dir/scope-probe/hook/bin/Release/net10.0/ClosedBranchHook.dll" A5_CLOSED_BRANCH_OUTPUT="$closed_branch_output" dotnet "$A5_CLI" github-proposal --repository-root "$A5_TARGET_ROOT" --input App/App.csproj --policy policy.json --campaign "$A5_CAMPAIGN" --configuration "$A5_CONSUMER" >"$RUNNER_TEMP/a5-result.json" 2>"$RUNNER_TEMP/a5-stderr.txt"
 paid_result=$?
 set -e
 printf '%s' "$paid_result" >"$RUNNER_TEMP/a5-exit-code.txt"

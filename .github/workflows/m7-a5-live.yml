@@ -5,7 +5,7 @@ on:
     inputs:
       target_sha:
         required: true
-        default: 4e223e66952d717b97435b0cda1e65800f49624d
+        default: 6d64daef3f8c42c1861aaddf56bcc7b5f0d65dfa
       approved_workflow_sha:
         required: true
       product_sha:
@@ -14,7 +14,7 @@ on:
       slot:
         required: true
         type: choice
-        options: ['36']
+        options: ['37']
 permissions: {}
 concurrency:
   group: m7-a5-observation-20261022
@@ -74,6 +74,8 @@ jobs:
           umask 077
           cp control/.m7-a5/campaign.json "$RUNNER_TEMP/campaign.json"
           node control/.m7-a5/select-profile.mjs copy "$SLOT" "$RUNNER_TEMP/consumer.json"
+          dotnet restore control/.m7-a5/scope-probe/hook/ClosedBranchHook.csproj --configfile control/.m7-a5/synthetic-nuget.config -nodeReuse:false
+          dotnet build control/.m7-a5/scope-probe/hook/ClosedBranchHook.csproj -c Release --no-restore -nodeReuse:false
         env:
           SLOT: ${{ inputs.slot }}
       - name: Complete real Audit before provider injection or budget claim
@@ -95,7 +97,7 @@ jobs:
           headers=r.stdout.partition('\n\n')[0]
           print(json.dumps({'originalRunId':os.environ['GITHUB_RUN_ID'],'quotaReadExit':r.returncode,'position':'before','headers':[line for line in headers.splitlines() if line.lower().startswith(('http/','x-ratelimit-','retry-after:','date:'))]}))
           PYTHON
-      - name: Atomic original prospective funding36 claim after own complete real Audit
+      - name: Atomic original prospective funding37 claim after own complete real Audit
         if: steps.audit.outcome == 'success'
         id: budget
         env:
@@ -125,6 +127,21 @@ jobs:
           A5_CAMPAIGN: ${{ runner.temp }}/campaign.json
           A5_CONSUMER: ${{ runner.temp }}/consumer.json
         run: bash control/.m7-a5/budget-and-launch.sh launch
+      - name: Publish only the closed diagnostic branch observations
+        if: always() && (steps.live.outcome == 'success' || steps.live.outcome == 'failure')
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'a5-closed-tool-branches.jsonl'
+          allowed={'ReadExcerpt','SelectLines','ResolveFile','NormalizeRepositoryPath','CreateEvidence','CreateExcerpt','CreateRoute','GetScope','BindScope'}
+          rows=[]
+          if p.exists():
+            assert p.stat().st_size<=32768
+            rows=[json.loads(x)for x in p.read_text().splitlines()]
+            assert len(rows)<=64
+            for r in rows:assert set(r)=={'failureCode','methods'}and r['failureCode']in{'repository.invalid-request','argument-exception'}and set(r['methods'])<=allowed
+          print(json.dumps({'closedToolBranchObservations':rows,'noMessagesArgumentsWireOrRawTrace':True,'originalStartupEnvironmentAndGuardsPreserved':True}))
+          PY
       - name: Observe actual Actions quota after this invocation
         if: always() && (steps.live.outcome == 'success' || steps.live.outcome == 'failure')
         env:
