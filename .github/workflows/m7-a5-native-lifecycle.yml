@@ -1,0 +1,156 @@
+name: M7 bounded native lifecycle
+run-name: M7 native lifecycle current source
+on:
+  workflow_dispatch:
+    inputs:
+      approved_workflow_sha:
+        required: true
+permissions: {}
+concurrency:
+  group: m7-native-lifecycle-current
+  cancel-in-progress: false
+jobs:
+  lifecycle:
+    if: github.repository_id == '1361354906' && github.event_name == 'workflow_dispatch' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    env:
+      LIFE_APPROVED_CONTROL: ${{ inputs.approved_workflow_sha }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: SolusQuest/contract-scribe
+          ref: 64e446e740473f04ced080ac1268a07c7ad30c40
+          path: product
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: refs/heads/m7-a5-native-20261030-ab-2ea46b
+          path: target
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: '10.0.403'
+      - name: Consume the original qualified payload once before provider access
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/acquire.py
+      - name: Restore the synthetic target without publication or provider credentials
+        run: |
+          set -euo pipefail
+          test -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
+          dotnet restore target/App/App.csproj --configfile control/.m7-a5-native/nuget.config
+          dotnet build target/App/App.csproj -c Debug --no-restore -nodeReuse:false
+      - name: baseline
+        run: python3 control/.m7-a5-native/lifecycle.py baseline
+      - name: claim-p0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py claim-p0
+      - name: paid-p0
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
+        run: python3 control/.m7-a5-native/lifecycle.py paid-p0
+      - name: open-wait
+        env:
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py open-wait
+      - name: close-p0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py close-p0
+      - name: closed-base
+        env:
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py closed-base
+      - name: closed-config
+        env:
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py closed-config
+      - name: readme1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py readme1
+      - name: audit-q1
+        run: python3 control/.m7-a5-native/lifecycle.py audit-q1
+      - name: claim-q1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py claim-q1
+      - name: paid-q1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
+        run: python3 control/.m7-a5-native/lifecycle.py paid-q1
+      - name: readme2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py readme2
+      - name: changed-base
+        env:
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py changed-base
+      - name: merge-q1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py merge-q1
+      - name: audit-q2
+        run: python3 control/.m7-a5-native/lifecycle.py audit-q2
+      - name: claim-q2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py claim-q2
+      - name: paid-q2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
+        run: python3 control/.m7-a5-native/lifecycle.py paid-q2
+      - name: merge-q2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py merge-q2
+      - name: audit-q3
+        run: python3 control/.m7-a5-native/lifecycle.py audit-q3
+      - name: claim-q3
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py claim-q3
+      - name: paid-q3
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
+        run: python3 control/.m7-a5-native/lifecycle.py paid-q3
+      - name: merge-q3
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py merge-q3
+      - name: audit-final
+        run: python3 control/.m7-a5-native/lifecycle.py audit-final
+      - name: final-noop
+        env:
+          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
+        run: python3 control/.m7-a5-native/lifecycle.py final-noop
+      - name: Retain the original bounded results without provider conversations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: m7-native-lifecycle-original-attempt-${{ github.run_attempt }}
+          path: |
+            payload-verified.json
+            ${{ runner.temp }}/m7-native-lifecycle/
+          if-no-files-found: warn
