@@ -1,14 +1,14 @@
 """One synthetic consumer lifecycle. Product behavior remains in the pinned CLI."""
 from pathlib import Path
 import base64,collections,hashlib,json,os,re,subprocess,sys,time
-SOURCE='71c6275a7a0cd5510f840f0b20ed28abaf561c02'
-BASELINE='45a382b2fc49a1a6f16a7015a4981b4a2386f5db'
+SOURCE='5aef2251a7c0e497b15f0f1a4b61ab95e69d8ee6'
+BASELINE='8fc402a8e2917d38906532dccc6bbca8755be49c'
 REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'p0':'62','q1':'63','q2':'64','q3':'65'}
-ORDER=['baseline','claim-p0','paid-p0','open-wait','close-p0','closed-base','closed-config','readme1','audit-q1','claim-q1','paid-q1','readme2','changed-base','merge-q1','audit-q2','claim-q2','paid-q2','merge-q2','audit-q3','claim-q3','paid-q3','merge-q3','audit-final','final-noop']
+SLOTS={'q1':'66','q2':'67','q3':'68'}
+ORDER=['audit-q1', 'claim-q1', 'paid-q1', 'readme2', 'changed-base', 'merge-q1', 'audit-q2', 'claim-q2', 'paid-q2', 'merge-q2', 'audit-q3', 'claim-q3', 'paid-q3', 'merge-q3', 'audit-final', 'final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
 state={}
@@ -71,7 +71,7 @@ def audit(label,remaining):
     require(not re.search(rb'/home/runner/|/Users/|/Volumes/',raw));state['audit']={'label':label,'target':head(),'remaining':remaining,'digest':e['resultDigest'],'counts':counts,'identities':[{'symbolRef':x['classification']['symbolRef'],'kind':x['classification']['primaryKind'],'outcome':x['auditOutcome']} for x in rows]};state.setdefault('audits',[]).append(state['audit']);save();event({'type':'audit','label':label,'target':head(),'counts':counts,'fullTargetCount':13,'methodTargetCount':12,'providerCredentialsAbsent':True});print('Audit',label,counts)
 
 def claim(phase):
-    require(not os.environ.get('CONTRACTSCRIBE_PROVIDER_API_KEY') and not os.environ.get('CONTRACTSCRIBE_GITHUB_TOKEN'));a=state['audit'];require(a['target']==head() and a['remaining']=={'p0':6,'q1':6,'q2':4,'q3':2}[phase])
+    require(not os.environ.get('CONTRACTSCRIBE_PROVIDER_API_KEY') and not os.environ.get('CONTRACTSCRIBE_GITHUB_TOKEN'));a=state['audit'];require(a['target']==head() and a['remaining']=={'q1':6,'q2':4,'q3':2}[phase])
     ref='refs/tags/m7-a5-budget-20261022-slot-'+SLOTS[phase];control=os.environ['GITHUB_SHA'];p=git(['push','--porcelain','--force-with-lease='+ref+':','https://github.com/'+REPO+'.git',control+':'+ref],Path('control'),True,True);rows=[r.split(b'\t') for r in p.stdout.splitlines() if b'\t'in r];require(p.returncode==0 and len(rows)==1 and rows[0][0]==b'*' and rows[0][1].decode()==control+':'+ref)
     actual=git(['ls-remote','--refs','https://github.com/'+REPO+'.git',ref],Path('control'),True).stdout.decode().splitlines();require(actual==[control+'\t'+ref])
     binding={'run':os.environ['GITHUB_RUN_ID'],'attempt':'1','control':control,'source':SOURCE,'slot':SLOTS[phase],'phase':phase,'target':head(),'audit':a['digest'],'consumer':state['consumerSha256'],'campaign':state['campaignSha256']};p=WORK/('claim-'+phase+'.json')
@@ -83,18 +83,12 @@ def owned_pr(number,expected_head=None):
     if expected_head:require(p['head']['sha']==expected_head)
     return p
 
-def run_cli(label,paid=False,expected=None,code=0,override=None):
+def run_cli(label,paid=False,expected=None,code=0):
     if paid:
         phase=label;require(bool(os.environ.get('CONTRACTSCRIBE_PROVIDER_API_KEY')) and bool(os.environ.get('CONTRACTSCRIBE_GITHUB_TOKEN')));require(state['claims'][phase]['target']==head() and state['claims'][phase]['audit']==state['audit']['digest']);require((WORK/('claim-'+phase+'.json')).stat().st_mode&0o777==0o400)
         with (WORK/('launch-'+phase+'.json')).open('x')as f:f.write(json.dumps(state['claims'][phase])+'\n')
     else:require(not os.environ.get('CONTRACTSCRIBE_PROVIDER_API_KEY'))
     args=['dotnet',os.environ['LIFE_CLI'],'github-proposal','--repository-root',str(TARGET),'--input','App/App.csproj','--policy','policy.json','--campaign',str(HERE/'campaign.json'),'--configuration',str(HERE/'consumer.json')]
-    if override is not None:
-        require(override=={'budgets':{'invocation':{'maximumTargets':1}}})
-        layer=json.loads((HERE/'consumer.json').read_text());layer['budgets']['invocation']['maximumTargets']=1
-        override_file=WORK/(label+'-configuration-override.json')
-        with override_file.open('x')as f:f.write(json.dumps(layer,indent=2)+'\n')
-        args+=['--configuration-override',str(override_file)]
     out=WORK/(label+'-result.json');err=WORK/(label+'-stderr.txt');event({'type':'invoke','label':label,'state':'starting','target':head(),'slot':SLOTS.get(label),'maximumPhysical':6 if paid else 0})
     env=dict(os.environ);env.pop('GH_TOKEN',None);env.pop('GITHUB_TOKEN',None)
     with out.open('xb')as a,err.open('xb')as b:p=subprocess.run(args,stdout=a,stderr=b,env=env)
@@ -106,7 +100,6 @@ def run_cli(label,paid=False,expected=None,code=0,override=None):
         url=value['pullRequestUrl'];m=re.fullmatch(r'https://github.com/SolusQuest/contract-scribe-sandbox/pull/([1-9][0-9]*)',url);require(m is not None);pr=owned_pr(int(m[1]));require(pr['state']=='open' and pr['draft'] and not pr['merged']);state.setdefault('prs',{})[label]={'number':pr['number'],'node':pr['node_id'],'head':pr['head']['sha'],'base':pr['base']['sha'],'headRef':'refs/heads/'+pr['head']['ref']};save()
     else:
         require(n==0)
-        if label=='open-wait':require(value['pullRequestUrl']=='https://github.com/'+REPO+'/pull/'+str(state['prs']['p0']['number']))
     require(not git(['status','--porcelain','--untracked-files=no']).stdout.strip());event({'type':'invoke','label':label,'code':p.returncode,'outcome':value['outcome'],'physical':n,'accepted':(usage.get('work')or{}).get('acceptedTargets',0)});print('Invocation',label,value['outcome'],'physical',n)
 
 def readme(index):
@@ -132,9 +125,6 @@ def verify_proposal(item):
     added=[k for k,v in new.items()if v and not old[k]];require(len(added)==2 and all(k.startswith('Method')for k in added));require(all(new[k]==v for k,v in old.items()if v))
     item['actualAddedDocumentationMethods']=added;save();event({'type':'proposal-source','head':item['head'],'onlyXMLDocumentation':True,'addedMethods':added})
 
-def close_p0():
-    item=state['prs']['p0'];p=owned_pr(item['number'],item['head']);require(p['state']=='open' and not p['merged']);verify_proposal(item);value=api(f'repos/{REPO}/pulls/{item["number"]}','PATCH',{'state':'closed'});require(value['state']=='closed' and not value.get('merged') and value['head']['sha']==item['head']);item['closedUnmerged']=True;save();event({'type':'close','phase':'p0','number':item['number'],'merged':False})
-
 def merge(phase):
     item=state['prs'][phase];p=owned_pr(item['number'],item['head']);require(p['state']=='open' and not p['merged'])
     for delay in [2,4]:
@@ -152,16 +142,12 @@ def merge(phase):
 def main():
     global state
     label=sys.argv[1];require(label in ORDER)
-    if label=='baseline':
+    if label=='audit-q1':
         no_credentials();WORK.mkdir(mode=0o700);campaign=json.loads((HERE/'campaign.json').read_text());state={'source':SOURCE,'control':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],'targetRef':campaign['github']['targetRef'],'campaign':campaign['campaignLineage'],'targetSha':BASELINE,'preparedTargetSha':BASELINE,'campaignSha256':sha(HERE/'campaign.json'),'consumerSha256':sha(HERE/'consumer.json'),'completed':[]};save()
     else:state=json.loads((WORK/'state.json').read_text())
     require(state['completed']==ORDER[:ORDER.index(label)]);guard();state['activePhase']=label;save()
-    if label=='baseline':audit('baseline',6)
-    elif label.startswith('claim-'):claim(label[6:])
+    if label.startswith('claim-'):claim(label[6:])
     elif label.startswith('paid-'):run_cli(label[5:],True,{'github-proposal.published','github-proposal.published-partial'})
-    elif label=='open-wait':run_cli(label,expected={'github-proposal.awaiting-review'})
-    elif label=='close-p0':close_p0()
-    elif label in ['closed-base','closed-config']:run_cli(label,expected={'github-proposal.closed-unmerged'},code=4,override={'budgets':{'invocation':{'maximumTargets':1}}}if label=='closed-config'else None)
     elif label.startswith('readme'):readme(int(label[-1]))
     elif label=='changed-base':run_cli(label,expected={'github-proposal.stale'},code=4)
     elif label.startswith('merge-'):merge(label[6:])

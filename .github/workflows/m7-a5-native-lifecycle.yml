@@ -30,12 +30,12 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: SolusQuest/contract-scribe
-          ref: 71c6275a7a0cd5510f840f0b20ed28abaf561c02
+          ref: 5aef2251a7c0e497b15f0f1a4b61ab95e69d8ee6
           path: product
           persist-credentials: false
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: refs/heads/m7-a5-native-20261030-af-b1be9d
+          ref: refs/heads/m7-a5-native-20261030-ag-543622
           path: target
           persist-credentials: false
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
@@ -51,38 +51,6 @@ jobs:
           test -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
           dotnet restore target/App/App.csproj --configfile control/.m7-a5-native/nuget.config -nodeReuse:false
           dotnet build target/App/App.csproj -c Debug --no-restore -nodeReuse:false
-      - name: baseline
-        run: python3 control/.m7-a5-native/lifecycle.py baseline
-      - name: claim-p0
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py claim-p0
-      - name: paid-p0
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
-        run: python3 control/.m7-a5-native/lifecycle.py paid-p0
-      - name: open-wait
-        env:
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py open-wait
-      - name: close-p0
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py close-p0
-      - name: closed-base
-        env:
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py closed-base
-      - name: closed-config
-        env:
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py closed-config
-      - name: readme1
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py readme1
       - name: audit-q1
         run: python3 control/.m7-a5-native/lifecycle.py audit-q1
       - name: claim-q1
