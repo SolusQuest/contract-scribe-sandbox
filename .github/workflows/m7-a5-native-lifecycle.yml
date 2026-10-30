@@ -30,12 +30,12 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: SolusQuest/contract-scribe
-          ref: 5aef2251a7c0e497b15f0f1a4b61ab95e69d8ee6
+          ref: 0d2fafd5af9261c3fa04199663d4590a507c3224
           path: product
           persist-credentials: false
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: refs/heads/m7-a5-native-20261030-ag-543622
+          ref: refs/heads/m7-a5-native-20261030-ah-db1c6b
           path: target
           persist-credentials: false
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1

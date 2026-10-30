@@ -1,10 +1,10 @@
 """Consume one immutable, already-qualified CI artifact; no provider credential."""
 from pathlib import Path
 import hashlib,json,os,subprocess,sys,zipfile,stat
-SOURCE='5aef2251a7c0e497b15f0f1a4b61ab95e69d8ee6'
-ARTIFACT=12950083461
-DIGEST='4fb1f031aee6185222c99f36e5d33dddd63ded538cfd29de7ed34736dedb7c33'
-SIZE=12336533
+SOURCE='0d2fafd5af9261c3fa04199663d4590a507c3224'
+ARTIFACT=12953747859
+DIGEST='a21fa1ea51a4fa1e26ef648b449f03f58c75cb2c3b9e357e4b5856df58902312'
+SIZE=12337093
 
 def require(x):
     if not x:raise ValueError('qualified payload rejected')
@@ -25,7 +25,7 @@ try:
     sys.dont_write_bytecode=True;sys.path.insert(0,str(product/'scripts/action'));import payload_extract,install
     report=payload_extract._extract(str(tar),str(root/'installed'),None);require(report['ok']);top=root/'installed'/report['top'];m=install.verify_inventory(str(top))
     require(m['sourceRevision']==SOURCE and m['cleanCheckout'] is True and m['runtimeIdentifier']=='linux-x64' and m['targetFramework']=='net10.0' and m['entrypoint']=='ContractScribe.Cli.dll')
-    cli=top/'ContractScribe.Cli.dll';record={'source':SOURCE,'CI':40993655432,'attempt':1,'artifact':ARTIFACT,'zipSha256':DIGEST,'archiveSha256':hashlib.sha256(tar.read_bytes()).hexdigest(),'cliSha256':hashlib.sha256(cli.read_bytes()).hexdigest(),'toolVersion':m['toolVersion'],'directArtifactGETAttempts':1}
+    cli=top/'ContractScribe.Cli.dll';record={'source':SOURCE,'CI':41001672067,'attempt':1,'artifact':ARTIFACT,'zipSha256':DIGEST,'archiveSha256':hashlib.sha256(tar.read_bytes()).hexdigest(),'cliSha256':hashlib.sha256(cli.read_bytes()).hexdigest(),'toolVersion':m['toolVersion'],'directArtifactGETAttempts':1}
     Path('payload-verified.json').write_text(json.dumps(record,indent=2)+'\n')
     with open(os.environ['GITHUB_ENV'],'a')as f:f.write('LIFE_CLI='+str(cli)+'\nLIFE_CLI_SHA256='+record['cliSha256']+'\n')
     print('Original current-source CI payload downloaded once and inventory verified; no executable/model invocation yet.')
