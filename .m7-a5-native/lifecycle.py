@@ -7,7 +7,7 @@ REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'q1':'69','q2':'70','q3':'71'}
+SLOTS={'q1':'69','q2':'72','q3':'73'}
 ORDER=['audit-q1', 'claim-q1', 'paid-q1', 'readme2', 'changed-base', 'merge-q1', 'audit-q2', 'claim-q2', 'paid-q2', 'merge-q2', 'audit-q3', 'claim-q3', 'paid-q3', 'merge-q3', 'audit-final', 'final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
@@ -125,19 +125,30 @@ def verify_proposal(item):
     added=[k for k,v in new.items()if v and not old[k]];require(len(added)==2 and all(k.startswith('Method')for k in added));require(all(new[k]==v for k,v in old.items()if v))
     item['actualAddedDocumentationMethods']=added;save();event({'type':'proposal-source','head':item['head'],'onlyXMLDocumentation':True,'addedMethods':added})
 
+def confirm_merge(item,merged,previous,fetch=True):
+    require(re.fullmatch('[0-9a-f]{40}',merged) is not None)
+    if fetch:git(['fetch','--no-tags','--no-write-fetch-head','https://github.com/'+REPO+'.git',state['targetRef']+':refs/lifecycle/target'],network=True)
+    require(git(['rev-parse','refs/lifecycle/target']).stdout.decode().strip()==merged)
+    require(git(['show','-s','--format=%P',merged]).stdout.decode().split()==[previous,item['head']])
+    expected=git(['merge-tree','--write-tree',previous,item['head']]).stdout.decode().strip()
+    require(re.fullmatch('[0-9a-f]{40}',expected) is not None and git(['show','-s','--format=%T',merged]).stdout.decode().strip()==expected)
+    require(git(['diff','--name-only',previous,merged]).stdout.decode().splitlines()==['App/App.cs'])
+    require(git(['show',merged+':App/App.cs']).stdout==git(['show',item['head']+':App/App.cs']).stdout)
+    git(['checkout','--detach',merged]);state['targetSha']=merged;item['merge']=merged;save();event({'type':'merge','phase':item['phase'],'number':item['number'],'head':item['head'],'actualMerge':merged,'targetIndependentlyFetched':True,'exactParentsAndTree':True,'deprecatedPRFieldRead':False})
+
 def merge(phase):
-    item=state['prs'][phase];p=owned_pr(item['number'],item['head']);require(p['state']=='open' and not p['merged'])
+    item=state['prs'][phase];item['phase']=phase;p=owned_pr(item['number'],item['head']);require(p['state']=='open' and not p['merged'])
     for delay in [2,4]:
         if p.get('mergeable') is not None:break
         time.sleep(delay);p=owned_pr(item['number'],item['head'])
     require(p.get('mergeable') is True)
-    verify_proposal(item)
+    verify_proposal(item);previous=head()
     if p['draft']:
         query='mutation($id:ID!){markPullRequestReadyForReview(input:{pullRequestId:$id}){pullRequest{id isDraft headRefOid}}}'
         value=api('graphql','POST',{'query':query,'variables':{'id':item['node']}})['data']['markPullRequestReadyForReview']['pullRequest'];require(value['id']==item['node'] and value['isDraft'] is False and value['headRefOid']==item['head'])
     result=api(f'repos/{REPO}/pulls/{item["number"]}/merge','PUT',{'sha':item['head'],'merge_method':'merge'});require(result.get('merged')is True and re.fullmatch('[0-9a-f]{40}',result.get('sha','')))
-    final=owned_pr(item['number'],item['head']);require(final['merged']is True and final['state']=='closed' and final['merge_commit_sha']==result['sha'])
-    git(['fetch','--no-tags','--no-write-fetch-head','https://github.com/'+REPO+'.git',state['targetRef']+':refs/lifecycle/target'],network=True);require(git(['rev-parse','refs/lifecycle/target']).stdout.decode().strip()==result['sha']);git(['checkout','--detach',result['sha']]);state['targetSha']=result['sha'];item['merge']=result['sha'];save();event({'type':'merge','phase':phase,'number':item['number'],'head':item['head'],'actualMerge':result['sha'],'targetIndependentlyFetched':True})
+    item['actualMergeACK']={'sha':result['sha'],'previousTarget':previous,'expectedHead':item['head'],'merged':True};save()
+    confirm_merge(item,result['sha'],previous)
 
 def main():
     global state

@@ -51,30 +51,10 @@ jobs:
           test -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}${CONTRACTSCRIBE_GITHUB_TOKEN:-}${CONTRACTSCRIBE_PROVIDER_API_KEY:-}"
           dotnet restore target/App/App.csproj --configfile control/.m7-a5-native/nuget.config -nodeReuse:false
           dotnet build target/App/App.csproj -c Debug --no-restore -nodeReuse:false
-      - name: audit-q1
-        run: python3 control/.m7-a5-native/lifecycle.py audit-q1
-      - name: claim-q1
+      - name: Restore original successful Q1 evidence and independently confirm its existing merge
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py claim-q1
-      - name: paid-q1
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-          CONTRACTSCRIBE_PROVIDER_API_KEY: ${{ secrets.M7_A5_DEEPSEEK_KEY }}
-        run: python3 control/.m7-a5-native/lifecycle.py paid-q1
-      - name: readme2
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py readme2
-      - name: changed-base
-        env:
-          CONTRACTSCRIBE_GITHUB_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py changed-base
-      - name: merge-q1
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 control/.m7-a5-native/lifecycle.py merge-q1
+        run: python3 control/.m7-a5-native/restore.py
       - name: audit-q2
         run: python3 control/.m7-a5-native/lifecycle.py audit-q2
       - name: claim-q2
