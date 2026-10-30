@@ -7,7 +7,7 @@ REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'q1':'69','q2':'72','q3':'73'}
+SLOTS={'q1':'69','q2':'74','q3':'75'}
 ORDER=['audit-q1', 'claim-q1', 'paid-q1', 'readme2', 'changed-base', 'merge-q1', 'audit-q2', 'claim-q2', 'paid-q2', 'merge-q2', 'audit-q3', 'claim-q3', 'paid-q3', 'merge-q3', 'audit-final', 'final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
@@ -129,9 +129,12 @@ def confirm_merge(item,merged,previous,fetch=True):
     require(re.fullmatch('[0-9a-f]{40}',merged) is not None)
     if fetch:git(['fetch','--no-tags','--no-write-fetch-head','https://github.com/'+REPO+'.git',state['targetRef']+':refs/lifecycle/target'],network=True)
     require(git(['rev-parse','refs/lifecycle/target']).stdout.decode().strip()==merged)
-    require(git(['show','-s','--format=%P',merged]).stdout.decode().split()==[previous,item['head']])
+    raw=git(['cat-file','commit',merged]).stdout;require(0<len(raw)<=65536)
+    headers=raw.split(b'\n\n',1)[0].splitlines();parents=[line[7:].decode('ascii')for line in headers if line.startswith(b'parent ')]
+    require(parents==[previous,item['head']] and headers[0].startswith(b'tree '))
+    actual_tree=headers[0][5:].decode('ascii');require(re.fullmatch('[0-9a-f]{40}',actual_tree) is not None)
     expected=git(['merge-tree','--write-tree',previous,item['head']]).stdout.decode().strip()
-    require(re.fullmatch('[0-9a-f]{40}',expected) is not None and git(['show','-s','--format=%T',merged]).stdout.decode().strip()==expected)
+    require(re.fullmatch('[0-9a-f]{40}',expected) is not None and actual_tree==expected)
     require(git(['diff','--name-only',previous,merged]).stdout.decode().splitlines()==['App/App.cs'])
     require(git(['show',merged+':App/App.cs']).stdout==git(['show',item['head']+':App/App.cs']).stdout)
     git(['checkout','--detach',merged]);state['targetSha']=merged;item['merge']=merged;save();event({'type':'merge','phase':item['phase'],'number':item['number'],'head':item['head'],'actualMerge':merged,'targetIndependentlyFetched':True,'exactParentsAndTree':True,'deprecatedPRFieldRead':False})
