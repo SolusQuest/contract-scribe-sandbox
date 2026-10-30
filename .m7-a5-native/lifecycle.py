@@ -7,7 +7,7 @@ REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'p0':'48','q1':'55','q2':'56','q3':'57'}
+SLOTS={'p0':'58','q1':'59','q2':'60','q3':'61'}
 ORDER=['baseline','claim-p0','paid-p0','open-wait','close-p0','closed-base','closed-config','readme1','audit-q1','claim-q1','paid-q1','readme2','changed-base','merge-q1','audit-q2','claim-q2','paid-q2','merge-q2','audit-q3','claim-q3','paid-q3','merge-q3','audit-final','final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])
@@ -153,7 +153,7 @@ def main():
     global state
     label=sys.argv[1];require(label in ORDER)
     if label=='baseline':
-        no_credentials();WORK.mkdir(mode=0o700);campaign=json.loads((HERE/'campaign.json').read_text());state={'source':SOURCE,'control':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],'targetRef':campaign['github']['targetRef'],'campaign':campaign['campaignLineage'],'targetSha':BASELINE,'campaignSha256':sha(HERE/'campaign.json'),'consumerSha256':sha(HERE/'consumer.json'),'completed':[]};save()
+        no_credentials();WORK.mkdir(mode=0o700);campaign=json.loads((HERE/'campaign.json').read_text());state={'source':SOURCE,'control':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],'targetRef':campaign['github']['targetRef'],'campaign':campaign['campaignLineage'],'targetSha':BASELINE,'preparedTargetSha':BASELINE,'campaignSha256':sha(HERE/'campaign.json'),'consumerSha256':sha(HERE/'consumer.json'),'completed':[]};save()
     else:state=json.loads((WORK/'state.json').read_text())
     require(state['completed']==ORDER[:ORDER.index(label)]);guard();state['activePhase']=label;save()
     if label=='baseline':audit('baseline',6)
