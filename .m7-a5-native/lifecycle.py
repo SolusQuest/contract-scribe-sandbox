@@ -1,13 +1,13 @@
 """One synthetic consumer lifecycle. Product behavior remains in the pinned CLI."""
 from pathlib import Path
 import base64,collections,hashlib,json,os,re,subprocess,sys,time
-SOURCE='dd5fa0384076bedbde5ec0cdba6bae5a5e50c381'
+SOURCE='71c6275a7a0cd5510f840f0b20ed28abaf561c02'
 BASELINE='45a382b2fc49a1a6f16a7015a4981b4a2386f5db'
 REPO='SolusQuest/contract-scribe-sandbox'
 HERE=Path(__file__).resolve().parent
 WORK=Path(os.environ['RUNNER_TEMP'])/'m7-native-lifecycle'
 TARGET=Path('target').resolve()
-SLOTS={'p0':'58','q1':'59','q2':'60','q3':'61'}
+SLOTS={'p0':'62','q1':'63','q2':'64','q3':'65'}
 ORDER=['baseline','claim-p0','paid-p0','open-wait','close-p0','closed-base','closed-config','readme1','audit-q1','claim-q1','paid-q1','readme2','changed-base','merge-q1','audit-q2','claim-q2','paid-q2','merge-q2','audit-q3','claim-q3','paid-q3','merge-q3','audit-final','final-noop']
 METHODS=[f'M:M7Observation.Operations.Method{i:02d}' for i in range(12)]
 IDENTITIES=set(METHODS+['T:M7Observation.Operations'])

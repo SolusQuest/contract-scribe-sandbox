@@ -1,9 +1,9 @@
 {
   "githubCampaignVersion": 1,
-  "campaignLineage": "campaign.m7.a5.native.20261030.ae.6da5c6",
+  "campaignLineage": "campaign.m7.a5.native.20261030.af.b1be9d",
   "github": {
     "repositoryOwner": "SolusQuest",
     "repositoryName": "contract-scribe-sandbox",
-    "targetRef": "refs/heads/m7-a5-native-20261030-ae-6da5c6"
+    "targetRef": "refs/heads/m7-a5-native-20261030-af-b1be9d"
   }
 }
