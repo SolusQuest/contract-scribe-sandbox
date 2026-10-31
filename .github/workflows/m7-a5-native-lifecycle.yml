@@ -1,5 +1,5 @@
 name: M7 bounded native lifecycle
-run-name: M7 final main 883ab1f full lifecycle
+run-name: M7 postmerge main 1ffb2e3 full lifecycle
 on:
   workflow_dispatch:
     inputs:
@@ -30,12 +30,12 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: SolusQuest/contract-scribe
-          ref: 883ab1fc2788b3963d66bc170b97c5ac13ab6cdc
+          ref: 1ffb2e395ac25fa07d7383b88842a66e3330a67e
           path: product
           persist-credentials: false
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: refs/heads/m7-a5-main-20261030-aj
+          ref: refs/heads/m7-a5-main-20261031-ak
           path: target
           persist-credentials: false
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
